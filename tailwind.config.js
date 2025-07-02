@@ -1,0 +1,87 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          50: '#EBF5FF',
+          100: '#E1EFFE',
+          200: '#C3DDFD',
+          300: '#A4CAFE',
+          400: '#76A9FA',
+          500: '#3F83F8',
+          600: '#1E3A8A',
+          700: '#1E40AF',
+          800: '#1E3A8A',
+          900: '#1E3A8A',
+        },
+        secondary: {
+          50: '#EDFAFA',
+          100: '#D5F5F6',
+          200: '#AFECEF',
+          300: '#7EDCE2',
+          400: '#16BDCA',
+          500: '#0D9488',
+          600: '#0694A2',
+          700: '#047481',
+          800: '#036672',
+          900: '#05505C',
+        },
+        dark: {
+          100: '#d5d5d5',
+          200: '#aaaaaa',
+          300: '#808080',
+          400: '#555555',
+          500: '#2b2b2b',
+          600: '#222222',
+          700: '#1a1a1a',
+          800: '#111111',
+          900: '#080808',
+        },
+      },
+      fontFamily: {
+        sans: [
+          'Inter',
+          'ui-sans-serif',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Roboto',
+          'Helvetica Neue',
+          'Arial',
+          'sans-serif',
+        ],
+        mono: [
+          'Fira Code',
+          'JetBrains Mono',
+          'ui-monospace',
+          'SFMono-Regular',
+          'Menlo',
+          'Monaco',
+          'Consolas',
+          'Liberation Mono',
+          'Courier New',
+          'monospace',
+        ],
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-in-out',
+        'slide-up': 'slideUp 0.5s ease-out',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+      },
+    },
+  },
+  plugins: [],
+  darkMode: 'class',
+};
