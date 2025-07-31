@@ -10,7 +10,7 @@ export const skills: Skill[] = [
   {
     id: 2,
     name: 'PostgreSQL',
-    level: 5,
+    level: 4,
     category: 'database',
   },
   {
@@ -26,39 +26,28 @@ export const skills: Skill[] = [
     category: 'devops',
   },
   {
-    id: 5,
-    name: 'Kubernetes',
-    level: 3,
-    category: 'devops',
-  },
-  {
     id: 6,
     name: 'gRPC',
-    level: 4,
+    level: 3,
     category: 'backend',
   },
   {
     id: 7,
     name: 'Microservices',
-    level: 4,
+    level: 2,
     category: 'backend',
   },
   {
     id: 8,
     name: 'CI/CD',
-    level: 4,
-    category: 'devops',
-  },
-  {
-    id: 9,
-    name: 'AWS',
     level: 3,
     category: 'devops',
   },
+  
   {
     id: 10,
     name: 'Redis',
-    level: 4,
+    level: 3,
     category: 'database',
   },
   {
@@ -66,11 +55,5 @@ export const skills: Skill[] = [
     name: 'Git',
     level: 5,
     category: 'other',
-  },
-  {
-    id: 12,
-    name: 'GraphQL',
-    level: 3,
-    category: 'backend',
   },
 ];

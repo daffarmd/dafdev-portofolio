@@ -6,15 +6,26 @@ export interface Project {
   image?: string;
   link?: string;
   github?: string;
+  isPrivate: boolean;
+  resources?: {
+    type: 'website' | 'app' | 'docs';
+    url: string;
+  }[];
+
+}
+
+export interface Role {
+  title: string;
+  duration: string;
+  description: string[];
 }
 
 export interface Experience {
   id: number;
   company: string;
-  position: string;
-  duration: string;
-  description: string[];
+  roles: Role[];
 }
+
 
 export interface Skill {
   id: number;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { projects } from '../../data/projects';
-import { ExternalLink, Github } from 'lucide-react';
+import { ExternalLink, Github, Lock, ShieldCheck } from 'lucide-react';
 
 const Projects: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -12,11 +12,26 @@ const Projects: React.FC = () => {
     ? projects.filter(project => project.technologies.includes(activeFilter))
     : projects;
 
+  const renderResourceIcon = (type: string) => {
+    switch (type) {
+      case 'website':
+        return <ExternalLink className="h-5 w-5 mr-2" />;
+      case 'app':
+        return <ExternalLink className="h-5 w-5 mr-2" />;
+      case 'docs':
+        return <ExternalLink className="h-5 w-5 mr-2" />;
+      default:
+        return null;
+    }
+  };
+
+  const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+
   return (
     <section id="projects" className="py-20 bg-gray-50 dark:bg-dark-900">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <motion.h2 
+          <motion.h2
             className="text-3xl md:text-4xl font-bold text-dark-900 dark:text-white mb-4"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -25,14 +40,14 @@ const Projects: React.FC = () => {
           >
             Featured Projects
           </motion.h2>
-          <motion.div 
+          <motion.div
             className="w-20 h-1 bg-primary-600 dark:bg-primary-400 mx-auto mb-6"
             initial={{ opacity: 0, width: 0 }}
             whileInView={{ opacity: 1, width: 80 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             viewport={{ once: true }}
           ></motion.div>
-          <motion.p 
+          <motion.p
             className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto mb-8"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -41,7 +56,7 @@ const Projects: React.FC = () => {
           >
             A selection of my recent backend development work showcasing my expertise in Go, PostgreSQL, and related technologies.
           </motion.p>
-          
+
           <div className="flex flex-wrap justify-center gap-3 mb-10">
             {filterOptions.map((filter) => (
               <motion.button
@@ -61,7 +76,7 @@ const Projects: React.FC = () => {
           </div>
         </div>
 
-        <motion.div 
+        <motion.div
           className="grid grid-cols-1 md:grid-cols-2 gap-8"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -87,14 +102,30 @@ const Projects: React.FC = () => {
                   />
                 </div>
               )}
-              
+
               <div className="p-6">
-                <h3 className="text-xl font-bold text-dark-900 dark:text-white mb-3">{project.title}</h3>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xl font-bold text-dark-900 dark:text-white">{project.title}</h3>
+                  <div className="flex items-center space-x-1 text-xs font-semibold">
+                    {project.isPrivate ? (
+                      <span className="flex items-center text-red-500">
+                        <Lock className="w-4 h-4 mr-1" />
+                        Private
+                      </span>
+                    ) : (
+                      <span className="flex items-center text-green-600">
+                        <ShieldCheck className="w-4 h-4 mr-1" />
+                        Public
+                      </span>
+                    )}
+                  </div>
+                </div>
+
                 <p className="text-gray-700 dark:text-gray-300 mb-6">{project.description}</p>
-                
+
                 <div className="flex flex-wrap gap-2 mb-6">
                   {project.technologies.map((tech) => (
-                    <span 
+                    <span
                       key={tech}
                       className="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300"
                     >
@@ -102,9 +133,9 @@ const Projects: React.FC = () => {
                     </span>
                   ))}
                 </div>
-                
-                <div className="flex justify-start space-x-4">
-                  {project.github && (
+
+                <div className="flex flex-wrap gap-4">
+                  {!project.isPrivate && project.github && (
                     <a
                       href={project.github}
                       target="_blank"
@@ -112,20 +143,23 @@ const Projects: React.FC = () => {
                       className="flex items-center text-dark-800 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                     >
                       <Github className="h-5 w-5 mr-2" />
-                      <span>Code</span>
+                      <span>Source Code</span>
                     </a>
                   )}
-                  {project.link && (
-                    <a
-                      href={project.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center text-dark-800 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-                    >
-                      <ExternalLink className="h-5 w-5 mr-2" />
-                      <span>Demo</span>
-                    </a>
-                  )}
+
+                  {project.isPrivate &&
+                    project.resources?.map((res) => (
+                      <a
+                        key={res.type}
+                        href={res.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center text-dark-800 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                      >
+                        {renderResourceIcon(res.type)}
+                        <span>{capitalize(res.type)}</span>
+                      </a>
+                    ))}
                 </div>
               </div>
             </motion.div>

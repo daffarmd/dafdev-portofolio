@@ -49,18 +49,23 @@ const Experience: React.FC = () => {
                   index % 2 === 0 ? 'md:ml-auto md:pl-12' : 'md:mr-auto md:pr-12'
                 } pb-8`}>
                   <div className="bg-gray-50 dark:bg-dark-700 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                    <div className="flex flex-wrap items-center justify-between mb-2">
-                      <h3 className="text-xl font-bold text-dark-900 dark:text-white">{exp.position}</h3>
-                      <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200">
-                        {exp.duration}
-                      </span>
-                    </div>
-                    <h4 className="text-lg font-medium text-primary-600 dark:text-primary-400 mb-4">{exp.company}</h4>
-                    <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                      {exp.description.map((item, i) => (
-                        <li key={i}>{item}</li>
-                      ))}
-                    </ul>
+                    <h4 className="text-lg font-medium text-primary-600 dark:text-primary-400 mb-2">{exp.company}</h4>
+
+                    {exp.roles.map((role, i) => (
+                      <div key={i} className="mb-4">
+                        <div className="flex flex-wrap items-center justify-between mb-1">
+                          <h3 className="text-md font-bold text-dark-900 dark:text-white">{role.title}</h3>
+                          <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200">
+                            {role.duration}
+                          </span>
+                        </div>
+                        <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300 ml-4">
+                          {role.description.map((item, j) => (
+                            <li key={j}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </motion.div>
