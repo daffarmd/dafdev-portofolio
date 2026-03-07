@@ -144,13 +144,11 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
 
   const t = language === 'id'
     ? {
-        kicker: 'Backend Developer',
         shortInfo: 'Membuat apapun yang bisa di buat.',
         stackInfo: '',
         aboutBtn: 'Lihat About',
       }
     : {
-        kicker: 'Backend Developer',
         shortInfo: 'Make anything that can be made.',
         stackInfo: '',
         aboutBtn: 'Open About',
@@ -192,16 +190,7 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
             transformStyle: 'preserve-3d',
           }}
         >
-          <motion.div variants={HERO_ITEM_VARIANTS} className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/80 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.3)] backdrop-blur-sm dark:border-slate-700 dark:bg-dark-800/80 dark:text-slate-300">
-            <motion.span
-              className="h-2.5 w-2.5 rounded-full bg-emerald-500"
-              animate={{ scale: [1, 1.35, 1], opacity: [0.65, 1, 0.65] }}
-              transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            {t.kicker}
-          </motion.div>
-
-          <motion.h1 variants={HERO_ITEM_VARIANTS} className="mt-5 min-h-[60px] text-[2rem] font-extrabold tracking-tight text-slate-900 sm:mt-6 sm:min-h-[72px] sm:text-4xl md:min-h-[88px] md:text-6xl dark:text-white">
+          <motion.h1 variants={HERO_ITEM_VARIANTS} className="min-h-[60px] text-[2rem] font-extrabold tracking-tight text-slate-900 sm:min-h-[72px] sm:text-4xl md:min-h-[88px] md:text-6xl dark:text-white">
             {typedName}
             <span className="caret-blink ml-1 inline-block h-[0.95em] w-[2px] bg-slate-900 align-[-0.08em] dark:bg-white"></span>
           </motion.h1>
