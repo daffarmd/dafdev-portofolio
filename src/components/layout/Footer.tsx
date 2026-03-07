@@ -1,6 +1,8 @@
 import React from 'react';
-import { Github, Linkedin, Mail, Code2, ArrowUpRight } from 'lucide-react';
+import { Github, Linkedin, Mail, ArrowUpRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import type { Language } from '../../types';
+import meImage from '../../assets/me.png';
 
 interface FooterProps {
   language: Language;
@@ -25,9 +27,19 @@ const Footer: React.FC<FooterProps> = ({ language }) => {
       <div className="mx-auto w-full max-w-[1080px] border-t border-slate-200/80 px-4 pt-8 dark:border-slate-700 sm:px-6 sm:pt-10 md:px-8">
         <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
           <div className="flex items-center">
-            <div className="rounded-xl border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-dark-800">
-              <Code2 className="h-5 w-5 text-slate-800 dark:text-slate-100" />
-            </div>
+            <motion.div
+              className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-dark-800 sm:rounded-2xl"
+              animate={{ y: [0, -2, 0], rotate: [-1, 1, -1] }}
+              transition={{ duration: 4.6, repeat: Infinity, ease: 'easeInOut' }}
+              whileHover={{ scale: 1.04, rotate: 0 }}
+            >
+              <motion.img
+                src={meImage}
+                alt="Daf Dev logo"
+                className="h-10 w-10 object-cover"
+                whileHover={{ scale: 1.06 }}
+              />
+            </motion.div>
             <span className="ml-3 text-lg font-bold text-slate-900 sm:text-xl dark:text-white">
               Daf.Dev
             </span>

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink, NavLink, useLocation } from 'react-router-dom';
-import { Menu, X, Moon, Sun, Code2, BookOpen, ArrowUpRight } from 'lucide-react';
+import { Menu, X, Moon, Sun, BookOpen, ArrowUpRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import meImage from '../../assets/me.png';
 
 interface HeaderProps {
   darkMode: boolean;
@@ -48,9 +50,19 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
         }`}
       >
         <RouterLink to="/" className="flex items-center">
-          <div className="rounded-xl border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-dark-800 sm:p-2.5">
-            <Code2 className="h-4 w-4 text-slate-800 dark:text-slate-100 sm:h-5 sm:w-5" />
-          </div>
+          <motion.div
+            className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-dark-800 sm:rounded-2xl"
+            animate={{ y: [0, -2, 0], rotate: [-1, 1, -1] }}
+            transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
+            whileHover={{ scale: 1.04, rotate: 0 }}
+          >
+            <motion.img
+              src={meImage}
+              alt="Daf Dev logo"
+              className="h-10 w-10 object-cover sm:h-11 sm:w-11"
+              whileHover={{ scale: 1.06 }}
+            />
+          </motion.div>
           <span className="ml-2.5 text-base font-bold tracking-tight text-slate-900 sm:ml-3 sm:text-xl dark:text-white">
             Daf.Dev
           </span>
