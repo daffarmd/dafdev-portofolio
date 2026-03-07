@@ -1,59 +1,79 @@
 import React from 'react';
-import { Github, Linkedin, Twitter, Mail, Code } from 'lucide-react';
+import { Github, Linkedin, Mail, Code2, ArrowUpRight } from 'lucide-react';
+import type { Language } from '../../types';
 
-const Footer: React.FC = () => {
+interface FooterProps {
+  language: Language;
+}
+
+const Footer: React.FC<FooterProps> = ({ language }) => {
   const currentYear = new Date().getFullYear();
+  const t = language === 'id'
+    ? {
+        rights: `(c) ${currentYear} Daf Dev. Seluruh hak cipta dilindungi.`,
+        collaboration: 'Terbuka untuk kolaborasi',
+        built: 'Dibangun dengan React, Tailwind CSS, dan mindset backend-first.',
+      }
+    : {
+        rights: `(c) ${currentYear} Daf Dev. All rights reserved.`,
+        collaboration: 'Open to collaboration',
+        built: 'Built with React, Tailwind CSS, and a backend-first mindset.',
+      };
 
   return (
-    <footer className="bg-white dark:bg-dark-900 py-8 border-t border-gray-200 dark:border-dark-700">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="flex items-center mb-6 md:mb-0">
-            <Code className="h-6 w-6 text-primary-600 dark:text-primary-400" />
-            <span className="ml-2 text-xl font-bold text-dark-800 dark:text-white">
-              Daf.<span className="text-primary-600 dark:text-primary-400">Dev</span>
+    <footer className="bg-white/40 py-10 backdrop-blur dark:bg-dark-900/80">
+      <div className="mx-auto w-full max-w-[1080px] border-t border-slate-200/80 px-6 pt-10 dark:border-slate-700 md:px-8">
+        <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+          <div className="flex items-center">
+            <div className="rounded-xl border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-dark-800">
+              <Code2 className="h-5 w-5 text-slate-800 dark:text-slate-100" />
+            </div>
+            <span className="ml-3 text-xl font-bold text-slate-900 dark:text-white">
+              Daf.Dev
             </span>
           </div>
-          
-          <div className="flex space-x-6 mb-6 md:mb-0">
+
+          <div className="flex items-center gap-3">
             <a
-              href="#"
-              className="text-dark-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+              href="https://github.com/daffarmd"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full border border-slate-300 bg-white p-2.5 text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-300 dark:hover:border-slate-400 dark:hover:text-white"
               aria-label="GitHub"
             >
               <Github className="h-5 w-5" />
             </a>
             <a
               href="https://www.linkedin.com/in/muhammaddaffaramadhan/"
-              className="text-dark-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full border border-slate-300 bg-white p-2.5 text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-300 dark:hover:border-slate-400 dark:hover:text-white"
               aria-label="LinkedIn"
             >
               <Linkedin className="h-5 w-5" />
             </a>
             <a
-              href="#"
-              className="text-dark-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-              aria-label="Twitter"
-            >
-              <Twitter className="h-5 w-5" />
-            </a>
-            <a
-              href="mailto:john.doe@example.com"
-              className="text-dark-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+              href="mailto:muhammaddaffarmd@gmail.com"
+              className="rounded-full border border-slate-300 bg-white p-2.5 text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-300 dark:hover:border-slate-400 dark:hover:text-white"
               aria-label="Email"
             >
               <Mail className="h-5 w-5" />
             </a>
           </div>
         </div>
-        
-        <div className="mt-8 pt-8 border-t border-gray-200 dark:border-dark-700">
-          <p className="text-center text-gray-600 dark:text-gray-400 text-sm">
-            © {currentYear} Daf Dev. All rights reserved.
-          </p>
-          <p className="text-center text-gray-500 dark:text-gray-500 text-xs mt-2">
-            Built with Love, Time, and Effort
-          </p>
+
+        <div className="mt-8 border-t border-slate-200 pt-8 dark:border-slate-700">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <p className="text-sm text-slate-600 dark:text-slate-400">{t.rights}</p>
+            <a
+              href="mailto:muhammaddaffarmd@gmail.com"
+              className="inline-flex items-center text-sm font-semibold text-slate-700 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
+            >
+              {t.collaboration}
+              <ArrowUpRight className="ml-1.5 h-4 w-4" />
+            </a>
+          </div>
+          <p className="mt-3 text-xs text-slate-500 dark:text-slate-500">{t.built}</p>
         </div>
       </div>
     </footer>

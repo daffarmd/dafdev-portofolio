@@ -1,15 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply overflow-x-hidden bg-slate-50 text-slate-900 antialiased dark:bg-dark-900 dark:text-slate-100;
+    background-image:
+      radial-gradient(circle at top, rgba(42, 150, 255, 0.12), transparent 32%),
+      radial-gradient(circle at right top, rgba(15, 166, 174, 0.1), transparent 24%),
+      linear-gradient(180deg, #f8fafc 0%, #eef2ff 42%, #f8fafc 100%);
+    background-attachment: fixed;
+  }
+
+  .dark body {
+    background-image:
+      radial-gradient(circle at top, rgba(42, 150, 255, 0.16), transparent 34%),
+      radial-gradient(circle at right top, rgba(15, 166, 174, 0.14), transparent 28%),
+      linear-gradient(180deg, #050816 0%, #080808 44%, #0b1120 100%);
+  }
+
+  ::selection {
+    @apply bg-slate-200 text-slate-900;
+  }
+}
+
 @layer components {
+  .section-shell {
+    @apply relative py-16 sm:py-20 md:py-24;
+  }
+
+  .section-container {
+    @apply mx-auto w-full max-w-[1080px] px-6 md:px-8;
+  }
+
+  .section-title {
+    @apply text-2xl sm:text-3xl md:text-5xl font-display font-bold tracking-tight text-slate-900 dark:text-white;
+  }
+
+  .section-subtitle {
+    @apply mt-4 text-base md:text-lg leading-relaxed text-slate-600 dark:text-slate-300 max-w-2xl;
+  }
+
+  .section-kicker {
+    @apply inline-flex items-center rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 dark:border-slate-600 dark:bg-dark-800 dark:text-slate-300;
+  }
+
+  .glass-card {
+    @apply rounded-2xl border border-slate-200/80 bg-white/90 shadow-[0_18px_50px_-30px_rgba(15,23,42,0.28)] backdrop-blur-sm dark:border-slate-700 dark:bg-dark-800;
+  }
+
+  .soft-grid-bg {
+    background-image: linear-gradient(to right, rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
+    background-position: center;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-slate-800;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition-all hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-600 dark:bg-dark-800 dark:text-slate-200 dark:hover:border-slate-400 dark:hover:bg-dark-700 dark:hover:text-white;
+  }
+
+  .flip-card {
+    perspective: 1000px;
+  }
+
+  .flip-card-inner {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.7s;
+  }
+
+  .group:hover .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .flip-card-inner.is-flipped {
+    transform: rotateY(180deg);
+  }
+
+  .flip-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .flip-back {
+    transform: rotateY(180deg);
+  }
+
   /* Article Detail Styles */
   .article-detail-page {
-    @apply min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-dark-900 dark:to-dark-800 py-12 pt-24;
+    @apply min-h-screen py-12 pt-24;
   }
   
   .article-detail-container {
-    @apply container mx-auto px-4 max-w-4xl;
+    @apply mx-auto w-full max-w-[1080px] px-6 md:px-8;
   }
   
   .back-to-articles {
@@ -256,7 +354,7 @@
   
   /* Not found styles */
   .article-not-found {
-    @apply min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-dark-900 dark:to-dark-800 py-12 pt-24;
+    @apply min-h-screen py-12 pt-24;
   }
   
   .not-found-container {
@@ -289,6 +387,21 @@
 }
 
 @layer utilities {
+  @keyframes caretBlink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .caret-blink {
+    animation: caretBlink 0.9s steps(1, end) infinite;
+  }
+
   /* Line clamp utilities */
   .line-clamp-2 {
     display: -webkit-box;

@@ -1,57 +1,70 @@
-import { Project } from '../types';
-import homfineImage from '../assets/homfine.png'
+import type { Project } from '../types';
 
 export const projects: Project[] = [
-  
   {
     id: 1,
-    title: 'Enterprise H2H Integration - Bank Kalsel',
+    title: 'NDE',
     description:
-      'Developed a secure and scalable host-to-host integration system enabling real-time, financial data exchange between internal systems and third-party banking APIs.',
-    technologies: ['Golang', 'RestApi'],
-    image: 'https://imgs.search.brave.com/W77sdIirm-ShqZ_u7lw_y2KgXNQ2pXSGsd-zqPMuaDw/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pMC53/cC5jb20vZGlhbmlz/YS5jb20vd3AtY29u/dGVudC91cGxvYWRz/LzIwMjQvMDIvTG9n/by1CYW5rLUthbHNl/bC5qcGc_cmVzaXpl/PTEzMDAsODAwJnNz/bD0x',
+      'Backend API for Nota Dinas Elektronik mobile workflows, handling document submission, approval flows, and structured data exchange across internal services.',
+    platforms: ['Mobile', 'Internal System'],
+    availability: ['Production'],
+    technologies: ['Golang', 'REST API', 'PostgreSQL'],
+    highlights: [
+      'Designed API flows for electronic official memo processes',
+      'Built reliable endpoints for approval and document tracking',
+      'Supported mobile integration with internal business services',
+    ],
+    isPrivate: true,
+  },
+  {
+    id: 2,
+    title: 'Insanul Barokah',
+    description:
+      'Backend API for a production mobile application available on App Store and Play Store, powering core app flows and operational data exchange.',
+    platforms: ['iOS', 'Android'],
+    availability: ['App Store', 'Play Store'],
+    technologies: ['Golang', 'REST API', 'PostgreSQL'],
+    highlights: [
+      'Delivered APIs consumed directly by the mobile client',
+      'Structured backend services for stable production usage',
+      'Handled business data exchange between app and core system',
+    ],
+    isPrivate: true,
+  },
+  {
+    id: 3,
+    title: 'Tirtekna',
+    description:
+      'Backend API contribution for Tirtekna mobile product flows, connecting the application layer with business logic and production-ready service endpoints.',
+    platforms: ['Mobile'],
+    availability: ['Live Website'],
+    technologies: ['Golang', 'REST API', 'PostgreSQL'],
+    highlights: [
+      'Exposed API endpoints for mobile-first product features',
+      'Maintained integration between app workflows and backend services',
+      'Supported production delivery with a clean service contract',
+    ],
     isPrivate: true,
     resources: [
       {
-        type: "website",
-        url: "https://www.bankkalsel.web.id/"
-      }
-    ]
+        type: 'website',
+        url: 'https://tirtekna.com/',
+      },
+    ],
   },
-
-  {
-    id: 2,
-    title: 'Cetak Toolbox (Cetak Bukti Bayar)',
-    description:
-      'is a web platform to replace wrong JSON to right JSON, this common issue on Angon Support.',
-    technologies: ['Golang', 'HTMX'],
-    image: 'https://images.pexels.com/photos/4164418/pexels-photo-4164418.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    github: 'https://github.com/fiantyogalihp/agn-cetak-toolbox',
-    isPrivate: false
-  },
-
-   {
-    id: 3,
-    title: 'A Simple JWT Login',
-    description:
-    'A basic authentication service built using Golang that implements secure login functionality with JSON Web Tokens (JWT). Includes password hashing, user authentication, and role-based access control with PostgreSQL and database migration support.',
-    technologies: ['Golang', 'PostgreSQL'],
-    image: 'https://imgs.search.brave.com/B3ea0g6as4Pfs_t-whNo7sYOx0AOwnVusGv0DhzA4Ng/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly90aHVt/YnMuZHJlYW1zdGlt/ZS5jb20vYi9sb2dp/bi11c2VyLXBhc3N3/b3JkLWNvbXB1dGVy/LXNjcmVlbi1waWN0/dXJlLTYyNzU1MjU2/LmpwZw',
-    github: 'https://github.com/daffarmd/jwt-login',
-    isPrivate: false
-
-  },
-
-
   {
     id: 4,
-    title: 'Homfine Finance',
+    title: 'Masjid Dashboard',
     description:
-      'A financial management app that helps you track, plan, and grow your financial assets with ease.',
-    technologies: ['Golang', 'PostgreSQL', 'Svelte', 'Docker'],
-    image: homfineImage,
-    isPrivate: true
-
+      'Fullstack development for a mosque management website, covering the user-facing web platform and the supporting application services behind it.',
+    platforms: ['Web'],
+    availability: ['Live Website'],
+    technologies: ['Golang', 'Web', 'Dashboard', 'PostgreSQL'],
+    highlights: [
+      'Built the website flow together with the backend services it depends on',
+      'Handled application logic for mosque management operations',
+      'Supported stable live deployment for active production usage',
+    ],
+    isPrivate: true,
   },
- 
 ];

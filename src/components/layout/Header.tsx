@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Link as ScrollLink } from 'react-scroll';
-import { Link as RouterLink } from 'react-router-dom';
-import { Menu, X, Moon, Sun, Code, BookOpen } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Link as RouterLink, NavLink, useLocation } from 'react-router-dom';
+import { Menu, X, Moon, Sun, Code2, BookOpen, ArrowUpRight } from 'lucide-react';
 
 interface HeaderProps {
   darkMode: boolean;
@@ -11,150 +10,122 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 10);
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
   const navLinks = [
-    { name: 'Home', to: 'hero', type: 'scroll' },
-    { name: 'About', to: 'about', type: 'scroll' },
-    { name: 'Skills', to: 'skills', type: 'scroll' },
-    { name: 'Experience', to: 'experience', type: 'scroll' },
-    { name: 'Projects', to: 'projects', type: 'scroll' },
-    { name: 'Articles', to: '/articles', type: 'route' },
-    { name: 'Contact', to: 'contact', type: 'scroll' },
+    { name: 'Home', to: '/' },
+    { name: 'About', to: '/about' },
+    { name: 'Showcase', to: '/showcase' },
+    { name: 'Articles', to: '/articles', soon: true },
+    { name: 'Contact', to: '/contact' },
   ];
 
-  return (
-    <header
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled
-          ? 'bg-white dark:bg-dark-800 shadow-md py-4'
-          : 'bg-transparent py-6'
-      }`}
-    >
-      <div className="container mx-auto px-4 flex justify-between items-center">
-        <div className="flex items-center">
-          <RouterLink
-            to="/"
-            className="flex items-center"
-          >
-            <Code className="h-8 w-8 text-primary-600 dark:text-primary-400" />
-            <span className="ml-2 text-2xl font-bold text-dark-800 dark:text-white">
-              Daf.<span className="text-primary-600 dark:text-primary-400">Dev</span>
-            </span>
-          </RouterLink>
-        </div>
+  const navClass = ({ isActive }: { isActive: boolean }) =>
+    `flex items-center text-sm font-semibold tracking-wide transition-colors ${
+      isActive
+        ? 'text-slate-900 dark:text-white'
+        : 'text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
+    }`;
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-8">
+  return (
+    <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${isScrolled ? 'py-3' : 'py-5'}`}>
+      <div
+        className={`mx-auto flex w-full max-w-[1080px] items-center justify-between px-6 md:px-8 ${
+          isScrolled ? 'glass-card rounded-2xl py-3' : 'py-2'
+        }`}
+      >
+        <RouterLink to="/" className="flex items-center">
+          <div className="rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-700 dark:bg-dark-800">
+            <Code2 className="h-5 w-5 text-slate-800 dark:text-slate-100" />
+          </div>
+          <span className="ml-3 text-lg font-bold tracking-tight text-slate-900 sm:text-xl dark:text-white">
+            Daf.Dev
+          </span>
+        </RouterLink>
+
+        <nav className="hidden items-center gap-5 xl:gap-7 lg:flex">
           {navLinks.map((link) => (
-            link.type === 'scroll' ? (
-              <ScrollLink
-                key={link.name}
-                to={link.to}
-                spy={true}
-                smooth={true}
-                offset={-70}
-                duration={500}
-                className="text-dark-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium cursor-pointer transition-colors"
-              >
-                {link.name}
-              </ScrollLink>
-            ) : (
-              <RouterLink
-                key={link.name}
-                to={link.to}
-                className="text-dark-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium cursor-pointer transition-colors flex items-center"
-              >
-                {link.name === 'Articles' && <BookOpen className="h-4 w-4 mr-1" />}
-                {link.name}
-              </RouterLink>
-            )
+            <NavLink key={link.to} to={link.to} className={navClass}>
+              {link.to === '/articles' && <BookOpen className="mr-1 h-4 w-4" />}
+              {link.name}
+              {link.soon && (
+                <span className="ml-2 rounded-full border border-slate-300 bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-300">
+                  Soon
+                </span>
+              )}
+            </NavLink>
           ))}
           <button
             onClick={toggleDarkMode}
-            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors"
+            className="rounded-full border border-slate-200 bg-white p-2.5 text-slate-700 transition-colors hover:border-slate-400 hover:text-slate-900 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-100 dark:hover:border-slate-400 dark:hover:text-white"
             aria-label="Toggle dark mode"
           >
-            {darkMode ? (
-              <Sun className="h-5 w-5 text-yellow-400" />
-            ) : (
-              <Moon className="h-5 w-5 text-dark-700" />
-            )}
+            {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </button>
+          <RouterLink to="/contact" className="btn-primary text-xs">
+            Let's Talk
+            <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
+          </RouterLink>
         </nav>
 
-        {/* Mobile Menu Button */}
-        <div className="flex md:hidden items-center">
+        <div className="flex items-center lg:hidden">
           <button
             onClick={toggleDarkMode}
-            className="p-2 mr-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors"
+            className="mr-2 rounded-full border border-slate-200 bg-white p-2 text-slate-700 transition-colors hover:border-slate-400 hover:text-slate-900 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-100 dark:hover:border-slate-400"
             aria-label="Toggle dark mode"
           >
-            {darkMode ? (
-              <Sun className="h-5 w-5 text-yellow-400" />
-            ) : (
-              <Moon className="h-5 w-5 text-dark-700" />
-            )}
+            {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </button>
           <button
-            onClick={toggleMenu}
-            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors"
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+            className="rounded-full border border-slate-200 bg-white p-2 text-slate-700 transition-colors hover:border-slate-400 hover:text-slate-900 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-100 dark:hover:border-slate-400"
             aria-label="Toggle menu"
           >
-            {isMenuOpen ? (
-              <X className="h-6 w-6 text-dark-800 dark:text-white" />
-            ) : (
-              <Menu className="h-6 w-6 text-dark-800 dark:text-white" />
-            )}
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
 
-        {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white dark:bg-dark-800 shadow-md py-4 md:hidden animate-fade-in">
-            <div className="container mx-auto px-4 flex flex-col space-y-4">
+          <div className="absolute left-6 right-6 top-[calc(100%+0.5rem)] animate-fade-in rounded-2xl border border-slate-200 bg-white p-4 shadow-lg dark:border-slate-700 dark:bg-dark-800 lg:hidden md:left-8 md:right-8">
+            <div className="flex flex-col space-y-1">
               {navLinks.map((link) => (
-                link.type === 'scroll' ? (
-                  <ScrollLink
-                    key={link.name}
-                    to={link.to}
-                    spy={true}
-                    smooth={true}
-                    offset={-70}
-                    duration={500}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="text-dark-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium cursor-pointer transition-colors py-2"
-                  >
-                    {link.name}
-                  </ScrollLink>
-                ) : (
-                  <RouterLink
-                    key={link.name}
-                    to={link.to}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="text-dark-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium cursor-pointer transition-colors py-2 flex items-center"
-                  >
-                    {link.name === 'Articles' && <BookOpen className="h-4 w-4 mr-1" />}
-                    {link.name}
-                  </RouterLink>
-                )
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  className={({ isActive }) =>
+                    `flex items-center rounded-xl px-3 py-2 text-sm font-semibold transition-colors ${
+                      isActive
+                        ? 'bg-slate-100 text-slate-900 dark:bg-dark-700 dark:text-white'
+                        : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-dark-700 dark:hover:text-white'
+                    }`
+                  }
+                >
+                  {link.to === '/articles' && <BookOpen className="mr-1 h-4 w-4" />}
+                  {link.name}
+                  {link.soon && (
+                    <span className="ml-2 rounded-full border border-slate-300 bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-300">
+                      Soon
+                    </span>
+                  )}
+                </NavLink>
               ))}
+              <RouterLink to="/contact" className="btn-primary mt-2 w-full justify-center text-center text-xs">
+                Let's Talk
+                <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
+              </RouterLink>
             </div>
           </div>
         )}

@@ -1,34 +1,51 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Briefcase } from 'lucide-react';
+import { Briefcase, Sparkles } from 'lucide-react';
 import { experiences } from '../../data/experiences';
+import type { Language } from '../../types';
 
-const Experience: React.FC = () => {
+interface ExperienceProps {
+  language: Language;
+}
+
+const Experience: React.FC<ExperienceProps> = ({ language }) => {
   return (
-    <section id="experience" className="py-20 bg-white dark:bg-dark-800">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <motion.h2 
-            className="text-3xl md:text-4xl font-bold text-dark-900 dark:text-white mb-4"
+    <section id="experience" className="section-shell">
+      <div className="section-container">
+        <div className="mb-16 max-w-3xl">
+          <motion.span
+            className="section-kicker"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            Work Experience
+            {language === 'id' ? 'Perjalanan Karier' : 'Career Path'}
+          </motion.span>
+          <motion.h2
+            className="section-title mt-4"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            viewport={{ once: true }}
+          >
+            {language === 'id' ? 'Pengalaman Kerja' : 'Work Experience'}
           </motion.h2>
-          <motion.div 
-            className="w-20 h-1 bg-primary-600 dark:bg-primary-400 mx-auto mb-6"
-            initial={{ opacity: 0, width: 0 }}
-            whileInView={{ opacity: 1, width: 80 }}
+          <motion.p
+            className="section-subtitle"
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             viewport={{ once: true }}
-          ></motion.div>
+          >
+            {language === 'id'
+              ? 'Pengalaman membangun produk internal dan integrasi enterprise dengan fokus pada reliability.'
+              : 'Experience building internal products and enterprise integrations with a focus on reliability.'}
+          </motion.p>
         </div>
 
         <div className="relative">
-          {/* Timeline line */}
-          <div className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 h-full w-px bg-gray-300 dark:bg-dark-600"></div>
+          <div className="absolute left-4 top-0 h-full w-px bg-gradient-to-b from-slate-200 via-slate-300 to-transparent dark:from-slate-700 dark:via-slate-600 md:left-1/2 md:-translate-x-1/2"></div>
 
           <div className="space-y-12">
             {experiences.map((exp, index) => (
@@ -40,30 +57,46 @@ const Experience: React.FC = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                {/* Timeline dot */}
-                <div className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary-600 dark:bg-primary-500 flex items-center justify-center shadow-md z-10">
-                  <Briefcase className="h-5 w-5 text-white" />
+                <div className="absolute left-0 z-10 -translate-y-1/2 rounded-xl border border-slate-200 bg-white p-2.5 shadow-sm dark:border-slate-700 dark:bg-dark-800 md:left-1/2 md:-translate-x-1/2">
+                  <Briefcase className="h-4 w-4 text-slate-700 dark:text-slate-200" />
                 </div>
 
-                <div className={`md:w-1/2 ${
+                <div className={`pb-8 pl-12 md:w-1/2 md:pl-0 ${
                   index % 2 === 0 ? 'md:ml-auto md:pl-12' : 'md:mr-auto md:pr-12'
-                } pb-8`}>
-                  <div className="bg-gray-50 dark:bg-dark-700 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                    <h4 className="text-lg font-medium text-primary-600 dark:text-primary-400 mb-2">{exp.company}</h4>
+                }`}>
+                  <div className="glass-card p-6 transition-transform hover:-translate-y-1 sm:p-7">
+                    <div className="mb-5 flex items-center justify-between gap-3 border-b border-slate-200 pb-4 dark:border-slate-700">
+                      <h4 className="text-lg font-semibold text-slate-900 dark:text-white">{exp.company}</h4>
+                      <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-300">
+                        <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+                        {language === 'id' ? 'Pengalaman' : 'Experience'}
+                      </span>
+                    </div>
 
                     {exp.roles.map((role, i) => (
-                      <div key={i} className="mb-4">
-                        <div className="flex flex-wrap items-center justify-between mb-1">
-                          <h3 className="text-md font-bold text-dark-900 dark:text-white">{role.title}</h3>
-                          <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200">
+                      <div
+                        key={i}
+                        className={`${i > 0 ? 'mt-5 border-t border-slate-200 pt-5 dark:border-slate-700' : ''}`}
+                      >
+                        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                          <h3 className="text-base font-bold text-slate-900 dark:text-white">{role.title}</h3>
+                          <span className="inline-block rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-200">
                             {role.duration}
                           </span>
                         </div>
-                        <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300 ml-4">
-                          {role.description.map((item, j) => (
-                            <li key={j}>{item}</li>
+                        <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
+                          {role.summary}
+                        </p>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          {role.stack.map((item) => (
+                            <span
+                              key={`${role.title}-${item}`}
+                              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-dark-800 dark:text-slate-200"
+                            >
+                              {item}
+                            </span>
                           ))}
-                        </ul>
+                        </div>
                       </div>
                     ))}
                   </div>
