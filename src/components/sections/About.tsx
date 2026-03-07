@@ -40,7 +40,7 @@ const About: React.FC<AboutProps> = ({ language }) => {
   const photoCards = [
     {
       id: 'arjuna',
-      title: 'Arjuna',
+      title: 'MT Arjuno',
       location: language === 'id' ? 'Gunung Arjuno' : 'Arjuno Mountain',
       backText: language === 'id'
         ? '3000++ mdpl pertamaku. Capek Mending Tidur.'
