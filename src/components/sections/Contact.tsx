@@ -89,7 +89,7 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
   return (
     <section id="contact" className="section-shell pb-24">
       <div className="section-container">
-        <div className="mb-16 max-w-3xl">
+        <div className="mb-12 max-w-3xl sm:mb-16">
           <motion.span
             className="section-kicker"
             initial={{ opacity: 0, y: 20 }}
@@ -125,7 +125,7 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             viewport={{ once: true }}
-            className="glass-card p-8"
+            className="glass-card p-5 sm:p-8"
           >
             <h3 className="mb-6 text-2xl font-bold text-slate-900 dark:text-white">
               {t.infoTitle}
@@ -136,9 +136,9 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
                 <div className="flex-shrink-0 rounded-xl border border-slate-200 bg-slate-100 p-3 dark:border-slate-700 dark:bg-dark-700">
                   <Mail className="h-6 w-6 text-slate-700 dark:text-slate-300" />
                 </div>
-                <div className="ml-4">
+                <div className="ml-4 min-w-0">
                   <h4 className="mb-1 text-lg font-semibold text-slate-900 dark:text-white">Email</h4>
-                  <a href="mailto:muhammaddaffarmd@gmail.com" className="text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
+                  <a href="mailto:muhammaddaffarmd@gmail.com" className="break-all text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
                     muhammaddaffarmd@gmail.com
                   </a>
                 </div>
@@ -186,7 +186,7 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
             transition={{ duration: 0.5, delay: 0.3 }}
             viewport={{ once: true }}
           >
-            <form onSubmit={handleSubmit} className="glass-card space-y-5 p-7 md:p-8">
+            <form onSubmit={handleSubmit} className="glass-card space-y-5 p-5 sm:p-7 md:p-8">
               <div>
                 <label htmlFor="name" className="mb-1 block text-sm font-medium text-slate-600 dark:text-slate-300">
                   {t.name}

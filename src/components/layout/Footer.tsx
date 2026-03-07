@@ -21,19 +21,19 @@ const Footer: React.FC<FooterProps> = ({ language }) => {
       };
 
   return (
-    <footer className="bg-white/40 py-10 backdrop-blur dark:bg-dark-900/80">
-      <div className="mx-auto w-full max-w-[1080px] border-t border-slate-200/80 px-6 pt-10 dark:border-slate-700 md:px-8">
+    <footer className="bg-white/40 py-8 backdrop-blur dark:bg-dark-900/80 sm:py-10">
+      <div className="mx-auto w-full max-w-[1080px] border-t border-slate-200/80 px-4 pt-8 dark:border-slate-700 sm:px-6 sm:pt-10 md:px-8">
         <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
           <div className="flex items-center">
             <div className="rounded-xl border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-dark-800">
               <Code2 className="h-5 w-5 text-slate-800 dark:text-slate-100" />
             </div>
-            <span className="ml-3 text-xl font-bold text-slate-900 dark:text-white">
+            <span className="ml-3 text-lg font-bold text-slate-900 sm:text-xl dark:text-white">
               Daf.Dev
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <a
               href="https://github.com/daffarmd"
               target="_blank"
@@ -62,12 +62,12 @@ const Footer: React.FC<FooterProps> = ({ language }) => {
           </div>
         </div>
 
-        <div className="mt-8 border-t border-slate-200 pt-8 dark:border-slate-700">
+        <div className="mt-8 border-t border-slate-200 pt-6 dark:border-slate-700 sm:pt-8">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <p className="text-sm text-slate-600 dark:text-slate-400">{t.rights}</p>
             <a
               href="mailto:muhammaddaffarmd@gmail.com"
-              className="inline-flex items-center text-sm font-semibold text-slate-700 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
+              className="inline-flex min-h-[44px] items-center text-sm font-semibold text-slate-700 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
             >
               {t.collaboration}
               <ArrowUpRight className="ml-1.5 h-4 w-4" />

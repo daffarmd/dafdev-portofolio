@@ -14,7 +14,7 @@ import hospitalDashboardImage from '../../assets/hospital-app-dashboard.png';
 import queueDisplayDashboardImage from '../../assets/queue-display-dashboard.png';
 
 export const QueuePreview: React.FC = () => (
-  <div className="h-full rounded-[1.45rem] border border-white/10 bg-[#dbe7ef] p-2 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.75)]">
+  <div className="h-full rounded-[1.2rem] border border-white/10 bg-[#dbe7ef] p-2 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.75)] sm:rounded-[1.45rem]">
     <div className="flex items-center justify-between rounded-[1rem] bg-white px-3 py-2">
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Queue Display</p>
@@ -35,7 +35,7 @@ export const QueuePreview: React.FC = () => (
 );
 
 export const HospitalPreview: React.FC = () => (
-  <div className="h-full rounded-[1.45rem] border border-white/10 bg-[#d9e4e8] p-2 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.75)]">
+  <div className="h-full rounded-[1.2rem] border border-white/10 bg-[#d9e4e8] p-2 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.75)] sm:rounded-[1.45rem]">
     <div className="flex items-center justify-between rounded-[1rem] bg-white px-3 py-2">
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Hospital App</p>
@@ -56,12 +56,12 @@ export const HospitalPreview: React.FC = () => (
 );
 
 export const QueueDemoScreen: React.FC = () => (
-  <div className="overflow-hidden rounded-[2rem] border border-slate-800 bg-[#07101d] text-white shadow-[0_28px_80px_-48px_rgba(15,23,42,0.95)]">
-    <div className="border-b border-white/10 bg-[#0a1527] px-5 py-4">
+  <div className="overflow-hidden rounded-[1.4rem] border border-slate-800 bg-[#07101d] text-white shadow-[0_28px_80px_-48px_rgba(15,23,42,0.95)] sm:rounded-[2rem]">
+    <div className="border-b border-white/10 bg-[#0a1527] px-4 py-4 sm:px-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-200/70">Queue Display Demo</p>
-          <h2 className="mt-1 text-2xl font-display font-bold">Realtime Queue Display Console</h2>
+          <h2 className="mt-1 text-xl font-display font-bold sm:text-2xl">Realtime Queue Display Console</h2>
         </div>
         <div className="flex items-center gap-2 text-xs text-white/70">
           <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-emerald-200">
@@ -74,9 +74,9 @@ export const QueueDemoScreen: React.FC = () => (
       </div>
     </div>
 
-    <div className="grid gap-5 p-5 lg:grid-cols-[0.92fr_1.08fr]">
+    <div className="grid gap-4 p-4 sm:gap-5 sm:p-5 lg:grid-cols-[0.92fr_1.08fr]">
       <div className="space-y-5">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:gap-4">
           {[
             ['Total waiting', '18', Users],
             ['Average wait', '07m', Clock3],
@@ -86,7 +86,7 @@ export const QueueDemoScreen: React.FC = () => (
             <div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
               <Icon className="h-5 w-5 text-sky-300" />
               <p className="mt-4 text-xs uppercase tracking-[0.14em] text-white/50">{label}</p>
-              <p className="mt-1 text-3xl font-bold text-white">{value}</p>
+              <p className="mt-1 text-2xl font-bold text-white sm:text-3xl">{value}</p>
             </div>
           ))}
         </div>
@@ -96,7 +96,7 @@ export const QueueDemoScreen: React.FC = () => (
             <h3 className="text-lg font-semibold">Live Queue Distribution</h3>
             <span className="text-xs text-white/50">Last 30 min</span>
           </div>
-          <div className="mt-6 flex h-40 items-end gap-3">
+          <div className="mt-6 flex h-32 items-end gap-2 sm:h-40 sm:gap-3">
             {[45, 88, 62, 106, 74, 91, 68].map((height, index) => (
               <div key={index} className="flex-1 rounded-t-[1rem] bg-gradient-to-t from-sky-600 to-cyan-300" style={{ height }} />
             ))}
@@ -116,7 +116,7 @@ export const QueueDemoScreen: React.FC = () => (
           <div className="mt-5 h-3 rounded-full bg-white/10">
             <div className="h-full w-[72%] rounded-full bg-gradient-to-r from-sky-400 to-cyan-300" />
           </div>
-          <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
+          <div className="mt-5 grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
             {[
               ['Counter 1', 'A-024'],
               ['Counter 2', 'A-025'],
@@ -142,13 +142,13 @@ export const QueueDemoScreen: React.FC = () => (
               ['A-022', 'Completed successfully', '4 min ago'],
               ['C-004', 'VIP queue joined', '8 min ago'],
             ].map(([ticket, status, time]) => (
-              <div key={ticket} className="grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-2xl bg-white/5 px-4 py-3">
+              <div key={ticket} className="grid grid-cols-[auto_1fr] gap-3 rounded-2xl bg-white/5 px-4 py-3 sm:grid-cols-[auto_1fr_auto] sm:items-center">
                 <div className="rounded-xl bg-sky-400/15 px-3 py-2 text-sm font-bold text-sky-200">{ticket}</div>
                 <div>
                   <p className="font-medium text-white">{status}</p>
                   <p className="text-xs text-white/45">Operator synced with public display</p>
                 </div>
-                <span className="text-xs text-white/45">{time}</span>
+                <span className="text-xs text-white/45 sm:text-right">{time}</span>
               </div>
             ))}
           </div>
@@ -159,12 +159,12 @@ export const QueueDemoScreen: React.FC = () => (
 );
 
 export const HospitalDemoScreen: React.FC = () => (
-  <div className="overflow-hidden rounded-[2rem] border border-slate-800 bg-[#071318] text-white shadow-[0_28px_80px_-48px_rgba(15,23,42,0.95)]">
-    <div className="border-b border-white/10 bg-[#0b1820] px-5 py-4">
+  <div className="overflow-hidden rounded-[1.4rem] border border-slate-800 bg-[#071318] text-white shadow-[0_28px_80px_-48px_rgba(15,23,42,0.95)] sm:rounded-[2rem]">
+    <div className="border-b border-white/10 bg-[#0b1820] px-4 py-4 sm:px-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-200/70">Hospital App Demo</p>
-          <h2 className="mt-1 text-2xl font-display font-bold">Operational Command Center</h2>
+          <h2 className="mt-1 text-xl font-display font-bold sm:text-2xl">Operational Command Center</h2>
         </div>
         <div className="flex items-center gap-2 text-xs text-white/70">
           <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-emerald-200">
@@ -177,9 +177,9 @@ export const HospitalDemoScreen: React.FC = () => (
       </div>
     </div>
 
-    <div className="grid gap-5 p-5 lg:grid-cols-[0.95fr_1.05fr]">
+    <div className="grid gap-4 p-4 sm:gap-5 sm:p-5 lg:grid-cols-[0.95fr_1.05fr]">
       <div className="space-y-5">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:gap-4">
           {[
             ['Patients today', '126', Users],
             ['Bed occupancy', '84%', Activity],
@@ -189,7 +189,7 @@ export const HospitalDemoScreen: React.FC = () => (
             <div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
               <Icon className="h-5 w-5 text-emerald-300" />
               <p className="mt-4 text-xs uppercase tracking-[0.14em] text-white/50">{label}</p>
-              <p className="mt-1 text-3xl font-bold text-white">{value}</p>
+              <p className="mt-1 text-2xl font-bold text-white sm:text-3xl">{value}</p>
             </div>
           ))}
         </div>
@@ -233,7 +233,7 @@ export const HospitalDemoScreen: React.FC = () => (
               ['Citra Nabila', 'Observation', '09:40', 'Awaiting room'],
               ['Dimas Akbar', 'ER', '10:05', 'Critical priority'],
             ].map(([name, unit, time, status]) => (
-              <div key={name} className="grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-2xl bg-white/5 px-4 py-3">
+              <div key={name} className="grid grid-cols-[auto_1fr] gap-3 rounded-2xl bg-white/5 px-4 py-3 sm:grid-cols-[auto_1fr_auto] sm:items-center">
                 <div className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10">
                   <UserRound className="h-5 w-5 text-white/80" />
                 </div>
@@ -241,7 +241,7 @@ export const HospitalDemoScreen: React.FC = () => (
                   <p className="font-semibold text-white">{name}</p>
                   <p className="text-xs text-white/50">{unit} - {status}</p>
                 </div>
-                <span className="text-xs text-white/45">{time}</span>
+                <span className="text-xs text-white/45 sm:text-right">{time}</span>
               </div>
             ))}
           </div>

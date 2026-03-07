@@ -158,9 +158,9 @@ const About: React.FC<AboutProps> = ({ language }) => {
                     className="animate-float"
                     style={{ animationDelay: card.floatDelay, animationDuration: card.floatDuration }}
                   >
-                    <div className="flip-card h-[280px] sm:h-[320px]">
+                    <div className="flip-card h-[250px] sm:h-[320px]">
                     <div className={`flip-card-inner ${isFlipped ? 'is-flipped' : ''}`}>
-                      <div className="flip-face overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-dark-800">
+                      <div className="flip-face overflow-hidden rounded-[1.4rem] border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-dark-800 sm:rounded-2xl">
                         <img
                           src={card.image}
                           alt={card.title}
@@ -176,7 +176,7 @@ const About: React.FC<AboutProps> = ({ language }) => {
                         </div>
                       </div>
 
-                      <div className="flip-face flip-back rounded-2xl border border-slate-200 bg-slate-900 p-5 text-white shadow-lg dark:border-slate-600 dark:bg-slate-100 dark:text-slate-900">
+                      <div className="flip-face flip-back rounded-[1.4rem] border border-slate-200 bg-slate-900 p-4 text-white shadow-lg dark:border-slate-600 dark:bg-slate-100 dark:text-slate-900 sm:rounded-2xl sm:p-5">
                         <p className="text-xs uppercase tracking-[0.12em] opacity-70">{t.photoTitle}</p>
                         <div className="mt-6">
                           <h4 className="text-lg font-bold">{card.title}</h4>

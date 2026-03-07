@@ -41,7 +41,7 @@ const SpotifyFavorites: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.06 }}
                 viewport={{ once: true }}
-                className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-dark-800"
+                className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-dark-800 sm:p-4"
               >
                 <p className="px-1 pb-2 text-sm font-semibold text-slate-900 dark:text-white">{track.title}</p>
                 <p className="px-1 pb-3 text-xs text-slate-500 dark:text-slate-400">{track.artist}</p>

@@ -8,7 +8,7 @@ interface ContactPageProps {
 
 const ContactPage: React.FC<ContactPageProps> = ({ language }) => {
   return (
-    <div className="pt-14">
+    <div className="pt-10 sm:pt-14">
       <Contact language={language} />
     </div>
   );
