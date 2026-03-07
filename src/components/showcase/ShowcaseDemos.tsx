@@ -14,8 +14,8 @@ import hospitalDashboardImage from '../../assets/hospital-app-dashboard.png';
 import queueDisplayDashboardImage from '../../assets/queue-display-dashboard.png';
 
 export const QueuePreview: React.FC = () => (
-  <div className="h-full rounded-[1.2rem] border border-white/10 bg-[#dbe7ef] p-2 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.75)] sm:rounded-[1.45rem]">
-    <div className="flex items-center justify-between rounded-[1rem] bg-white px-3 py-2">
+  <div className="flex h-full min-h-0 flex-col rounded-[1.2rem] border border-white/10 bg-[#dbe7ef] p-2 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.75)] sm:rounded-[1.45rem]">
+    <div className="flex shrink-0 items-center justify-between rounded-[1rem] bg-white px-3 py-2">
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Queue Display</p>
         <p className="text-xs text-slate-400">queue-display-eight.vercel.app</p>
@@ -24,19 +24,19 @@ export const QueuePreview: React.FC = () => (
         <Ticket className="h-4 w-4 text-sky-600" />
       </div>
     </div>
-    <div className="mt-2 overflow-hidden rounded-[1.1rem] border border-slate-200 bg-slate-100">
+    <div className="mt-2 min-h-0 flex-1 overflow-hidden rounded-[1.1rem] border border-slate-200 bg-slate-100">
       <img
         src={queueDisplayDashboardImage}
         alt="Queue display dashboard preview"
-        className="h-full w-full object-cover object-left-top"
+        className="block h-full w-full object-contain object-center"
       />
     </div>
   </div>
 );
 
 export const HospitalPreview: React.FC = () => (
-  <div className="h-full rounded-[1.2rem] border border-white/10 bg-[#d9e4e8] p-2 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.75)] sm:rounded-[1.45rem]">
-    <div className="flex items-center justify-between rounded-[1rem] bg-white px-3 py-2">
+  <div className="flex h-full min-h-0 flex-col rounded-[1.2rem] border border-white/10 bg-[#d9e4e8] p-2 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.75)] sm:rounded-[1.45rem]">
+    <div className="flex shrink-0 items-center justify-between rounded-[1rem] bg-white px-3 py-2">
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Hospital App</p>
         <p className="text-xs text-slate-400">hospital-app-one.vercel.app</p>
@@ -45,11 +45,11 @@ export const HospitalPreview: React.FC = () => (
         <Activity className="h-4 w-4 text-emerald-600" />
       </div>
     </div>
-    <div className="mt-2 overflow-hidden rounded-[1.1rem] border border-slate-200 bg-slate-100">
+    <div className="mt-2 min-h-0 flex-1 overflow-hidden rounded-[1.1rem] border border-slate-200 bg-slate-100">
       <img
         src={hospitalDashboardImage}
         alt="Hospital app dashboard preview"
-        className="h-full w-full object-cover object-left-top"
+        className="block h-full w-full object-contain object-center"
       />
     </div>
   </div>
