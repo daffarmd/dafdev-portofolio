@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link as RouterLink } from 'react-router-dom';
 import { Activity, ArrowUpRight, LayoutDashboard } from 'lucide-react';
 import type { Language } from '../../types';
 import hospitalDashboardImage from '../../assets/hospital-app-dashboard.png';
@@ -93,7 +94,7 @@ const Products: React.FC<ProductsProps> = ({ language }) => {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 lg:gap-6">
           {products.map((product, index) => {
             const Icon = product.icon;
             return (
@@ -105,11 +106,11 @@ const Products: React.FC<ProductsProps> = ({ language }) => {
                 transition={{ duration: 0.45, delay: index * 0.05 }}
                 viewport={{ once: true }}
               >
-                <div className="overflow-hidden rounded-[1.5rem] border border-slate-200 dark:border-slate-700">
+                <div className="overflow-hidden rounded-[1.25rem] border border-slate-200 dark:border-slate-700 sm:rounded-[1.5rem]">
                   <img
                     src={product.image}
                     alt={product.title}
-                    className="h-56 w-full object-cover object-left-top"
+                    className="h-44 w-full object-cover object-left-top sm:h-56"
                   />
                 </div>
 
@@ -119,14 +120,14 @@ const Products: React.FC<ProductsProps> = ({ language }) => {
                       <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-200">
                         {product.category}
                       </span>
-                      <h3 className="mt-4 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{product.title}</h3>
+                      <h3 className="mt-4 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl dark:text-white">{product.title}</h3>
                     </div>
                     <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-dark-800">
                       <Icon className="h-5 w-5 text-slate-700 dark:text-slate-200" />
                     </div>
                   </div>
 
-                  <p className="min-h-[84px] text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                  <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300 sm:min-h-[84px]">
                     {product.summary}
                   </p>
 
@@ -151,12 +152,12 @@ const Products: React.FC<ProductsProps> = ({ language }) => {
                       {t.viewDemo}
                       <ArrowUpRight className="ml-1.5 h-4 w-4" />
                     </a>
-                    <a
-                      href=""
+                    <RouterLink
+                      to="/contact"
                       className="inline-flex w-full items-center justify-center rounded-full border border-slate-300 px-5 py-3 text-xs font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:bg-dark-700 sm:w-auto"
                     >
                       {t.discuss}
-                    </a>
+                    </RouterLink>
                   </div>
                 </div>
               </motion.article>

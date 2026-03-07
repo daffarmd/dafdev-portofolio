@@ -12,7 +12,7 @@ const Experience: React.FC<ExperienceProps> = ({ language }) => {
   return (
     <section id="experience" className="section-shell">
       <div className="section-container">
-        <div className="mb-16 max-w-3xl">
+        <div className="mb-12 max-w-3xl sm:mb-16">
           <motion.span
             className="section-kicker"
             initial={{ opacity: 0, y: 20 }}
@@ -47,7 +47,7 @@ const Experience: React.FC<ExperienceProps> = ({ language }) => {
         <div className="relative">
           <div className="absolute left-4 top-0 h-full w-px bg-gradient-to-b from-slate-200 via-slate-300 to-transparent dark:from-slate-700 dark:via-slate-600 md:left-1/2 md:-translate-x-1/2"></div>
 
-          <div className="space-y-12">
+          <div className="space-y-10 sm:space-y-12">
             {experiences.map((exp, index) => (
               <motion.div 
                 key={exp.id}
@@ -57,14 +57,14 @@ const Experience: React.FC<ExperienceProps> = ({ language }) => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <div className="absolute left-0 z-10 -translate-y-1/2 rounded-xl border border-slate-200 bg-white p-2.5 shadow-sm dark:border-slate-700 dark:bg-dark-800 md:left-1/2 md:-translate-x-1/2">
+                <div className="absolute left-0 top-5 z-10 rounded-xl border border-slate-200 bg-white p-2.5 shadow-sm dark:border-slate-700 dark:bg-dark-800 md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2">
                   <Briefcase className="h-4 w-4 text-slate-700 dark:text-slate-200" />
                 </div>
 
-                <div className={`pb-8 pl-12 md:w-1/2 md:pl-0 ${
+                <div className={`pb-6 pl-12 sm:pb-8 md:w-1/2 md:pl-0 ${
                   index % 2 === 0 ? 'md:ml-auto md:pl-12' : 'md:mr-auto md:pr-12'
                 }`}>
-                  <div className="glass-card p-6 transition-transform hover:-translate-y-1 sm:p-7">
+                  <div className="glass-card p-5 transition-transform hover:-translate-y-1 sm:p-7">
                     <div className="mb-5 flex items-center justify-between gap-3 border-b border-slate-200 pb-4 dark:border-slate-700">
                       <h4 className="text-lg font-semibold text-slate-900 dark:text-white">{exp.company}</h4>
                       <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-300">
@@ -84,7 +84,7 @@ const Experience: React.FC<ExperienceProps> = ({ language }) => {
                             {role.duration}
                           </span>
                         </div>
-                        <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
+                        <p className="text-sm leading-6 text-slate-600 dark:text-slate-300 sm:leading-7">
                           {role.summary}
                         </p>
                         <div className="mt-4 flex flex-wrap gap-2">

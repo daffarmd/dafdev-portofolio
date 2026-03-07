@@ -5,7 +5,7 @@ import { HospitalDemoScreen } from '../../components/showcase/ShowcaseDemos';
 
 const HospitalAppDemo: React.FC = () => {
   return (
-    <section className="section-shell pt-28">
+    <section className="section-shell pt-24 sm:pt-28">
       <div className="section-container">
         <Link
           to="/showcase"
@@ -34,15 +34,15 @@ const HospitalAppDemo: React.FC = () => {
           {['Patient board', 'Occupancy map', 'Operational alerts', 'Shift overview'].map((item) => (
             <span
               key={item}
-              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-dark-800 dark:text-slate-200"
+              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-dark-800 dark:text-slate-200 sm:text-sm"
             >
               {item}
             </span>
           ))}
         </div>
 
-        <div className="mt-8 rounded-[1.75rem] border border-slate-200 bg-white/85 p-6 shadow-[0_20px_60px_-40px_rgba(15,23,42,0.35)] backdrop-blur-sm dark:border-slate-700 dark:bg-dark-800/85">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="mt-8 rounded-[1.4rem] border border-slate-200 bg-white/85 p-5 shadow-[0_20px_60px_-40px_rgba(15,23,42,0.35)] backdrop-blur-sm dark:border-slate-700 dark:bg-dark-800/85 sm:rounded-[1.75rem] sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold text-slate-900 dark:text-white">Use case</p>
               <p className="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
@@ -53,7 +53,7 @@ const HospitalAppDemo: React.FC = () => {
               href="https://github.com/daffarmd"
               target="_blank"
               rel="noreferrer"
-              className="btn-primary"
+              className="btn-primary w-full sm:w-auto"
             >
               Explore Repository
               <ArrowUpRight className="ml-2 h-4 w-4" />

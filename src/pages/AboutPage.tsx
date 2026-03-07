@@ -11,7 +11,7 @@ interface AboutPageProps {
 
 const AboutPage: React.FC<AboutPageProps> = ({ language }) => {
   return (
-    <div className="pt-14">
+    <div className="pt-10 sm:pt-14">
       <About language={language} />
       <Experience language={language} />
       <Projects language={language} />

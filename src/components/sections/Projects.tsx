@@ -57,7 +57,7 @@ const Projects: React.FC<ProjectsProps> = ({ language }) => {
           <p className="section-subtitle">{t.subtitle}</p>
         </motion.div>
 
-        <div className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <div className="mt-8 grid grid-cols-1 gap-5 xl:grid-cols-2">
           {projects.map((project, index) => (
             <motion.article
               key={project.id}
@@ -65,16 +65,16 @@ const Projects: React.FC<ProjectsProps> = ({ language }) => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: index * 0.06 }}
               viewport={{ once: true }}
-              className={`h-full overflow-hidden rounded-[2rem] bg-gradient-to-br ${cardThemes[index % cardThemes.length]} p-[1px] shadow-[0_24px_60px_-38px_rgba(15,23,42,0.75)]`}
+              className={`h-full overflow-hidden rounded-[1.6rem] bg-gradient-to-br ${cardThemes[index % cardThemes.length]} p-[1px] shadow-[0_24px_60px_-38px_rgba(15,23,42,0.75)] sm:rounded-[2rem]`}
             >
-              <div className="flex h-full flex-col rounded-[calc(2rem-1px)] bg-[#09111f]/88 p-5 text-white sm:p-6">
-                <div className="grid min-h-[136px] gap-4 border-b border-white/10 pb-5 sm:grid-cols-[minmax(0,1fr)_auto]">
+              <div className="flex h-full flex-col rounded-[calc(1.6rem-1px)] bg-[#09111f]/88 p-4 text-white sm:rounded-[calc(2rem-1px)] sm:p-6">
+                <div className="grid gap-3 border-b border-white/10 pb-4 sm:min-h-[136px] sm:gap-4 sm:pb-5 sm:grid-cols-[minmax(0,1fr)_auto]">
                   <div className="min-w-0">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/45">
                       {t.projectLabel} 0{index + 1}
                     </p>
-                    <div className="mt-3 min-h-[70px] pb-1 sm:min-h-[84px]">
-                      <h3 className="line-clamp-2 break-words text-2xl font-display font-extrabold leading-[1.15] tracking-tight sm:text-3xl">
+                    <div className="mt-3 pb-1 sm:min-h-[84px]">
+                      <h3 className="line-clamp-2 break-words text-[1.35rem] font-display font-extrabold leading-[1.15] tracking-tight sm:text-3xl">
                         {project.title}
                       </h3>
                     </div>
@@ -87,12 +87,12 @@ const Projects: React.FC<ProjectsProps> = ({ language }) => {
                   </div>
                 </div>
 
-                <p className="mt-5 min-h-[112px] text-sm leading-7 text-white/72 line-clamp-4 sm:text-[15px]">
+                <p className="mt-4 text-sm leading-6 text-white/72 line-clamp-5 sm:mt-5 sm:min-h-[112px] sm:text-[15px] sm:leading-7 sm:line-clamp-4">
                   {project.description}
                 </p>
 
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  <div className="min-h-[124px] rounded-[1.35rem] border border-white/10 bg-white/5 p-4">
+                <div className="mt-4 grid gap-3 sm:mt-5 sm:grid-cols-2">
+                  <div className="rounded-[1.15rem] border border-white/10 bg-white/5 p-4 sm:min-h-[124px] sm:rounded-[1.35rem]">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">{t.platformLabel}</p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {project.platforms?.map((item) => (
@@ -106,7 +106,7 @@ const Projects: React.FC<ProjectsProps> = ({ language }) => {
                     </div>
                   </div>
 
-                  <div className="min-h-[124px] rounded-[1.35rem] border border-white/10 bg-white/5 p-4">
+                  <div className="rounded-[1.15rem] border border-white/10 bg-white/5 p-4 sm:min-h-[124px] sm:rounded-[1.35rem]">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">{t.availabilityLabel}</p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {project.availability?.map((item) => (
@@ -121,18 +121,18 @@ const Projects: React.FC<ProjectsProps> = ({ language }) => {
                   </div>
                 </div>
 
-                <div className="mt-3 min-h-[182px] rounded-[1.35rem] border border-white/10 bg-white/5 p-4">
+                <div className="mt-3 rounded-[1.15rem] border border-white/10 bg-white/5 p-4 sm:min-h-[182px] sm:rounded-[1.35rem]">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">{t.contributionLabel}</p>
                   <div className="mt-3 grid gap-2">
                     {project.highlights?.map((item) => (
-                      <div key={item} className="flex min-h-[44px] items-center rounded-xl bg-white/5 px-3 py-2 text-sm text-white/78 line-clamp-2">
+                      <div key={item} className="flex items-center rounded-xl bg-white/5 px-3 py-2 text-sm text-white/78 sm:min-h-[44px]">
                         {item}
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="mt-3 min-h-[132px] rounded-[1.35rem] border border-white/10 bg-white/5 p-4">
+                <div className="mt-3 rounded-[1.15rem] border border-white/10 bg-white/5 p-4 sm:min-h-[132px] sm:rounded-[1.35rem]">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">{t.stackLabel}</p>
                   <div className="flex flex-wrap gap-2">
                     {project.technologies.map((tech) => (
@@ -146,16 +146,16 @@ const Projects: React.FC<ProjectsProps> = ({ language }) => {
                   </div>
                 </div>
 
-                <div className="mt-auto flex min-h-[72px] items-end pt-5">
+                <div className="mt-auto flex items-end pt-4 sm:min-h-[72px] sm:pt-5">
                   {project.resources?.length ? (
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex w-full flex-wrap gap-3">
                       {project.resources.map((resource) => (
                         <a
                           key={`${project.id}-${resource.type}`}
                           href={resource.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:-translate-y-0.5"
+                          className="inline-flex w-full items-center justify-center rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:-translate-y-0.5 sm:w-auto"
                         >
                           {t.openLink}
                           <ArrowUpRight className="ml-2 h-4 w-4" />

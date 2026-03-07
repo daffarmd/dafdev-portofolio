@@ -52,7 +52,7 @@ const Skills: React.FC<SkillsProps> = ({ language }) => {
   return (
     <section id="skills" className="section-shell">
       <div className="section-container">
-        <div className="mb-16 max-w-3xl">
+        <div className="mb-12 max-w-3xl sm:mb-16">
           <motion.span
             className="section-kicker"
             initial={{ opacity: 0, y: 20 }}
@@ -88,14 +88,14 @@ const Skills: React.FC<SkillsProps> = ({ language }) => {
           {Object.entries(skillsByCategory).map(([category, categorySkills]) => (
             <motion.div 
               key={category}
-              className="glass-card p-6 md:p-7"
+              className="glass-card p-5 md:p-7"
               variants={containerVariants}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
             >
               <div className={`mb-6 rounded-xl border border-slate-200 p-4 dark:border-slate-700 ${categoryAccent[category as keyof typeof categoryAccent]}`}>
-                <h3 className="text-xl font-bold">
+                <h3 className="text-lg font-bold sm:text-xl">
                   {categoryTitles[category as keyof typeof categoryTitles]}
                 </h3>
                 <p className="mt-1 text-sm opacity-80">
@@ -133,7 +133,7 @@ const Skills: React.FC<SkillsProps> = ({ language }) => {
         </div>
 
         <motion.div 
-          className="mt-14 rounded-2xl border border-slate-200/70 bg-white/90 p-8 text-center dark:border-slate-700 dark:bg-dark-800/80"
+          className="mt-12 rounded-2xl border border-slate-200/70 bg-white/90 p-5 text-center dark:border-slate-700 dark:bg-dark-800/80 sm:mt-14 sm:p-8"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
