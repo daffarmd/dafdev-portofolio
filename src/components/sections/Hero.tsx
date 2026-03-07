@@ -1,104 +1,117 @@
-import React from 'react';
-import { Link } from 'react-scroll';
-import { ChevronDown, Terminal, Database, Github, Linkedin } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+import { ChevronDown, Github, Linkedin, ArrowUpRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import type { Language } from '../../types';
 
-const Hero: React.FC = () => {
+interface HeroProps {
+  language: Language;
+}
+
+const FULL_NAME = 'Hello, Daffa Here';
+
+const Hero: React.FC<HeroProps> = ({ language }) => {
+  const [typedName, setTypedName] = useState('');
+
+  useEffect(() => {
+    let index = 0;
+    setTypedName('');
+
+    const typewriter = window.setInterval(() => {
+      index += 1;
+      setTypedName(FULL_NAME.slice(0, index));
+      if (index >= FULL_NAME.length) {
+        window.clearInterval(typewriter);
+      }
+    }, 70);
+
+    return () => window.clearInterval(typewriter);
+  }, [language]);
+
+  const t = language === 'id'
+    ? {
+        kicker: 'Backend Developer',
+        shortInfo: 'Membuat apapun yang bisa di buat.',
+        stackInfo: '',
+        aboutBtn: 'Lihat About',
+      }
+    : {
+        kicker: 'Backend Developer',
+        shortInfo: 'Make anything that can be made.',
+        stackInfo: '',
+        aboutBtn: 'Open About',
+      };
+
   return (
-    <section id="hero" className="relative h-screen flex items-center justify-center bg-gray-50 dark:bg-dark-900">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-600/10 to-secondary-500/10 dark:from-primary-800/20 dark:to-secondary-900/20"></div>
-        {/* Code pattern background */}
-        <div className="absolute inset-0 opacity-5 dark:opacity-10">
-          {Array.from({ length: 50 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute text-xs font-mono"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                transform: `rotate(${Math.random() * 360}deg)`,
-              }}
-            >
-              {Math.random() > 0.5 ? 'func()' : 'type{}'}
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      <div className="container mx-auto px-4 z-10">
-        <motion.div 
-          className="text-center"
-          initial={{ opacity: 0, y: 20 }}
+    <section id="hero" className="relative flex min-h-[78vh] items-center overflow-hidden pb-10 pt-24 sm:pt-28 md:pt-32">
+      <div className="absolute inset-0 soft-grid-bg opacity-60"></div>
+      <div className="pointer-events-none absolute -top-16 right-[-80px] h-72 w-72 rounded-full bg-slate-200/40 blur-3xl dark:bg-slate-700/20"></div>
+
+      <div className="section-container relative z-10">
+        <motion.div
+          className="max-w-4xl md:pr-8 lg:pr-14"
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="flex justify-center mb-6">
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary-600 rounded-full blur-xl opacity-20 animate-pulse"></div>
-              <div className="relative bg-white dark:bg-dark-800 p-4 rounded-full shadow-lg">
-                <Terminal className="h-10 w-10 text-primary-600 dark:text-primary-400" />
-              </div>
-            </div>
-          </div>
-          
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-dark-900 dark:text-white">
-            Muhammad Daffa Ramadhan
+
+          <h1 className="mt-6 min-h-[72px] text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl md:min-h-[88px] md:text-6xl dark:text-white">
+            {typedName}
+            <span className="caret-blink ml-1 inline-block h-[0.95em] w-[2px] bg-slate-900 align-[-0.08em] dark:bg-white"></span>
           </h1>
-          
-          <h2 className="text-2xl md:text-3xl text-primary-600 dark:text-primary-400 font-semibold mb-6">
-            Backend Developer
-          </h2>
-          
-          <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto mb-8">
-            Crafting robust <span className="text-primary-600 dark:text-primary-400 font-semibold">Golang</span> applications and <span className="text-secondary-500 dark:text-secondary-400 font-semibold">PostgreSQL</span> databases with 2 years of professional experience.
+
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg dark:text-slate-300">
+            {t.shortInfo}
+          </p>
+          <p className="mt-2 text-sm text-slate-500 md:text-base dark:text-slate-400">
+            {t.stackInfo}
           </p>
 
-          <div className="flex justify-center space-x-6 mb-12">
-            <motion.a 
-              href="#"
-              className="flex items-center bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-full font-medium transition-colors shadow-md hover:shadow-lg"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Github className="h-5 w-5 mr-2" />
-              GitHub
-            </motion.a>
-            <motion.a 
-              href="https://www.linkedin.com/in/muhammaddaffaramadhan/"
-              className="flex items-center bg-white dark:bg-dark-700 text-primary-600 dark:text-primary-400 border border-primary-600 dark:border-primary-400 hover:bg-gray-50 dark:hover:bg-dark-600 px-6 py-3 rounded-full font-medium transition-colors shadow-md hover:shadow-lg"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Linkedin className="h-5 w-5 mr-2" />
-              LinkedIn
-            </motion.a>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {['Golang', 'PostgreSQL', 'Backend API', 'Svelte'].map((item) => (
+              <span
+                key={item}
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-dark-800 dark:text-slate-200"
+              >
+                {item}
+              </span>
+            ))}
           </div>
 
-          <div className="flex flex-wrap justify-center gap-4">
-            <div className="flex items-center bg-white dark:bg-dark-700 px-4 py-2 rounded-full shadow">
-              <Terminal className="h-5 w-5 text-primary-600 dark:text-primary-400 mr-2" />
-              <span className="text-dark-800 dark:text-white">Golang</span>
-            </div>
-            <div className="flex items-center bg-white dark:bg-dark-700 px-4 py-2 rounded-full shadow">
-              <Database className="h-5 w-5 text-secondary-500 dark:text-secondary-400 mr-2" />
-              <span className="text-dark-800 dark:text-white">PostgreSQL</span>
-            </div>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a
+              href="https://github.com/daffarmd"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary"
+            >
+              <Github className="mr-2 h-4 w-4" />
+              GitHub
+              <ArrowUpRight className="ml-1.5 h-4 w-4" />
+            </a>
+            <a
+              href="https://www.linkedin.com/in/muhammaddaffaramadhan/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-outline"
+            >
+              <Linkedin className="mr-2 h-4 w-4" />
+              LinkedIn
+            </a>
+            <RouterLink to="/about" className="btn-outline">
+              {t.aboutBtn}
+            </RouterLink>
           </div>
         </motion.div>
       </div>
-      
-      <div className="absolute bottom-10 w-full flex justify-center animate-bounce">
-        <Link
-          to="about"
-          spy={true}
-          smooth={true}
-          offset={-70}
-          duration={500}
-          className="cursor-pointer text-gray-600 dark:text-gray-400"
+
+      <div className="absolute bottom-8 flex w-full justify-center">
+        <RouterLink
+          to="/about"
+          className="rounded-full border border-slate-300 bg-white p-2 text-slate-600 shadow-sm transition-colors hover:border-slate-400 hover:text-slate-900 dark:border-slate-700 dark:bg-dark-800 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:text-white"
         >
-          <ChevronDown className="h-8 w-8" />
-        </Link>
+          <ChevronDown className="h-6 w-6 animate-bounce" />
+        </RouterLink>
       </div>
     </section>
   );

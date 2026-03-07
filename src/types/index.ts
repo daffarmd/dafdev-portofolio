@@ -1,8 +1,13 @@
+export type Language = 'id' | 'en';
+
 export interface Project {
   id: number;
   title: string;
   description: string;
   technologies: string[];
+  platforms?: string[];
+  availability?: string[];
+  highlights?: string[];
   image?: string;
   link?: string;
   github?: string;
@@ -17,7 +22,8 @@ export interface Project {
 export interface Role {
   title: string;
   duration: string;
-  description: string[];
+  summary: string;
+  stack: string[];
 }
 
 export interface Experience {

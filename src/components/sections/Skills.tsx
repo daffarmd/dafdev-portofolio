@@ -1,8 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { skills } from '../../data/skills';
+import type { Language } from '../../types';
 
-const Skills: React.FC = () => {
+interface SkillsProps {
+  language: Language;
+}
+
+const Skills: React.FC<SkillsProps> = ({ language }) => {
   // Group skills by category
   const skillsByCategory = skills.reduce((acc, skill) => {
     if (!acc[skill.category]) {
@@ -13,10 +18,17 @@ const Skills: React.FC = () => {
   }, {} as Record<string, typeof skills>);
 
   const categoryTitles = {
-    backend: 'Backend',
-    database: 'Database',
+    backend: language === 'id' ? 'Backend' : 'Backend',
+    database: language === 'id' ? 'Database' : 'Database',
     devops: 'DevOps',
-    other: 'Other Skills'
+    other: language === 'id' ? 'Keahlian Lainnya' : 'Other Skills'
+  };
+
+  const categoryAccent = {
+    backend: 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900',
+    database: 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900',
+    devops: 'bg-slate-700 text-white dark:bg-slate-300 dark:text-slate-900',
+    other: 'bg-slate-600 text-white dark:bg-slate-400 dark:text-slate-900'
   };
 
   const containerVariants = {
@@ -38,69 +50,78 @@ const Skills: React.FC = () => {
   };
 
   return (
-    <section id="skills" className="py-20 bg-gray-50 dark:bg-dark-900">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <motion.h2 
-            className="text-3xl md:text-4xl font-bold text-dark-900 dark:text-white mb-4"
+    <section id="skills" className="section-shell">
+      <div className="section-container">
+        <div className="mb-16 max-w-3xl">
+          <motion.span
+            className="section-kicker"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            Technical Skills
-          </motion.h2>
-          <motion.div 
-            className="w-20 h-1 bg-primary-600 dark:bg-primary-400 mx-auto mb-6"
-            initial={{ opacity: 0, width: 0 }}
-            whileInView={{ opacity: 1, width: 80 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            {language === 'id' ? 'Keahlian Utama' : 'Core Expertise'}
+          </motion.span>
+          <motion.h2
+            className="section-title mt-4"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
             viewport={{ once: true }}
-          ></motion.div>
-          <motion.p 
-            className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto"
+          >
+            {language === 'id' ? 'Keahlian Teknis' : 'Technical Skills'}
+          </motion.h2>
+          <motion.p
+            className="section-subtitle"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             viewport={{ once: true }}
           >
-            My technical expertise is focused on backend development with Golang and PostgreSQL,
-            complemented by various other technologies in my stack.
+            {language === 'id'
+              ? 'Fokus keahlian teknis saya ada di pengembangan backend dengan Golang dan PostgreSQL, didukung teknologi lain yang relevan di stack saya.'
+              : 'My technical expertise is focused on backend development with Golang and PostgreSQL, complemented by various other technologies in my stack.'}
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {Object.entries(skillsByCategory).map(([category, categorySkills]) => (
             <motion.div 
               key={category}
-              className="bg-white dark:bg-dark-800 p-6 rounded-lg shadow-md"
+              className="glass-card p-6 md:p-7"
               variants={containerVariants}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
             >
-              <h3 className="text-xl font-bold text-dark-900 dark:text-white mb-6">
-                {categoryTitles[category as keyof typeof categoryTitles]}
-              </h3>
+              <div className={`mb-6 rounded-xl border border-slate-200 p-4 dark:border-slate-700 ${categoryAccent[category as keyof typeof categoryAccent]}`}>
+                <h3 className="text-xl font-bold">
+                  {categoryTitles[category as keyof typeof categoryTitles]}
+                </h3>
+                <p className="mt-1 text-sm opacity-80">
+                  {language === 'id' ? 'Fokus, praktis, dan siap production.' : 'Focused, practical, and production ready.'}
+                </p>
+              </div>
               <div className="space-y-6">
                 {categorySkills.map((skill) => (
                   <motion.div key={skill.id} variants={itemVariants}>
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-dark-800 dark:text-white font-medium">{skill.name}</span>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        {skill.level === 5 ? 'Expert' : 
-                         skill.level === 4 ? 'Advanced' :
-                         skill.level === 3 ? 'Intermediate' :
-                         skill.level === 2 ? 'Basic' : 'Beginner'}
+                      <span className="font-medium text-slate-800 dark:text-white">{skill.name}</span>
+                      <span className="text-sm text-slate-500 dark:text-slate-400">
+                        {skill.level === 5
+                          ? language === 'id' ? 'Ahli' : 'Expert'
+                          : skill.level === 4
+                            ? language === 'id' ? 'Lanjutan' : 'Advanced'
+                            : skill.level === 3
+                              ? language === 'id' ? 'Menengah' : 'Intermediate'
+                              : skill.level === 2
+                                ? language === 'id' ? 'Dasar' : 'Basic'
+                                : language === 'id' ? 'Pemula' : 'Beginner'}
                       </span>
                     </div>
-                    <div className="w-full h-2 bg-gray-200 dark:bg-dark-600 rounded-full">
+                    <div className="h-2.5 w-full rounded-full bg-slate-200 dark:bg-dark-600">
                       <div 
-                        className={`h-full rounded-full ${
-                          category === 'backend' || category === 'other' 
-                            ? 'bg-primary-600 dark:bg-primary-500' 
-                            : 'bg-secondary-500 dark:bg-secondary-400'
-                        }`} 
+                        className="h-full rounded-full bg-slate-900 dark:bg-slate-100"
                         style={{ width: `${(skill.level / 5) * 100}%` }}
                       ></div>
                     </div>
@@ -112,15 +133,19 @@ const Skills: React.FC = () => {
         </div>
 
         <motion.div 
-          className="mt-16 text-center"
+          className="mt-14 rounded-2xl border border-slate-200/70 bg-white/90 p-8 text-center dark:border-slate-700 dark:bg-dark-800/80"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
           viewport={{ once: true }}
         >
-          <h3 className="text-xl font-bold text-dark-900 dark:text-white mb-4">Always Learning</h3>
-          <p className="text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
-            Currently exploring Rust and expanding my knowledge in distributed systems and cloud-native technologies.
+          <h3 className="mb-3 text-xl font-bold text-slate-900 dark:text-white">
+            {language === 'id' ? 'Terus Belajar' : 'Always Learning'}
+          </h3>
+          <p className="mx-auto max-w-2xl text-slate-600 dark:text-slate-300">
+            {language === 'id'
+              ? 'Saat ini saya sedang mengeksplorasi Rust dan memperluas wawasan di distributed systems serta teknologi cloud-native.'
+              : 'Currently exploring Rust and expanding my knowledge in distributed systems and cloud-native technologies.'}
           </p>
         </motion.div>
       </div>

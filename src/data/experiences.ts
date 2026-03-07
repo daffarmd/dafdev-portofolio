@@ -6,28 +6,16 @@ export const experiences: Experience[] = [
     company: 'PT Angon Data Aji Saka',
     roles: [
       {
-        title: "Back End Developer",
-        duration: "Januari 2025 - Present", 
-        description: [
-          'Developed web interfaces using Svelte and Tailwind CSS',
-          'Built RESTful and gRPC APIs to support internal systems',
-          'Integrated H2H (Host-to-Host) systems for partner communication',
-          'Designed and implemented application databases based on business requirements',
-          'Created SSH key management tools using Go',
-          'Provided IT support for internal teams during the first year before being promoted',
-          'Continually improving technical skills and problem-solving by researching best practices and solutions'
-        ] 
+        title: "Backend Developer",
+        duration: "January 2025 - Present", 
+        summary: 'Building internal services, partner integrations, and operational tooling with a reliability-first approach.',
+        stack: ['Golang', 'PostgreSQL', 'gRPC', 'REST API', 'Svelte']
       },
       {
         title: "IT Support",
-        duration: "June 2023 - Desember 2024", 
-        description: [
-          'Monitored and ensured optimal performance of applications to prevent downtime or critical errors',
-          'Assisted clients in resolving transaction-related issues, including errors, pending statuses, and completion confirmations',
-          'Collaborated with technical and business teams to analyze and troubleshoot system failures',
-          'Provided timely support through various channels to maintain smooth client operations',
-          'Documented common issues and solutions to improve support efficiency and reduce response time'
-        ] 
+        duration: "June 2023 - December 2024", 
+        summary: 'Handled incident response, client issue resolution, and day-to-day system stability across internal operations.',
+        stack: ['Monitoring', 'Troubleshooting', 'Client Support', 'Documentation']
       }
     ]
   },
@@ -36,13 +24,10 @@ export const experiences: Experience[] = [
     company: 'Institut Teknologi Nasional Malang',
     roles: [
       {
-        title: "Back End Intern",
-        duration: "Januari 2022 - Desember 2022", 
-        description: [
-          'Developed and maintained internal web applications using PHP and CodeIgniter 3',
-          'Implemented responsive user interfaces with Bootstrap and JavaScript',
-          'Collaborated with team to design and integrate RESTful APIs',
-        ] 
+        title: "Backend Intern",
+        duration: "January 2022 - December 2022", 
+        summary: 'Contributed to campus internal apps by building backend features, responsive interfaces, and API integrations.',
+        stack: ['PHP', 'CodeIgniter 3', 'Bootstrap', 'JavaScript', 'REST API']
       }
     ]
   }

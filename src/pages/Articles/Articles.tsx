@@ -1,192 +1,80 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, Clock, Tag, Search, BookOpen, User } from 'lucide-react';
+import React from 'react';
+import { ArrowUpRight, BookOpen, Clock3, Sparkles } from 'lucide-react';
 
 const Articles: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-
-  // Data dummy untuk artikel dalam bahasa Indonesia
-  const articles = [
-    {
-      id: "1",
-      title: "Memahami React Hooks Secara Mendalam",
-      excerpt: "Panduan komprehensif tentang React Hooks, termasuk useState, useEffect, dan custom hooks. Pelajari cara mengoptimalkan aplikasi React Anda dengan pola hook modern.",
-      date: "2025-09-15",
-      readTime: "8 menit baca",
-      tags: ["React", "JavaScript", "Frontend"],
-      category: "Pengembangan Frontend",
-      author: "Muhammad Daffa Ramadhan"
-    },
-    {
-      id: "2",
-      title: "Membangun RESTful API dengan Node.js dan Express",
-      excerpt: "Pelajari cara membuat RESTful API yang kuat menggunakan Node.js dan Express. Panduan ini mencakup routing, middleware, autentikasi, dan praktik terbaik desain API.",
-      date: "2025-09-10",
-      readTime: "12 menit baca",
-      tags: ["Node.js", "Express", "API"],
-      category: "Pengembangan Backend",
-      author: "Muhammad Daffa Ramadhan"
-    },
-    {
-      id: "3",
-      title: "Menguasai TypeScript: Tipe dan Generics Lanjutan",
-      excerpt: "Mendalami fitur-fitur TypeScript tingkat lanjut termasuk generics, tipe kondisional, dan tipe pemetaan. Tingkatkan keamanan tipe dan pemeliharaan kode Anda.",
-      date: "2025-09-05",
-      readTime: "15 menit baca",
-      tags: ["TypeScript", "Pemrograman"],
-      category: "Pemrograman",
-      author: "Muhammad Daffa Ramadhan"
-    },
-    {
-      id: "4",
-      title: "Prinsip Desain Database untuk Aplikasi Skalabel",
-      excerpt: "Prinsip-prinsip penting desain database untuk membangun aplikasi yang dapat diskalakan. Mencakup normalisasi, pengindeksan, dan teknik optimasi query.",
-      date: "2025-08-28",
-      readTime: "10 menit baca",
-      tags: ["Database", "PostgreSQL", "Desain"],
-      category: "Database",
-      author: "Muhammad Daffa Ramadhan"
-    },
-    {
-      id: "5",
-      title: "Praktik Terbaik DevOps: Setup Pipeline CI/CD",
-      excerpt: "Pelajari cara mengatur pipeline CI/CD yang efektif menggunakan tools modern. Panduan ini mencakup otomasi, testing, dan strategi deployment untuk pengiriman software yang andal.",
-      date: "2025-08-20",
-      readTime: "14 menit baca",
-      tags: ["DevOps", "CI/CD", "Docker"],
-      category: "DevOps",
-      author: "Muhammad Daffa Ramadhan"
-    },
-    {
-      id: "6",
-      title: "Solusi Manajemen State dalam Aplikasi Web Modern",
-      excerpt: "Perbandingan berbagai solusi manajemen state termasuk Redux, Context API, dan Zustand. Pelajari kapan menggunakan setiap pendekatan untuk performa optimal.",
-      date: "2025-08-15",
-      readTime: "11 menit baca",
-      tags: ["Manajemen State", "React", "Frontend"],
-      category: "Pengembangan Frontend",
-      author: "Muhammad Daffa Ramadhan"
-    }
-  ];
-
-  const filteredArticles = articles.filter(article => 
-    article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    article.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    article.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-dark-900 dark:to-dark-800 py-12 pt-24">
-      <div className="container mx-auto px-4 max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-4">
-            <div className="bg-primary-100 dark:bg-primary-900/20 p-3 rounded-full mr-4">
-              <BookOpen className="h-8 w-8 text-primary-600 dark:text-primary-400" />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-dark-900 dark:text-white">Basis Pengetahuan</h1>
-          </div>
-          <p className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto mt-4">
-            Kumpulan catatan, wawasan, dan pembelajaran pribadi saya selama perjalanan sebagai pengembang.
-          </p>
-        </div>
+    <div className="min-h-screen py-12 pt-28">
+      <div className="mx-auto w-full max-w-[1080px] px-6 md:px-8">
+        <div className="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/85 p-6 shadow-[0_24px_70px_-40px_rgba(15,23,42,0.35)] backdrop-blur-sm dark:border-slate-700 dark:bg-dark-800/85 sm:p-8 md:p-10">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+            <div>
+              <div className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600 dark:border-slate-700 dark:bg-dark-700 dark:text-slate-300">
+                <Sparkles className="mr-2 h-4 w-4" />
+                Coming Soon
+              </div>
 
-        {/* Search Bar */}
-        <div className="max-w-2xl mx-auto mb-12">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              placeholder="Cari artikel, tag, atau topik..."
-              className="block w-full pl-10 pr-4 py-4 border border-gray-300 dark:border-dark-700 rounded-xl bg-white dark:bg-dark-800 text-dark-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent shadow-sm"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </div>
+              <div className="mt-6 flex items-center">
+                <div className="rounded-2xl bg-gradient-to-br from-primary-600 to-secondary-500 p-4 shadow-md shadow-primary-700/20">
+                  <BookOpen className="h-8 w-8 text-white" />
+                </div>
+                <h1 className="ml-5 text-4xl font-display font-extrabold tracking-tight text-slate-900 md:text-6xl dark:text-white">
+                  Daf Notes
+                </h1>
+              </div>
 
-        {/* Articles Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredArticles.map((article) => (
-            <article 
-              key={article.id}
-              className="bg-white dark:bg-dark-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-            >
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-200">
-                    {article.category}
-                  </span>
-                  <div className="flex items-center text-gray-500 dark:text-gray-400 text-xs">
-                    <Clock className="h-3 w-3 mr-1" />
-                    {article.readTime}
-                  </div>
-                </div>
-                
-                <h2 className="text-xl font-bold text-dark-900 dark:text-white mb-3 line-clamp-2">
-                  {article.title}
-                </h2>
-                
-                <p className="text-gray-700 dark:text-gray-300 mb-4 line-clamp-3 text-sm">
-                  {article.excerpt}
-                </p>
-                
-                <div className="flex items-center text-gray-500 dark:text-gray-400 text-xs mb-4">
-                  <User className="h-3 w-3 mr-1" />
-                  {article.author}
-                </div>
-                
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {article.tags.map((tag, index) => (
-                    <span 
-                      key={index}
-                      className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 dark:bg-dark-700 text-gray-800 dark:text-gray-200"
-                    >
-                      <Tag className="h-2.5 w-2.5 mr-1" />
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                
-                <div className="flex items-center text-gray-500 dark:text-gray-400 text-xs mb-6">
-                  <Calendar className="h-3 w-3 mr-1" />
-                  <time dateTime={article.date}>{new Date(article.date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
-                </div>
-                
-                <div className="mt-4">
-                  <Link 
-                    to={`/articles/${article.id}`}
-                    className="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 font-medium flex items-center text-sm"
+              <p className="mt-6 max-w-2xl text-lg leading-relaxed text-slate-600 dark:text-slate-300">
+                Articles are being prepared in a cleaner format. I am curating practical write-ups about backend engineering, product thinking, and debugging notes.
+              </p>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                {['Backend Notes', 'System Design', 'Debugging Logs'].map((item) => (
+                  <span
+                    key={item}
+                    className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-dark-700 dark:text-slate-200"
                   >
-                    Baca selengkapnya
-                    <ArrowRight className="h-4 w-4 ml-1" />
-                  </Link>
+                    {item}
+                  </span>
+                ))}
+              </div>
+
+              <div className="mt-8 inline-flex items-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                Publishing queue is in progress
+                <ArrowUpRight className="ml-2 h-4 w-4" />
+              </div>
+            </div>
+
+            <div className="rounded-[1.75rem] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 p-5 text-white shadow-[0_24px_60px_-32px_rgba(15,23,42,0.9)]">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-white/55">
+                  Writing Pipeline
+                </p>
+                <Clock3 className="h-5 w-5 text-white/60" />
+              </div>
+
+              <div className="mt-6 space-y-4">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/45">Stage 01</p>
+                  <h2 className="mt-2 text-xl font-bold">Drafting ideas</h2>
+                  <p className="mt-2 text-sm leading-relaxed text-white/65">
+                    Short engineering notes are being refined into readable case studies.
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-primary-400/20 bg-primary-500/10 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-200/70">Stage 02</p>
+                  <h2 className="mt-2 text-xl font-bold text-white">Editing and packaging</h2>
+                  <p className="mt-2 text-sm leading-relaxed text-white/65">
+                    Layout, visuals, and article structure are being prepared before launch.
+                  </p>
                 </div>
               </div>
-            </article>
-          ))}
-        </div>
 
-        {/* Empty State */}
-        {filteredArticles.length === 0 && (
-          <div className="text-center py-16">
-            <div className="bg-gray-200 dark:bg-dark-700 border-2 border-dashed rounded-xl w-16 h-16 mx-auto mb-6 flex items-center justify-center">
-              <BookOpen className="h-8 w-8 text-gray-400" />
+              <div className="mt-6 rounded-2xl border border-dashed border-white/15 p-4">
+                <p className="text-sm font-semibold text-white">Expected first release</p>
+                <p className="mt-1 text-2xl font-display font-bold">Soon</p>
+              </div>
             </div>
-            <h3 className="text-2xl font-medium text-gray-900 dark:text-white mb-2">Artikel tidak ditemukan</h3>
-            <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-              Coba sesuaikan kata kunci pencarian Anda untuk menemukan apa yang Anda cari.
-            </p>
           </div>
-        )}
-        
-        {/* Footer Info */}
-        <div className="text-center mt-16 pt-8 border-t border-gray-200 dark:border-dark-700">
-          <p className="text-gray-600 dark:text-gray-400">
-            Menampilkan {filteredArticles.length} dari {articles.length} artikel
-          </p>
         </div>
       </div>
     </div>
