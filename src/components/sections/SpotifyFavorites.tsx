@@ -15,8 +15,8 @@ const favoriteTracks = [
     embedUrl: 'https://open.spotify.com/embed/track/7ycz6sgZWp4wvF53BZVTjE?utm_source=generator',
   },
   {
-    title: 'Viva La Vida',
-    artist: 'Coldplay',
+    title: 'Lost',
+    artist: 'Avanged Sevenfold',
     embedUrl: 'https://open.spotify.com/embed/track/0EtXiKDaHJcVFFvhWpSfiN?utm_source=generator',
   },
 ];
