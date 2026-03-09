@@ -18,7 +18,7 @@ export const projects: Project[] = [
   },
   {
     id: 2,
-    title: 'Insanul Barokah',
+    title: 'Ihsanul Barokah',
     description:
       'Backend API for a production mobile application available on App Store and Play Store, powering core app flows and operational data exchange.',
     platforms: ['iOS', 'Android'],
