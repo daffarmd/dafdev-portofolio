@@ -56,7 +56,7 @@ const Articles: React.FC = () => {
                 </span>
 
                 <h1 className="mt-6 font-display text-4xl font-bold leading-[0.96] tracking-tight text-slate-950 sm:text-5xl dark:text-white">
-                  Catatan tentang pengalaman kerja saya.
+                  Catatan tentang pengalaman saya.
                 </h1>
 
                 <p className="mt-4 max-w-lg text-base leading-7 text-slate-600 dark:text-slate-300">
@@ -65,7 +65,7 @@ const Articles: React.FC = () => {
 
                 <div className="mt-8 flex flex-wrap items-center gap-4">
                   <Link
-                    to={`/articles/${spotlightArticle.slug}`}
+                    to={`/my-notes/${spotlightArticle.slug}`}
                     className="inline-flex min-h-[48px] items-center rounded-full bg-slate-950 px-6 py-3 text-sm font-semibold text-white transition-transform duration-300 hover:-translate-y-0.5 dark:bg-white dark:text-slate-950"
                   >
                     Mulai baca
@@ -79,38 +79,41 @@ const Articles: React.FC = () => {
             </div>
 
             <Link
-              to={`/articles/${spotlightArticle.slug}`}
-              className="group relative isolate flex min-h-[340px] overflow-hidden border-t border-slate-200/70 bg-slate-950 lg:min-h-full lg:border-l lg:border-t-0 dark:border-slate-700/80"
+              to={`/my-notes/${spotlightArticle.slug}`}
+              className="group relative isolate overflow-hidden border-t border-slate-200/70 bg-slate-950 lg:min-h-full lg:border-l lg:border-t-0 dark:border-slate-700/80"
             >
-              <img
-                src={spotlightArticle.image}
-                alt={spotlightArticle.imageAlt}
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/62 to-slate-950/10" />
-              <div className="relative mt-auto w-full p-7 text-white sm:p-9 md:p-10">
-                <div className="flex flex-wrap items-center gap-3 text-sm text-white/88">
-                  <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 font-medium">
+              <div className="relative aspect-[4/3] overflow-hidden sm:aspect-[16/10] lg:absolute lg:inset-0 lg:aspect-auto">
+                <img
+                  src={spotlightArticle.image}
+                  alt={spotlightArticle.imageAlt}
+                  className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105 sm:object-center"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/35 to-slate-950/5 lg:from-slate-950 lg:via-slate-950/62 lg:to-slate-950/10" />
+              </div>
+
+              <div className="relative flex flex-col justify-end bg-slate-950 p-6 text-white sm:p-8 lg:min-h-full lg:bg-transparent lg:p-10">
+                <div className="flex flex-wrap items-center gap-2.5 text-sm text-white/88 sm:gap-3">
+                  <span className="rounded-full border border-emerald-300/35 bg-emerald-400/20 px-3 py-1 font-medium text-white shadow-[0_10px_30px_-18px_rgba(74,222,128,0.9)] backdrop-blur-sm">
                     {spotlightMode === 'recent' ? 'Baru dibaca' : 'Coba baca ini'}
                   </span>
-                  <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 font-medium">
+                  <span className="rounded-full border border-sky-300/35 bg-sky-400/18 px-3 py-1 font-medium text-white shadow-[0_10px_30px_-18px_rgba(56,189,248,0.85)] backdrop-blur-sm">
                     {spotlightArticle.category}
                   </span>
-                  <span className="inline-flex items-center">
+                  <span className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-3 py-1 lg:border-0 lg:bg-transparent lg:px-0 lg:py-0">
                     <Clock3 className="mr-1.5 h-4 w-4" />
                     {spotlightArticle.readTime}
                   </span>
                 </div>
 
-                <h2 className="mt-5 max-w-lg text-2xl font-bold leading-tight sm:text-3xl">
+                <h2 className="mt-4 max-w-lg text-xl font-bold leading-tight sm:mt-5 sm:text-2xl lg:text-3xl">
                   {spotlightArticle.title}
                 </h2>
 
-                <p className="mt-4 max-w-xl text-sm leading-7 text-white/90 sm:text-base">
+                <p className="mt-3 max-w-xl text-sm leading-6 text-white/90 sm:mt-4 sm:text-base sm:leading-7">
                   {spotlightArticle.excerpt}
                 </p>
 
-                <span className="mt-7 inline-flex items-center text-sm font-semibold text-white">
+                <span className="mt-6 inline-flex items-center text-sm font-semibold text-white">
                   {spotlightMode === 'recent' ? 'Lanjut baca' : 'Baca sekarang'}
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </span>
@@ -123,7 +126,7 @@ const Articles: React.FC = () => {
           <div className="mb-7 flex flex-wrap items-end justify-between gap-5">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                Latest Articles
+                My Notes
               </p>
               <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-slate-950 md:text-4xl dark:text-white">
                 Tulisan terbaru
@@ -140,22 +143,19 @@ const Articles: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 gap-6">
-            {articles.map((article, index) => (
+            {articles.map((article) => (
               <Link
                 key={article.slug}
-                to={`/articles/${article.slug}`}
+                to={`/my-notes/${article.slug}`}
                 className="group overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-white/85 shadow-[0_24px_70px_-42px_rgba(15,23,42,0.25)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_30px_80px_-42px_rgba(15,23,42,0.35)] dark:border-slate-700 dark:bg-dark-800/85 md:grid md:grid-cols-[300px_1fr]"
               >
-                <div className="relative min-h-[240px] overflow-hidden md:min-h-full">
+                <div className="relative min-h-[180px] overflow-hidden sm:min-h-[220px] md:min-h-full">
                   <img
                     src={article.image}
                     alt={article.imageAlt}
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/55 via-slate-950/5 to-transparent md:hidden" />
-                  <span className="absolute left-5 top-5 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-white/15 text-sm font-semibold text-white backdrop-blur-sm">
-                    {(index + 1).toString().padStart(2, '0')}
-                  </span>
                 </div>
 
                 <div className="flex flex-col justify-between p-6 sm:p-7 md:p-8">

@@ -31,7 +31,7 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
     { name: 'Home', to: '/' },
     { name: 'About', to: '/about' },
     { name: 'Showcase', to: '/showcase' },
-    { name: 'Articles', to: '/articles' },
+    { name: 'My Notes', to: '/my-notes' },
     { name: 'Contact', to: '/contact' },
   ];
 
@@ -71,7 +71,7 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
         <nav className="hidden items-center gap-5 xl:gap-7 lg:flex">
           {navLinks.map((link) => (
             <NavLink key={link.to} to={link.to} className={navClass}>
-              {link.to === '/articles' && <BookOpen className="mr-1 h-4 w-4" />}
+              {link.to === '/my-notes' && <BookOpen className="mr-1 h-4 w-4" />}
               {link.name}
               {link.soon && (
                 <span className="ml-2 rounded-full border border-slate-300 bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-300">
@@ -125,7 +125,7 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
                     }`
                   }
                 >
-                  {link.to === '/articles' && <BookOpen className="mr-1 h-4 w-4" />}
+                  {link.to === '/my-notes' && <BookOpen className="mr-1 h-4 w-4" />}
                   {link.name}
                   {link.soon && (
                     <span className="ml-2 rounded-full border border-slate-300 bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-300">

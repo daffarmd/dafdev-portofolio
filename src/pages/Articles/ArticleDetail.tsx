@@ -77,7 +77,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
           {command ? (
             <div className="article-code-command">
               <Terminal className="h-4 w-4" />
-              <span>{command}</span>
+              <span className="break-all">{command}</span>
             </div>
           ) : null}
         </figcaption>
@@ -126,11 +126,11 @@ const ArticleDetail: React.FC = () => {
               Halaman yang kamu cari sudah tidak tersedia atau slug artikelnya berubah.
             </p>
             <Link
-              to="/articles"
+              to="/my-notes"
               className="mt-8 inline-flex min-h-[48px] items-center rounded-full bg-slate-950 px-6 py-3 text-sm font-semibold text-white transition-transform duration-300 hover:-translate-y-0.5 dark:bg-white dark:text-slate-950"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Kembali ke daftar artikel
+              Kembali ke My Notes
             </Link>
           </div>
         </div>
@@ -150,11 +150,11 @@ const ArticleDetail: React.FC = () => {
 
       <div className="mx-auto w-full max-w-[1120px] px-6 md:px-8">
         <Link
-          to="/articles"
+          to="/my-notes"
           className="inline-flex items-center rounded-full border border-slate-200/80 bg-white/92 px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-sm transition-colors hover:border-slate-300 hover:text-slate-950 dark:border-slate-700 dark:bg-dark-800/88 dark:text-slate-200 dark:hover:text-white"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Kembali ke artikel
+          Kembali ke My Notes
         </Link>
 
         <article className="mt-6 overflow-hidden rounded-[2rem] border border-white/70 bg-white/92 shadow-[0_28px_90px_-48px_rgba(15,23,42,0.22)] backdrop-blur-sm dark:border-slate-700 dark:bg-dark-800/88">
@@ -162,34 +162,34 @@ const ArticleDetail: React.FC = () => {
             <img
               src={article.image}
               alt={article.imageAlt}
-              className="h-[22rem] w-full object-cover sm:h-[28rem] lg:h-[34rem]"
+              className="h-64 w-full object-cover sm:h-[28rem] lg:h-[34rem]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/68 to-slate-950/18" />
+            <div className="absolute inset-0 hidden bg-gradient-to-t from-slate-950 via-slate-950/68 to-slate-950/18 sm:block" />
 
-            <div className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8 md:p-10 lg:p-12">
-              <div className="flex flex-wrap items-center gap-3 text-sm text-white/88">
-                <span className="rounded-full border border-white/20 bg-white/12 px-3 py-1 font-medium text-white">
+            <div className="relative bg-slate-950 p-6 text-white sm:absolute sm:inset-x-0 sm:bottom-0 sm:bg-transparent sm:p-8 md:p-10 lg:px-12 lg:pb-12 lg:pt-20">
+              <div className="flex flex-wrap items-center gap-2.5 text-sm text-white sm:gap-3">
+                <span className="rounded-full border border-sky-300/40 bg-sky-400/25 px-3 py-1 font-semibold text-white shadow-[0_10px_30px_-18px_rgba(56,189,248,0.95)] backdrop-blur-sm">
                   {article.category}
                 </span>
-                <span className="inline-flex items-center">
+                <span className="inline-flex items-center rounded-full border border-white/20 bg-slate-900/45 px-3 py-1 font-medium text-white shadow-[0_10px_30px_-20px_rgba(15,23,42,0.9)] backdrop-blur-sm sm:bg-white/10">
                   <Clock className="mr-1.5 h-4 w-4" />
                   {article.readTime}
                 </span>
-                <span className="inline-flex items-center">
+                <span className="inline-flex items-center rounded-full border border-white/20 bg-slate-900/45 px-3 py-1 font-medium text-white shadow-[0_10px_30px_-20px_rgba(15,23,42,0.9)] backdrop-blur-sm sm:bg-white/10">
                   <Calendar className="mr-1.5 h-4 w-4" />
                   {publishedDate}
                 </span>
               </div>
 
-              <h1 className="mt-5 max-w-4xl font-display text-3xl font-bold leading-[1.02] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl">
+              <h1 className="mt-5 max-w-4xl font-display text-[2rem] font-bold leading-[1.04] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl">
                 {article.title}
               </h1>
 
-              <p className="mt-5 max-w-3xl text-base leading-8 text-white/90 sm:text-lg">
+              <p className="mt-4 max-w-3xl text-[15px] leading-7 text-white/90 sm:mt-5 sm:text-lg sm:leading-8">
                 {article.excerpt}
               </p>
 
-              <div className="mt-6 inline-flex items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm text-white/92 backdrop-blur-sm">
+              <div className="mt-6 inline-flex max-w-full flex-wrap items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm text-white/92 backdrop-blur-sm">
                 <User className="mr-2 h-4 w-4" />
                 {article.author}
               </div>
@@ -309,10 +309,10 @@ const ArticleDetail: React.FC = () => {
               </div>
 
               <Link
-                to="/articles"
+                to="/my-notes"
                 className="inline-flex items-center text-sm font-semibold text-slate-800 transition-colors hover:text-primary-700 dark:text-slate-100 dark:hover:text-primary-300"
               >
-                Lihat semua artikel
+                Lihat semua My Notes
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </div>

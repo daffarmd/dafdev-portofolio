@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, useParams } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
@@ -20,6 +20,16 @@ const ScrollToTop: React.FC = () => {
   }, [pathname]);
 
   return null;
+};
+
+const LegacyArticleRedirect: React.FC = () => {
+  const { slug } = useParams<{ slug: string }>();
+
+  if (!slug) {
+    return <Navigate to="/my-notes" replace />;
+  }
+
+  return <Navigate to={`/my-notes/${slug}`} replace />;
 };
 
 function App() {
@@ -59,8 +69,10 @@ function App() {
             <Route path="/showcase/queue-display" element={<QueueAppDemo />} />
             <Route path="/showcase/hospital-app" element={<HospitalAppDemo />} />
             <Route path="/contact" element={<ContactPage language={language} />} />
-            <Route path="/articles" element={<Articles />} />
-            <Route path="/articles/:slug" element={<ArticleDetail />} />
+            <Route path="/my-notes" element={<Articles />} />
+            <Route path="/my-notes/:slug" element={<ArticleDetail />} />
+            <Route path="/articles" element={<Navigate to="/my-notes" replace />} />
+            <Route path="/articles/:slug" element={<LegacyArticleRedirect />} />
           </Routes>
         </main>
         <Footer language={language} />

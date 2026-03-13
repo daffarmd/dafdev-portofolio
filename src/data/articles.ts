@@ -1,8 +1,11 @@
 import golangArticleCover from '../assets/golang-article-cover.jpg';
+import restApiGolangCover from '../assets/article-rest-api-golang.png';
+import expMe from '../assets/article-exp-me.png';
 import type { Article } from '../types';
 
 export const articles: Article[] = [
   {
+    id: 1,
     slug: 'membangun-rest-api-golang-yang-rapi-dan-bisa-langsung-dijalankan',
     title: 'Membangun REST API Golang yang Rapi, Mudah Dibaca, dan Bisa Langsung Dijalankan',
     excerpt:
@@ -12,8 +15,8 @@ export const articles: Article[] = [
     tags: ['Golang', 'REST API', 'Runnable Code'],
     category: 'Backend Engineering',
     author: 'Muhammad Daffa Ramadhan',
-    image: golangArticleCover,
-    imageAlt: 'Cover article about Golang and backend development',
+    image: restApiGolangCover,
+    imageAlt: 'Cover article about building a REST API with Golang',
     sections: [
       {
         type: 'paragraph',
@@ -23,11 +26,11 @@ export const articles: Article[] = [
       {
         type: 'paragraph',
         content:
-          'Di bawah ini saya bikin contoh REST API kecil dengan Go standar library. Tidak ada framework tambahan, jadi lebih mudah dipahami dan cocok untuk dijadikan fondasi sebelum masuk ke project yang lebih besar.',
+          'Di bawah ini saya membuat contoh REST API kecil dengan Go standar library. Tidak ada framework tambahan, jadi lebih mudah dipahami dan cocok untuk dijadikan gambaran sebelum masuk ke project yang lebih besar.',
       },
       {
         type: 'heading',
-        content: '1. Mulai dari file utama yang langsung runnable',
+        content: '1. File utama yang runnable',
       },
       {
         type: 'paragraph',
@@ -145,22 +148,9 @@ curl http://localhost:8080/health
 curl http://localhost:8080/users`,
       },
       {
-        type: 'heading',
-        content: '3. Kenapa format seperti ini lebih enak dibaca',
-      },
-      {
-        type: 'list',
-        items: [
-          'Setiap blok kode punya nama file atau konteks command, jadi pembaca tidak menebak-nebak.',
-          'Line number membantu scanning visual, tapi tidak ikut tercopy saat tombol copy dipakai.',
-          'Contrast dibuat lebih lembut supaya mata tidak cepat lelah saat membaca kode panjang.',
-          'Contoh kodenya runnable, jadi artikel terasa praktis, bukan hanya dekoratif.',
-        ],
-      },
-      {
         type: 'paragraph',
         content:
-          'Kalau nanti kamu ingin scale contoh ini, langkah berikutnya biasanya adalah memisahkan route, handler, service, dan repository ke package yang berbeda. Tapi untuk artikel, saya sengaja mulai dari satu file yang bersih agar alurnya mudah diikuti.',
+          'Kalau nanti kamu ingin scale contoh ini, langkah berikutnya biasanya adalah memisahkan route, handler, service, dan repository ke package yang berbeda. Tapi untuk kali ini, saya sengaja mulai dari satu file yang clean agar alurnya mudah diikuti. dan kamu punya gambaran yang jelas tentang bagaimana struktur dasar REST API dengan Go sebelum masuk ke project yang lebih besar.',
       },
       {
         type: 'highlight',
@@ -171,125 +161,100 @@ curl http://localhost:8080/users`,
     ],
   },
   {
+    id: 2,
     slug: 'hal-hal-yang-saya-pelajari-setelah-menggunakan-golang-selama-2-tahun',
-    title: 'Hal-Hal yang Saya Pelajari Setelah Menggunakan Golang Selama Kurang Lebih 2 Tahun di Dunia Profesional',
+    title: 'Hal-Hal yang Saya Pelajari Setelah Menggunakan Golang Selama Lebih dari 2 Tahun di Dunia Profesional',
     excerpt:
-      'Refleksi singkat tentang bagaimana Go mengubah cara saya melihat backend development, mulai dari kesederhanaan syntax sampai kemudahan deployment di production.',
+      'Cerita tentang perjalanan saya sebagai lulusan SMK yang langsung bekerja, kuliah sambil kerja, dan berkembang bersama Golang di dunia finance dan banking.',
     date: '2026-03-10',
-    readTime: '7 menit baca',
+    readTime: '8 menit baca',
     tags: ['Golang', 'Backend', 'Career Notes'],
-    category: 'Backend Engineering',
+    category: 'Personal Experience',
     author: 'Muhammad Daffa Ramadhan',
-    image: golangArticleCover,
-    imageAlt: 'Cover article about Golang and backend development',
+    image: expMe,
+    imageAlt: 'Cover article about personal experience using Golang for two years',
     sections: [
       {
         type: 'paragraph',
         content:
-          'Selama kurang lebih dua tahun menggunakan Golang di dunia profesional, ada beberapa hal yang benar-benar mengubah cara saya melihat backend development.',
+          'Saya adalah lulusan SMK, dan pada saat artikel ini ditulis saya sedang menjalani perkuliahan sambil tetap bekerja. Setelah lulus SMK, saya memutuskan untuk langsung masuk ke dunia kerja dan bergabung dengan salah satu startup software house yang bergerak di bidang finance solution dan banking.',
       },
       {
         type: 'paragraph',
         content:
-          'Awalnya saya mengira Golang hanyalah bahasa yang sederhana tanpa banyak fitur dibandingkan bahasa lain. Namun setelah menggunakannya dalam proyek nyata, saya mulai memahami kenapa banyak perusahaan memilih Go untuk membangun sistem backend mereka.',
-      },
-      {
-        type: 'paragraph',
-        content:
-          'Berikut beberapa hal yang paling terasa bagi saya selama bekerja dengan Go dan kenapa pengalaman ini cukup membentuk cara saya menulis kode sampai hari ini.',
+          'Di tempat kerja tersebut saya memiliki role sebagai software developer dan banyak bekerja menggunakan Golang. Dari sana, saya mulai benar-benar mengenal bagaimana Go dipakai bukan hanya untuk belajar atau eksperimen kecil, tetapi untuk sistem yang menyentuh kebutuhan bisnis yang nyata.',
       },
       {
         type: 'heading',
-        content: '1. Kesederhanaan adalah kekuatan utama Go',
+        content:
+          '1. Golang mempertemukan saya dengan dunia backend yang lebih serius',
       },
       {
         type: 'paragraph',
         content:
-          'Saat pertama kali belajar Go, saya sempat merasa bahasa ini terlalu sederhana. Tidak banyak fitur seperti inheritance yang kompleks atau abstraksi berlapis yang sering ditemukan di bahasa lain.',
+          'Dari pekerjaan pertama saya itu, saya cukup banyak mendapatkan ilmu yang sebelumnya hanya saya dengar sekilas. Saya belajar tentang security, microservices, payment gateway, REST API, dan juga H2H. Hal yang menarik bagi saya, banyak dari kebutuhan tersebut dikerjakan menggunakan Golang.',
       },
       {
         type: 'paragraph',
         content:
-          'Namun di dunia profesional, kesederhanaan itu justru menjadi kekuatan. Codebase lebih mudah dibaca, lebih mudah dipahami anggota tim lain, dan proses onboarding developer baru terasa lebih cepat. Ketika ada masalah di production, proses debugging juga cenderung lebih jelas karena struktur kodenya tidak berputar-putar.',
+          'Pengalaman itu membuat saya sadar bahwa backend development bukan sekadar membuat endpoint lalu selesai. Ada tanggung jawab yang lebih besar, terutama ketika sistem berkaitan dengan transaksi, integrasi antarsistem, dan kebutuhan reliability yang tinggi.',
       },
       {
         type: 'heading',
-        content: '2. Concurrency di Go sangat powerful',
+        content: '2. Bekerja sambil tetap belajar membuat saya berkembang lebih cepat',
       },
       {
         type: 'paragraph',
         content:
-          'Salah satu hal yang paling menarik dari Golang adalah model concurrency-nya. Dengan goroutine, kita bisa menjalankan banyak pekerjaan secara bersamaan dengan cara yang ringan dan efisien.',
+          'Walaupun saya sudah bekerja, saya merasa proses belajar saya tidak boleh berhenti di kantor saja. Karena itu, di luar pekerjaan saya juga berusaha terus mengimprove diri. Salah satu bentuknya adalah menulis artikel seperti ini, mengambil pekerjaan freelance,membuat produk atau aplikasi sendiri, dan membangun website portfolio saya sendiri.',
+      },
+      {
+        type: 'paragraph',
+        content:
+          'Saya banyak belajar secara otodidak, terutama lewat dokumentasi resmi, eksplorasi mandiri, dan mengikuti beberapa course. Menurut saya, proses belajar seperti ini cukup menantang, tetapi justru sangat membantu karena saya dipaksa untuk benar-benar memahami dasar-dasarnya satu per satu.',
+      },
+      {
+        type: 'heading',
+        content: '3. Hal-hal di Golang yang sejauh ini sudah saya pahami',
       },
       {
         type: 'list',
         items: [
-          'Melakukan beberapa API call secara bersamaan.',
-          'Memproses background job tanpa membebani request utama.',
-          'Menjalankan worker untuk task dalam jumlah besar dengan lebih hemat resource.',
+          'Golang modules untuk dependency management.',
+          'Concurrency, goroutines, dan cara berpikir asynchronous yang lebih rapi.',
+          'Unit testing untuk menjaga behaviour code tetap konsisten.',
+          'Context untuk request lifecycle, cancellation, dan timeout.',
+          'Go database untuk kebutuhan akses data.',
+          'Go embed untuk memanfaatkan asset atau file langsung dari binary.',
+          'Go web dan `httprouter` untuk membangun service yang lebih terstruktur.',
+          'Go JSON untuk proses encoding dan decoding data.',
+          'REST API di Golang sebagai fondasi utama yang paling sering saya pakai.',
         ],
       },
       {
         type: 'paragraph',
         content:
-          'Konsep channel juga membantu goroutine saling berkomunikasi dengan pola yang lebih terstruktur. Saat dipakai dengan disiplin yang baik, concurrency di Go terasa praktis, bukan sekadar fitur yang terlihat keren di atas kertas.',
+          'Semua itu adalah hal-hal yang sejauh ini saya pahami, dan saya sadar perjalanan saya masih panjang. Masih banyak area yang ingin saya dalami lebih jauh, baik dari sisi arsitektur, performa, observability, maupun best practice dalam membangun backend yang lebih matang.',
       },
       {
         type: 'heading',
-        content: '3. Go memaksa developer menulis kode yang eksplisit',
+        content: '4. Golang bukan tujuan akhir, tapi kendaraan untuk terus berkembang',
       },
       {
         type: 'paragraph',
         content:
-          'Salah satu hal yang paling sering diperdebatkan adalah cara Go menangani error. Go tidak mengandalkan exception seperti banyak bahasa lain. Sebagai gantinya, error dicek secara eksplisit hampir di setiap langkah penting.',
+          'Buat saya, dua tahun terakhir menggunakan Golang bukan hanya soal belajar syntax atau framework. Yang lebih penting adalah bagaimana pengalaman itu membentuk cara saya berpikir sebagai developer: lebih disiplin, lebih sadar terhadap kualitas code, dan lebih paham bahwa software yang baik harus bisa dipelihara, diamankan, dan diandalkan.',
       },
       {
         type: 'paragraph',
         content:
-          'Awalnya pendekatan ini terasa cukup verbose. Namun setelah dipakai di production, saya justru merasa alur program menjadi lebih jelas dan kemungkinan error terlewat menjadi lebih kecil. Kode memang sedikit lebih panjang, tetapi niat dari setiap langkah jadi lebih transparan.',
-      },
-      {
-        type: 'heading',
-        content: '4. Tooling Go sangat nyaman digunakan',
-      },
-      {
-        type: 'paragraph',
-        content:
-          'Hal lain yang sangat terasa setelah menggunakan Go adalah tooling-nya yang rapi dan solid. Banyak kebutuhan dasar development sudah disediakan langsung oleh ekosistem Go tanpa perlu konfigurasi yang berlebihan.',
-      },
-      {
-        type: 'list',
-        items: [
-          '`go fmt` untuk formatting code.',
-          '`go mod` untuk dependency management.',
-          '`go test` untuk testing.',
-          '`go build` untuk build aplikasi.',
-        ],
-      },
-      {
-        type: 'paragraph',
-        content:
-          'Dengan tooling yang terintegrasi seperti ini, workflow development terasa lebih konsisten. Tim tidak perlu terlalu banyak berdebat soal standar dasar karena sebagian besar sudah dibawa langsung oleh bahasa dan toolchain-nya.',
-      },
-      {
-        type: 'heading',
-        content: '5. Deployment menjadi sangat mudah',
-      },
-      {
-        type: 'paragraph',
-        content:
-          'Salah satu hal yang paling saya sukai dari Golang adalah proses deployment-nya. Go dapat menghasilkan satu file binary yang sudah berisi semua yang dibutuhkan untuk menjalankan aplikasi, sehingga kita tidak perlu menyiapkan runtime tambahan di server.',
-      },
-      {
-        type: 'paragraph',
-        content:
-          'Pendekatan ini membuat proses deploy ke server Linux maupun environment berbasis container menjadi jauh lebih sederhana. Dari sisi operasional, kesederhanaan ini sangat berharga karena mengurangi potensi masalah di tahap release.',
+          'Saya juga merasa proses bekerja sambil kuliah dan terus belajar secara mandiri membuat saya lebih menghargai progres kecil. Menulis artikel ini adalah salah satu bentuk pengingat buat diri saya sendiri bahwa apa yang saya pahami hari ini adalah hasil dari proses yang terus berjalan, dan proses itu akan terus meningkat seiring waktu.',
       },
       {
         type: 'highlight',
         title: 'Penutup',
         content:
-          'Setelah sekitar dua tahun menggunakan Golang di dunia profesional, saya mulai memahami filosofi utama dari bahasa ini: simplicity and practicality. Go mungkin tidak menawarkan banyak fitur yang kompleks, tetapi justru kesederhanaannya membuat bahasa ini sangat kuat untuk membangun sistem backend yang stabil, efisien, dan mudah dirawat.',
+          'Kalau saya melihat ke belakang, perjalanan saya bersama Golang selama kurang lebih dua tahun ini bukan hanya memberi saya skill teknis, tetapi juga memberi saya arah. Saya mulai dari lulusan SMK yang langsung bekerja, lalu belajar sambil menjalani perkuliahan, dan sedikit demi sedikit memahami bagaimana membangun backend yang lebih baik. Untuk sekarang, inilah yang saya pahami, dan saya yakin kemampuan itu akan terus bertumbuh.',
       },
     ],
   },
