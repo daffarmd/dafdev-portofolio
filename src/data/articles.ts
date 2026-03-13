@@ -9,7 +9,7 @@ export const articles: Article[] = [
     slug: 'membangun-rest-api-golang-yang-rapi-dan-bisa-langsung-dijalankan',
     title: 'Membangun REST API Golang yang Rapi, Mudah Dibaca, dan Bisa Langsung Dijalankan',
     excerpt:
-      'Artikel ini fokus ke contoh yang praktis: struktur sederhana, handler yang jelas, dan potongan kode Go yang bisa langsung di-copy, di-paste, lalu dijalankan.',
+      'Artikel ini fokus ke contoh yang praktis, struktur sederhana, handler yang jelas, dan  kode Go yang bisa langsung di copy, di paste, lalu dijalankan.',
     date: '2026-03-13',
     readTime: '8 menit baca',
     tags: ['Golang', 'REST API', 'Runnable Code'],

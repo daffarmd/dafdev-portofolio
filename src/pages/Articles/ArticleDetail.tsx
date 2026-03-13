@@ -18,6 +18,11 @@ import type { Article, Language } from '../../types';
 const LAST_READ_ARTICLE_KEY = 'lastReadArticleSlug';
 const ARTICLE_LANGUAGE_KEY = 'articleLanguage';
 
+type LastReadArticleState = {
+  slug: string;
+  updatedAt: string;
+};
+
 const resolveArticleLanguage = (article: Article, language: Language) => {
   if (language !== 'en' || !article.translations?.en) {
     return article;
@@ -104,7 +109,7 @@ const ArticleDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const article = articles.find((item) => item.slug === slug);
   const [copiedBlockId, setCopiedBlockId] = useState<string | null>(null);
-  const [articleLanguage, setArticleLanguage] = useState<Language>('id');
+  const [articleLanguage, setArticleLanguage] = useState<Language>('en');
 
   useEffect(() => {
     const savedLanguage = window.localStorage.getItem(ARTICLE_LANGUAGE_KEY);
@@ -118,7 +123,12 @@ const ArticleDetail: React.FC = () => {
       return;
     }
 
-    window.localStorage.setItem(LAST_READ_ARTICLE_KEY, article.slug);
+    const nextLastReadState: LastReadArticleState = {
+      slug: article.slug,
+      updatedAt: new Date().toISOString(),
+    };
+
+    window.localStorage.setItem(LAST_READ_ARTICLE_KEY, JSON.stringify(nextLastReadState));
   }, [article]);
 
   const handleCopy = async (value: string, blockId: string) => {

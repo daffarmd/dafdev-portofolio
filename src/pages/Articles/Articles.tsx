@@ -12,6 +12,11 @@ import type { Article, Language } from '../../types';
 const LAST_READ_ARTICLE_KEY = 'lastReadArticleSlug';
 const ARTICLE_LANGUAGE_KEY = 'articleLanguage';
 
+type LastReadArticleState = {
+  slug: string;
+  updatedAt: string;
+};
+
 const resolveArticleLanguage = (article: Article, language: Language) => {
   if (language !== 'en' || !article.translations?.en) {
     return article;
@@ -24,19 +29,10 @@ const resolveArticleLanguage = (article: Article, language: Language) => {
   };
 };
 
-const getRandomArticle = () => {
-  if (articles.length === 0) {
-    return featuredArticle;
-  }
-
-  const randomIndex = Math.floor(Math.random() * articles.length);
-  return articles[randomIndex];
-};
-
 const Articles: React.FC = () => {
   const [spotlightArticle, setSpotlightArticle] = useState<Article>(featuredArticle);
-  const [spotlightMode, setSpotlightMode] = useState<'recent' | 'random'>('random');
-  const [articleLanguage, setArticleLanguage] = useState<Language>('id');
+  const [spotlightMode, setSpotlightMode] = useState<'recent' | 'latest'>('latest');
+  const [articleLanguage, setArticleLanguage] = useState<Language>('en');
 
   useEffect(() => {
     const savedLanguage = window.localStorage.getItem(ARTICLE_LANGUAGE_KEY);
@@ -44,8 +40,29 @@ const Articles: React.FC = () => {
       setArticleLanguage(savedLanguage);
     }
 
-    const lastReadSlug = window.localStorage.getItem(LAST_READ_ARTICLE_KEY);
-    const lastReadArticle = articles.find((article) => article.slug === lastReadSlug);
+    const savedLastReadArticle = window.localStorage.getItem(LAST_READ_ARTICLE_KEY);
+    if (!savedLastReadArticle) {
+      setSpotlightArticle(featuredArticle);
+      setSpotlightMode('latest');
+      return;
+    }
+
+    let lastReadState: LastReadArticleState | null = null;
+    try {
+      const parsedState = JSON.parse(savedLastReadArticle) as Partial<LastReadArticleState>;
+      if (typeof parsedState.slug === 'string' && typeof parsedState.updatedAt === 'string') {
+        lastReadState = {
+          slug: parsedState.slug,
+          updatedAt: parsedState.updatedAt,
+        };
+      }
+    } catch {
+      window.localStorage.removeItem(LAST_READ_ARTICLE_KEY);
+    }
+
+    const lastReadArticle = lastReadState
+      ? articles.find((article) => article.slug === lastReadState.slug)
+      : null;
 
     if (lastReadArticle) {
       setSpotlightArticle(lastReadArticle);
@@ -53,8 +70,8 @@ const Articles: React.FC = () => {
       return;
     }
 
-    setSpotlightArticle(getRandomArticle());
-    setSpotlightMode('random');
+    setSpotlightArticle(featuredArticle);
+    setSpotlightMode('latest');
   }, []);
 
   const handleLanguageChange = (language: Language) => {
@@ -72,7 +89,7 @@ const Articles: React.FC = () => {
         cta: 'Mulai baca',
         articleCount: `${articles.length} artikel tersedia`,
         recent: 'Baru dibaca',
-        random: 'Coba baca ini',
+        latest: 'Tulisan terbaru',
         readNow: 'Baca sekarang',
         continue: 'Lanjut baca',
         sectionLabel: 'My Notes',
@@ -87,7 +104,7 @@ const Articles: React.FC = () => {
         cta: 'Start reading',
         articleCount: `${articles.length} notes available`,
         recent: 'Recently read',
-        random: 'Try this note',
+        latest: 'Latest note',
         readNow: 'Read now',
         continue: 'Continue reading',
         sectionLabel: 'My Notes',
@@ -171,7 +188,7 @@ const Articles: React.FC = () => {
               <div className="relative flex flex-col justify-end bg-slate-950 p-6 text-white sm:p-8 lg:min-h-full lg:bg-transparent lg:p-10">
                 <div className="flex flex-wrap items-center gap-2.5 text-sm text-white/88 sm:gap-3">
                   <span className="rounded-full border border-emerald-300/35 bg-emerald-400/20 px-3 py-1 font-medium text-white shadow-[0_10px_30px_-18px_rgba(74,222,128,0.9)] backdrop-blur-sm">
-                    {spotlightMode === 'recent' ? t.recent : t.random}
+                    {spotlightMode === 'recent' ? t.recent : t.latest}
                   </span>
                   <span className="rounded-full border border-sky-300/35 bg-sky-400/18 px-3 py-1 font-medium text-white shadow-[0_10px_30px_-18px_rgba(56,189,248,0.85)] backdrop-blur-sm">
                     {localizedSpotlightArticle.category}
