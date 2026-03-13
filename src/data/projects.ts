@@ -30,6 +30,12 @@ export const projects: Project[] = [
       'Handled business data exchange between app and core system',
     ],
     isPrivate: true,
+    resources: [
+      {
+        type: 'website',
+        url: 'https://www.ihsanulbarokah.com/',
+      },
+    ],
   },
   {
     id: 3,
