@@ -76,4 +76,14 @@ export interface Article {
   image: string;
   imageAlt: string;
   sections: ArticleBlock[];
+  translations?: {
+    en?: {
+      title: string;
+      excerpt: string;
+      readTime: string;
+      category: string;
+      imageAlt: string;
+      sections: ArticleBlock[];
+    };
+  };
 }
