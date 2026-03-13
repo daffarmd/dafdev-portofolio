@@ -1,43 +1,16 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react';
+import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowUpRight, Layers3, UserRound, Mail } from 'lucide-react';
 import Hero from '../components/sections/Hero';
+import SpotifyFavorites from '../components/sections/SpotifyFavorites';
 import type { Language } from '../types';
-
-const SpotifyFavorites = lazy(() => import('../components/sections/SpotifyFavorites'));
 
 interface HomeProps {
   language: Language;
 }
 
 const Home: React.FC<HomeProps> = ({ language }) => {
-  const [shouldRenderSpotify, setShouldRenderSpotify] = useState(false);
-
-  useEffect(() => {
-    let timeoutId: number | undefined;
-    let idleId: number | undefined;
-
-    const enableSpotifySection = () => {
-      setShouldRenderSpotify(true);
-    };
-
-    if ('requestIdleCallback' in window) {
-      idleId = window.requestIdleCallback(enableSpotifySection, { timeout: 1200 });
-    } else {
-      timeoutId = window.setTimeout(enableSpotifySection, 600);
-    }
-
-    return () => {
-      if (typeof idleId === 'number' && 'cancelIdleCallback' in window) {
-        window.cancelIdleCallback(idleId);
-      }
-      if (typeof timeoutId === 'number') {
-        window.clearTimeout(timeoutId);
-      }
-    };
-  }, []);
-
   const t = language === 'id'
     ? {
         nextTitle: 'Jelajahi Portofolio',
@@ -105,11 +78,7 @@ const Home: React.FC<HomeProps> = ({ language }) => {
           </div>
         </div>
       </section>
-      {shouldRenderSpotify ? (
-        <Suspense fallback={<div className="section-shell pt-0" aria-hidden="true" />}>
-          <SpotifyFavorites />
-        </Suspense>
-      ) : null}
+      <SpotifyFavorites />
     </div>
   );
 };
