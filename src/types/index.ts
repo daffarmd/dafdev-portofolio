@@ -64,6 +64,7 @@ export type ArticleBlock =
     };
 
 export interface Article {
+  id: number;
   slug: string;
   title: string;
   excerpt: string;
@@ -75,4 +76,14 @@ export interface Article {
   image: string;
   imageAlt: string;
   sections: ArticleBlock[];
+  translations?: {
+    en?: {
+      title: string;
+      excerpt: string;
+      readTime: string;
+      category: string;
+      imageAlt: string;
+      sections: ArticleBlock[];
+    };
+  };
 }

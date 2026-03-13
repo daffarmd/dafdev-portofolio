@@ -13,8 +13,22 @@ import {
 } from 'lucide-react';
 import { useParams, Link } from 'react-router-dom';
 import { articles } from '../../data/articles';
+import type { Article, Language } from '../../types';
 
 const LAST_READ_ARTICLE_KEY = 'lastReadArticleSlug';
+const ARTICLE_LANGUAGE_KEY = 'articleLanguage';
+
+const resolveArticleLanguage = (article: Article, language: Language) => {
+  if (language !== 'en' || !article.translations?.en) {
+    return article;
+  }
+
+  return {
+    ...article,
+    ...article.translations.en,
+    sections: article.translations.en.sections,
+  };
+};
 
 type CodeBlockProps = {
   code: string;
@@ -77,7 +91,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
           {command ? (
             <div className="article-code-command">
               <Terminal className="h-4 w-4" />
-              <span>{command}</span>
+              <span className="break-all">{command}</span>
             </div>
           ) : null}
         </figcaption>
@@ -90,6 +104,14 @@ const ArticleDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const article = articles.find((item) => item.slug === slug);
   const [copiedBlockId, setCopiedBlockId] = useState<string | null>(null);
+  const [articleLanguage, setArticleLanguage] = useState<Language>('id');
+
+  useEffect(() => {
+    const savedLanguage = window.localStorage.getItem(ARTICLE_LANGUAGE_KEY);
+    if (savedLanguage === 'id' || savedLanguage === 'en') {
+      setArticleLanguage(savedLanguage);
+    }
+  }, []);
 
   useEffect(() => {
     if (!article) {
@@ -126,11 +148,11 @@ const ArticleDetail: React.FC = () => {
               Halaman yang kamu cari sudah tidak tersedia atau slug artikelnya berubah.
             </p>
             <Link
-              to="/articles"
+              to="/my-notes"
               className="mt-8 inline-flex min-h-[48px] items-center rounded-full bg-slate-950 px-6 py-3 text-sm font-semibold text-white transition-transform duration-300 hover:-translate-y-0.5 dark:bg-white dark:text-slate-950"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Kembali ke daftar artikel
+              {articleLanguage === 'id' ? 'Kembali ke My Notes' : 'Back to My Notes'}
             </Link>
           </div>
         </div>
@@ -138,7 +160,38 @@ const ArticleDetail: React.FC = () => {
     );
   }
 
-  const publishedDate = new Date(article.date).toLocaleDateString('id-ID', {
+  const handleLanguageChange = (language: Language) => {
+    setArticleLanguage(language);
+    window.localStorage.setItem(ARTICLE_LANGUAGE_KEY, language);
+  };
+
+  const localizedArticle = resolveArticleLanguage(article, articleLanguage);
+
+  const t = articleLanguage === 'id'
+    ? {
+        back: 'Kembali ke My Notes',
+        notFound: 'Artikel tidak ditemukan',
+        summary: 'Ringkasan',
+        category: 'Kategori',
+        readTime: 'Durasi baca',
+        tags: 'Tag',
+        closingLabel: 'Catatan penutup',
+        writtenBy: 'Ditulis oleh',
+        allNotes: 'Lihat semua My Notes',
+      }
+    : {
+        back: 'Back to My Notes',
+        notFound: 'Article not found',
+        summary: 'Summary',
+        category: 'Category',
+        readTime: 'Read time',
+        tags: 'Tags',
+        closingLabel: 'Closing note',
+        writtenBy: 'Written by',
+        allNotes: 'View all My Notes',
+      };
+
+  const publishedDate = new Date(localizedArticle.date).toLocaleDateString(articleLanguage === 'id' ? 'id-ID' : 'en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -149,49 +202,68 @@ const ArticleDetail: React.FC = () => {
       <div className="absolute inset-x-0 top-0 -z-10 h-[36rem] bg-[radial-gradient(circle_at_top,rgba(42,150,255,0.14),transparent_34%),radial-gradient(circle_at_80%_12%,rgba(15,166,174,0.1),transparent_24%)]" />
 
       <div className="mx-auto w-full max-w-[1120px] px-6 md:px-8">
-        <Link
-          to="/articles"
-          className="inline-flex items-center rounded-full border border-slate-200/80 bg-white/92 px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-sm transition-colors hover:border-slate-300 hover:text-slate-950 dark:border-slate-700 dark:bg-dark-800/88 dark:text-slate-200 dark:hover:text-white"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Kembali ke artikel
-        </Link>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Link
+            to="/my-notes"
+            className="inline-flex items-center rounded-full border border-slate-200/80 bg-white/92 px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-sm transition-colors hover:border-slate-300 hover:text-slate-950 dark:border-slate-700 dark:bg-dark-800/88 dark:text-slate-200 dark:hover:text-white"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {t.back}
+          </Link>
+
+          <div className="inline-flex rounded-full border border-slate-200/80 bg-white/90 p-1 shadow-sm dark:border-slate-700 dark:bg-dark-700/90">
+            {(['id', 'en'] as const).map((language) => (
+              <button
+                key={language}
+                type="button"
+                onClick={() => handleLanguageChange(language)}
+                className={`rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] transition-colors ${
+                  articleLanguage === language
+                    ? 'bg-slate-950 text-white dark:bg-white dark:text-slate-950'
+                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
+                }`}
+              >
+                {language}
+              </button>
+            ))}
+          </div>
+        </div>
 
         <article className="mt-6 overflow-hidden rounded-[2rem] border border-white/70 bg-white/92 shadow-[0_28px_90px_-48px_rgba(15,23,42,0.22)] backdrop-blur-sm dark:border-slate-700 dark:bg-dark-800/88">
           <div className="relative isolate overflow-hidden">
             <img
-              src={article.image}
-              alt={article.imageAlt}
-              className="h-[22rem] w-full object-cover sm:h-[28rem] lg:h-[34rem]"
+              src={localizedArticle.image}
+              alt={localizedArticle.imageAlt}
+              className="h-64 w-full object-cover sm:h-[28rem] lg:h-[34rem]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/68 to-slate-950/18" />
+            <div className="absolute inset-0 hidden bg-gradient-to-t from-slate-950 via-slate-950/68 to-slate-950/18 sm:block" />
 
-            <div className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8 md:p-10 lg:p-12">
-              <div className="flex flex-wrap items-center gap-3 text-sm text-white/88">
-                <span className="rounded-full border border-white/20 bg-white/12 px-3 py-1 font-medium text-white">
-                  {article.category}
+            <div className="relative bg-slate-950 p-6 text-white sm:absolute sm:inset-x-0 sm:bottom-0 sm:bg-transparent sm:p-8 md:p-10 lg:px-12 lg:pb-12 lg:pt-20">
+              <div className="flex flex-wrap items-center gap-2.5 text-sm text-white sm:gap-3">
+                <span className="rounded-full border border-sky-300/40 bg-sky-400/25 px-3 py-1 font-semibold text-white shadow-[0_10px_30px_-18px_rgba(56,189,248,0.95)] backdrop-blur-sm">
+                  {localizedArticle.category}
                 </span>
-                <span className="inline-flex items-center">
+                <span className="inline-flex items-center rounded-full border border-white/20 bg-slate-900/45 px-3 py-1 font-medium text-white shadow-[0_10px_30px_-20px_rgba(15,23,42,0.9)] backdrop-blur-sm sm:bg-white/10">
                   <Clock className="mr-1.5 h-4 w-4" />
-                  {article.readTime}
+                  {localizedArticle.readTime}
                 </span>
-                <span className="inline-flex items-center">
+                <span className="inline-flex items-center rounded-full border border-white/20 bg-slate-900/45 px-3 py-1 font-medium text-white shadow-[0_10px_30px_-20px_rgba(15,23,42,0.9)] backdrop-blur-sm sm:bg-white/10">
                   <Calendar className="mr-1.5 h-4 w-4" />
                   {publishedDate}
                 </span>
               </div>
 
-              <h1 className="mt-5 max-w-4xl font-display text-3xl font-bold leading-[1.02] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl">
-                {article.title}
+              <h1 className="mt-5 max-w-4xl font-display text-[2rem] font-bold leading-[1.04] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl">
+                {localizedArticle.title}
               </h1>
 
-              <p className="mt-5 max-w-3xl text-base leading-8 text-white/90 sm:text-lg">
-                {article.excerpt}
+              <p className="mt-4 max-w-3xl text-[15px] leading-7 text-white/90 sm:mt-5 sm:text-lg sm:leading-8">
+                {localizedArticle.excerpt}
               </p>
 
-              <div className="mt-6 inline-flex items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm text-white/92 backdrop-blur-sm">
+              <div className="mt-6 inline-flex max-w-full flex-wrap items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm text-white/92 backdrop-blur-sm">
                 <User className="mr-2 h-4 w-4" />
-                {article.author}
+                {localizedArticle.author}
               </div>
             </div>
           </div>
@@ -199,7 +271,7 @@ const ArticleDetail: React.FC = () => {
           <div className="grid gap-10 px-6 py-8 sm:px-8 md:px-10 md:py-10 lg:grid-cols-[minmax(0,1fr)_260px] lg:px-12 lg:py-12">
             <div className="min-w-0">
               <div className="article-rich-text">
-                {article.sections.map((section, index) => {
+                {localizedArticle.sections.map((section, index) => {
                   const blockId = `${section.type}-${index}`;
 
                   if (section.type === 'heading') {
@@ -252,7 +324,7 @@ const ArticleDetail: React.FC = () => {
 
                   return (
                     <div key={blockId} className="article-highlight-card">
-                      <p className="article-highlight-label">Catatan penutup</p>
+                      <p className="article-highlight-label">{t.closingLabel}</p>
                       <h3 className="article-highlight-title">{section.title}</h3>
                       <p className="article-highlight-content">{section.content}</p>
                     </div>
@@ -264,28 +336,28 @@ const ArticleDetail: React.FC = () => {
             <aside className="self-start lg:sticky lg:top-28">
               <div className="rounded-[1.75rem] border border-slate-200/80 bg-slate-50/92 p-6 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.18)] dark:border-slate-700 dark:bg-dark-700/70">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
-                  Ringkasan
+                  {t.summary}
                 </p>
 
                 <div className="mt-5 space-y-5">
                   <div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Kategori</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{t.category}</p>
                     <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
-                      {article.category}
+                      {localizedArticle.category}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Durasi baca</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{t.readTime}</p>
                     <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
-                      {article.readTime}
+                      {localizedArticle.readTime}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Tag</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{t.tags}</p>
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {article.tags.map((tag) => (
+                      {localizedArticle.tags.map((tag) => (
                         <span
                           key={tag}
                           className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-700 dark:border-slate-600 dark:bg-dark-800 dark:text-slate-200"
@@ -305,14 +377,14 @@ const ArticleDetail: React.FC = () => {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="inline-flex items-center text-sm text-slate-700 dark:text-slate-300">
                 <User className="mr-2 h-4 w-4" />
-                Ditulis oleh <span className="ml-1 font-semibold text-slate-950 dark:text-white">{article.author}</span>
+                {t.writtenBy} <span className="ml-1 font-semibold text-slate-950 dark:text-white">{localizedArticle.author}</span>
               </div>
 
               <Link
-                to="/articles"
+                to="/my-notes"
                 className="inline-flex items-center text-sm font-semibold text-slate-800 transition-colors hover:text-primary-700 dark:text-slate-100 dark:hover:text-primary-300"
               >
-                Lihat semua artikel
+                {t.allNotes}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </div>
