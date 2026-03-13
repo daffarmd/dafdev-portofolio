@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
 import type { Language } from '../../types';
 
 interface ContactProps {
   language: Language;
 }
+
+const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY?.trim();
+const WEB3FORMS_HCAPTCHA_SITE_KEY = '50b2fe65-b00b-4b9e-ad62-3ba471098be2';
+const CONTACT_SUBMISSION_LIMIT = 2;
+const CONTACT_SUBMISSION_STORAGE_KEY = 'contactSubmissionCount';
 
 const Contact: React.FC<ContactProps> = ({ language }) => {
   const [formData, setFormData] = useState({
@@ -16,6 +22,10 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submissionCount, setSubmissionCount] = useState(0);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaKey, setCaptchaKey] = useState(0);
 
   const t = language === 'id'
     ? {
@@ -38,6 +48,10 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
         messagePlaceholder: 'Tulis pesan kamu',
         sending: 'Mengirim...',
         sent: 'Pesan berhasil dikirim!',
+        sendFailed: 'Pesan gagal dikirim. Coba lagi beberapa saat lagi.',
+        missingConfig: 'Form belum dikonfigurasi. Tambahkan access key Web3Forms di environment Vite.',
+        submissionLimitReached: 'Batas kirim pesan untuk browser ini sudah tercapai.',
+        captchaRequired: 'Selesaikan captcha terlebih dahulu sebelum mengirim pesan.',
         send: 'Kirim Pesan',
       }
     : {
@@ -60,8 +74,26 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
         messagePlaceholder: 'Your message',
         sending: 'Sending...',
         sent: 'Message sent successfully!',
+        sendFailed: 'Message failed to send. Please try again in a moment.',
+        missingConfig: 'Form is not configured yet. Add the Web3Forms access key to the Vite environment.',
+        submissionLimitReached: 'The message limit for this browser has been reached.',
+        captchaRequired: 'Complete the captcha before sending the message.',
         send: 'Send Message',
       };
+
+  useEffect(() => {
+    const savedCount = window.localStorage.getItem(CONTACT_SUBMISSION_STORAGE_KEY);
+    const parsedCount = Number.parseInt(savedCount ?? '0', 10);
+
+    if (Number.isNaN(parsedCount) || parsedCount < 0) {
+      return;
+    }
+
+    setSubmissionCount(parsedCount);
+  }, []);
+
+  const remainingAttempts = Math.max(CONTACT_SUBMISSION_LIMIT - submissionCount, 0);
+  const hasReachedSubmissionLimit = submissionCount >= CONTACT_SUBMISSION_LIMIT;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -70,20 +102,77 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const resetCaptcha = () => {
+    setCaptchaToken(null);
+    setCaptchaKey((currentKey) => currentKey + 1);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
+
+    if (hasReachedSubmissionLimit) {
+      setSubmitError(t.submissionLimitReached);
+      return;
+    }
+
+    if (!WEB3FORMS_ACCESS_KEY) {
+      setSubmitError(t.missingConfig);
+      return;
+    }
+
+    if (!captchaToken) {
+      setSubmitError(t.captchaRequired);
+      return;
+    }
+
     setIsSubmitting(true);
-    
-    // Simulate form submission
-    setTimeout(() => {
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_ACCESS_KEY,
+          from_name: formData.name,
+          subject: formData.subject,
+          replyto: formData.email,
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+          botcheck: false,
+          'h-captcha-response': captchaToken,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Failed to submit contact form');
+      }
+
       setIsSubmitting(false);
       setSubmitSuccess(true);
       setFormData({ name: '', email: '', subject: '', message: '' });
-      
-      setTimeout(() => {
+      resetCaptcha();
+      setSubmissionCount((currentCount) => {
+        const nextCount = currentCount + 1;
+        window.localStorage.setItem(CONTACT_SUBMISSION_STORAGE_KEY, String(nextCount));
+        return nextCount;
+      });
+
+      window.setTimeout(() => {
         setSubmitSuccess(false);
       }, 3000);
-    }, 1500);
+    } catch (error) {
+      console.error('Failed to send contact form', error);
+      setIsSubmitting(false);
+      setSubmitError(t.sendFailed);
+      resetCaptcha();
+    }
   };
 
   return (
@@ -130,7 +219,7 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
             <h3 className="mb-6 text-2xl font-bold text-slate-900 dark:text-white">
               {t.infoTitle}
             </h3>
-            
+
             <div className="space-y-6">
               <div className="flex items-start">
                 <div className="flex-shrink-0 rounded-xl border border-slate-200 bg-slate-100 p-3 dark:border-slate-700 dark:bg-dark-700">
@@ -143,7 +232,7 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
                   </a>
                 </div>
               </div>
-              
+
               <div className="flex items-start">
                 <div className="flex-shrink-0 rounded-xl border border-slate-200 bg-slate-100 p-3 dark:border-slate-700 dark:bg-dark-700">
                   <Phone className="h-6 w-6 text-slate-700 dark:text-slate-300" />
@@ -155,7 +244,7 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
                   </a>
                 </div>
               </div>
-              
+
               <div className="flex items-start">
                 <div className="flex-shrink-0 rounded-xl border border-slate-200 bg-slate-100 p-3 dark:border-slate-700 dark:bg-dark-700">
                   <MapPin className="h-6 w-6 text-slate-700 dark:text-slate-300" />
@@ -168,7 +257,7 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
                 </div>
               </div>
             </div>
-            
+
             <div className="mt-10 rounded-2xl border border-slate-200/80 bg-white/90 p-5 dark:border-slate-700 dark:bg-dark-700/70">
               <h4 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">{t.connect}</h4>
               <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">
@@ -179,7 +268,7 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
               </p>
             </div>
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -202,7 +291,7 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
                   placeholder={t.namePlaceholder}
                 />
               </div>
-              
+
               <div>
                 <label htmlFor="email" className="mb-1 block text-sm font-medium text-slate-600 dark:text-slate-300">
                   {t.email}
@@ -218,7 +307,7 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
                   placeholder={t.emailPlaceholder}
                 />
               </div>
-              
+
               <div>
                 <label htmlFor="subject" className="mb-1 block text-sm font-medium text-slate-600 dark:text-slate-300">
                   {t.subject}
@@ -234,7 +323,7 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
                   placeholder={t.subjectPlaceholder}
                 />
               </div>
-              
+
               <div>
                 <label htmlFor="message" className="mb-1 block text-sm font-medium text-slate-600 dark:text-slate-300">
                   {t.message}
@@ -250,27 +339,59 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
                   placeholder={t.messagePlaceholder}
                 ></textarea>
               </div>
-              
+
+              <input
+                type="checkbox"
+                name="botcheck"
+                className="hidden"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+              />
+
+              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-dark-700">
+                <HCaptcha
+                  key={captchaKey}
+                  sitekey={WEB3FORMS_HCAPTCHA_SITE_KEY}
+                  reCaptchaCompat={false}
+                  onVerify={(token) => {
+                    setCaptchaToken(token);
+                    setSubmitError(null);
+                  }}
+                  onExpire={() => setCaptchaToken(null)}
+                />
+              </div>
+
               <motion.button
                 type="submit"
                 className={`flex w-full items-center justify-center rounded-xl px-6 py-3 font-medium text-white transition-colors ${
-                  isSubmitting || submitSuccess ? 'cursor-not-allowed bg-slate-600' : 'bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white'
+                  isSubmitting || submitSuccess || hasReachedSubmissionLimit
+                    ? 'cursor-not-allowed bg-slate-600'
+                    : 'bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white'
                 }`}
-                disabled={isSubmitting || submitSuccess}
-                whileHover={{ scale: isSubmitting || submitSuccess ? 1 : 1.02 }}
-                whileTap={{ scale: isSubmitting || submitSuccess ? 1 : 0.98 }}
+                disabled={isSubmitting || submitSuccess || hasReachedSubmissionLimit}
+                whileHover={{ scale: isSubmitting || submitSuccess || hasReachedSubmissionLimit ? 1 : 1.02 }}
+                whileTap={{ scale: isSubmitting || submitSuccess || hasReachedSubmissionLimit ? 1 : 0.98 }}
               >
                 {isSubmitting ? (
                   <>{t.sending}</>
                 ) : submitSuccess ? (
                   <>{t.sent}</>
+                ) : hasReachedSubmissionLimit ? (
+                  <>{t.submissionLimitReached}</>
                 ) : (
                   <>
-                    <Send className="h-5 w-5 mr-2" />
+                    <Send className="mr-2 h-5 w-5" />
                     {t.send}
                   </>
                 )}
               </motion.button>
+
+              {submitError ? (
+                <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-200">
+                  {submitError}
+                </p>
+              ) : null}
             </form>
           </motion.div>
         </div>

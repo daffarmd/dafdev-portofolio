@@ -31,7 +31,7 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
     { name: 'Home', to: '/' },
     { name: 'About', to: '/about' },
     { name: 'Showcase', to: '/showcase' },
-    { name: 'Articles', to: '/articles', soon: true },
+    { name: 'Articles', to: '/articles' },
     { name: 'Contact', to: '/contact' },
   ];
 
