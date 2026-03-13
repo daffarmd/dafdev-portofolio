@@ -2,9 +2,9 @@ import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, useParams } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
+import Home from './pages/Home';
 import type { Language } from './types';
 
-const Home = lazy(() => import('./pages/Home'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const ShowcasePage = lazy(() => import('./pages/ShowcasePage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
@@ -34,9 +34,9 @@ const LegacyArticleRedirect: React.FC = () => {
 };
 
 const RouteFallback: React.FC = () => (
-  <div className="min-h-[50vh] px-6 py-20">
+  <div className="min-h-[20vh] px-6 py-10">
     <div className="mx-auto max-w-[1120px]">
-      <div className="h-40 animate-pulse rounded-[2rem] border border-slate-200/80 bg-white/80 shadow-[0_20px_60px_-40px_rgba(15,23,42,0.2)] dark:border-slate-700 dark:bg-dark-800/80" />
+      <div className="h-16 rounded-2xl border border-slate-200/80 bg-white/70 dark:border-slate-700 dark:bg-dark-800/70" />
     </div>
   </div>
 );
