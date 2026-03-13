@@ -7,6 +7,7 @@ import AboutPage from './pages/AboutPage';
 import ShowcasePage from './pages/ShowcasePage';
 import ContactPage from './pages/ContactPage';
 import Articles from './pages/Articles/Articles';
+import ArticleDetail from './pages/Articles/ArticleDetail';
 import QueueAppDemo from './pages/Showcase/QueueAppDemo';
 import HospitalAppDemo from './pages/Showcase/HospitalAppDemo';
 import type { Language } from './types';
@@ -59,7 +60,7 @@ function App() {
             <Route path="/showcase/hospital-app" element={<HospitalAppDemo />} />
             <Route path="/contact" element={<ContactPage language={language} />} />
             <Route path="/articles" element={<Articles />} />
-            <Route path="/articles/:id" element={<Articles />} />
+            <Route path="/articles/:slug" element={<ArticleDetail />} />
           </Routes>
         </main>
         <Footer language={language} />
