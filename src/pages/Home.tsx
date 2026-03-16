@@ -51,7 +51,7 @@ const Home: React.FC<HomeProps> = ({ language }) => {
         open: 'Buka',
       }
     : {
-        nextTitle: 'Explore Muhammad Daffa Ramadhan Portfolio',
+        nextTitle: 'Explore My Portfolio',
         nextDesc: 'Discover profile, product showcase, technical notes, and collaboration contact channels.',
         about: 'About Page',
         showcase: 'Showcase Page',
