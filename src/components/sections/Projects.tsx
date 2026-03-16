@@ -32,7 +32,7 @@ const Projects: React.FC<ProjectsProps> = ({ language }) => {
     : {
         kicker: 'Featured Projects',
         title: 'Company Projects I Worked On',
-        subtitle: 'This section highlights company projects I contributed to, focused mostly on backend API delivery plus one fullstack web management product.',
+        subtitle: 'This section highlights company projects I contributed to, focused mostly on backend API delivery plus web management product.',
         projectLabel: 'Project',
         privateWork: 'Company Project',
         contributionLabel: 'Contribution',
