@@ -10,6 +10,7 @@ type SeoConfig = {
 };
 
 const DEFAULT_IMAGE_PATH = '/og-image.png';
+const SITE_URL = 'https://muhammaddaffaramadhan.vercel.app';
 const PERSON_NAME = 'Muhammad Daffa Ramadhan';
 const PERSON_DESCRIPTION = 'Backend Developer specializing in Golang, PostgreSQL, and scalable API systems.';
 
@@ -150,7 +151,7 @@ const SeoManager = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    const siteUrl = window.location.origin.replace(/\/$/, '');
+    const siteUrl = SITE_URL.replace(/\/$/, '');
     const seo = getSeoConfig(pathname);
     const canonicalUrl = `${siteUrl}${seo.path}`;
     const ogImageUrl = `${siteUrl}${DEFAULT_IMAGE_PATH}`;

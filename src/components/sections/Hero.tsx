@@ -144,13 +144,13 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
 
   const t = language === 'id'
     ? {
-        shortInfo: 'Backend Developer yang berfokus pada Golang, PostgreSQL, dan pengembangan API yang scalable.',
-        stackInfo: 'Saya membantu membangun sistem backend yang efisien, maintainable, dan siap dipakai untuk kebutuhan operasional nyata.',
+        shortInfo: 'Membuat apapun yang bisa di buat.',
+        stackInfo: '',
         aboutBtn: 'Lihat About',
       }
     : {
-        shortInfo: 'Backend Developer specializing in Golang, PostgreSQL, and scalable API systems.',
-        stackInfo: 'I build efficient and maintainable backend systems designed for real-world operational products.',
+        shortInfo: 'Make anything that can be made.',
+        stackInfo: '',
         aboutBtn: 'Open About',
       };
 
@@ -190,12 +190,9 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
             transformStyle: 'preserve-3d',
           }}
         >
-          <motion.p variants={HERO_ITEM_VARIANTS} className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-300">
+          <motion.h1 variants={HERO_ITEM_VARIANTS} className="min-h-[60px] text-[2rem] font-extrabold tracking-tight text-slate-900 sm:min-h-[72px] sm:text-4xl md:min-h-[88px] md:text-6xl dark:text-white">
             {typedName}
             <span className="caret-blink ml-1 inline-block h-[0.95em] w-[2px] bg-slate-900 align-[-0.08em] dark:bg-white"></span>
-          </motion.p>
-          <motion.h1 variants={HERO_ITEM_VARIANTS} className="mt-3 text-[2rem] font-extrabold tracking-tight text-slate-900 sm:text-4xl md:text-6xl dark:text-white">
-            Muhammad Daffa Ramadhan
           </motion.h1>
 
           <motion.p variants={HERO_ITEM_VARIANTS} className="mt-4 max-w-2xl text-[15px] leading-relaxed text-slate-600 sm:mt-5 md:text-lg dark:text-slate-300">
