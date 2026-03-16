@@ -1,4 +1,21 @@
 {
+  "redirects": [
+    {
+      "source": "/articles",
+      "destination": "/my-notes",
+      "permanent": true
+    },
+    {
+      "source": "/articles/:slug",
+      "destination": "/my-notes/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/showcase/queue-app",
+      "destination": "/showcase/queue-display",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",

@@ -40,8 +40,8 @@ const Home: React.FC<HomeProps> = ({ language }) => {
 
   const t = language === 'id'
     ? {
-        nextTitle: 'Jelajahi Portofolio',
-        nextDesc: 'Sekarang website dipisah menjadi beberapa halaman supaya lebih fokus dan rapi.',
+        nextTitle: 'Jelajahi Portofolio Muhammad Daffa Ramadhan',
+        nextDesc: 'Temukan profil, showcase produk, artikel teknis, dan kanal kontak untuk kolaborasi project backend.',
         about: 'Menu About',
         showcase: 'Menu Showcase',
         contact: 'Menu Kontak',
@@ -51,8 +51,8 @@ const Home: React.FC<HomeProps> = ({ language }) => {
         open: 'Buka',
       }
     : {
-        nextTitle: 'Explore Portfolio',
-        nextDesc: 'The website is now split into focused pages for a cleaner experience.',
+        nextTitle: 'Explore Muhammad Daffa Ramadhan Portfolio',
+        nextDesc: 'Discover profile, product showcase, technical notes, and collaboration contact channels.',
         about: 'About Page',
         showcase: 'Showcase Page',
         contact: 'Contact Page',
