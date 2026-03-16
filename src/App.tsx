@@ -2,7 +2,9 @@ import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, useParams } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
+import SeoManager from './components/seo/SeoManager';
 import Home from './pages/Home';
+import NotFoundPage from './pages/NotFoundPage';
 import type { Language } from './types';
 
 const AboutPage = lazy(() => import('./pages/AboutPage'));
@@ -64,6 +66,7 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
+      <SeoManager />
       <div className="flex min-h-screen flex-col overflow-x-hidden text-slate-900 transition-colors duration-300 dark:text-white">
         <Header
           darkMode={darkMode}
@@ -75,7 +78,7 @@ function App() {
               <Route path="/" element={<Home language={language} />} />
               <Route path="/about" element={<AboutPage language={language} />} />
               <Route path="/showcase" element={<ShowcasePage language={language} />} />
-              <Route path="/showcase/queue-app" element={<QueueAppDemo />} />
+              <Route path="/showcase/queue-app" element={<Navigate to="/showcase/queue-display" replace />} />
               <Route path="/showcase/queue-display" element={<QueueAppDemo />} />
               <Route path="/showcase/hospital-app" element={<HospitalAppDemo />} />
               <Route path="/contact" element={<ContactPage language={language} />} />
@@ -83,6 +86,7 @@ function App() {
               <Route path="/my-notes/:slug" element={<ArticleDetail />} />
               <Route path="/articles" element={<Navigate to="/my-notes" replace />} />
               <Route path="/articles/:slug" element={<LegacyArticleRedirect />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>
         </main>
