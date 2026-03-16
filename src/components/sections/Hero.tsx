@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { ChevronDown, Github, Linkedin, ArrowUpRight } from 'lucide-react';
+import { ChevronDown, Github, Linkedin, ArrowUpRight, Music2 } from 'lucide-react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import type { Language } from '../../types';
 import golangIcon from '../../assets/golang-icon.png';
@@ -29,6 +29,29 @@ const GREETINGS = [
 
 const TYPE_SPEED = 70;
 const GREETING_PAUSE = 2200;
+const MUSIC_ORB_EVADE_DURATION = 2600;
+const MUSIC_ORB_THRESHOLD = 160;
+const MUSIC_ORB_MOVE_INTERVAL = 220;
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+const randomBetween = (min: number, max: number) => min + (Math.random() * (max - min));
+
+const getRandomMusicPosition = () => {
+  const zones = [
+    { x: [68, 84], y: [16, 28] },
+    { x: [76, 88], y: [38, 54] },
+    { x: [60, 74], y: [62, 76] },
+    { x: [36, 48], y: [66, 78] },
+  ];
+
+  const zone = zones[Math.floor(Math.random() * zones.length)];
+
+  return {
+    x: randomBetween(zone.x[0], zone.x[1]),
+    y: randomBetween(zone.y[0], zone.y[1]),
+  };
+};
 
 const HERO_COPY_VARIANTS = {
   hidden: { opacity: 0, y: 24 },
@@ -77,10 +100,16 @@ const TECH_STACK = [
 
 const Hero: React.FC<HeroProps> = ({ language }) => {
   const [typedName, setTypedName] = useState('');
+  const [musicOrbPosition, setMusicOrbPosition] = useState(getRandomMusicPosition);
+  const [isMusicOrbEvading, setIsMusicOrbEvading] = useState(false);
+  const [isCompactHero, setIsCompactHero] = useState(false);
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
   const smoothX = useSpring(pointerX, { stiffness: 140, damping: 22, mass: 0.55 });
   const smoothY = useSpring(pointerY, { stiffness: 140, damping: 22, mass: 0.55 });
+  const musicOrbCooldownRef = useRef(0);
+  const musicOrbLastMoveRef = useRef(0);
+  const musicOrbTimerRef = useRef<number | undefined>(undefined);
 
   const contentX = useTransform(smoothX, [-1, 1], [-18, 18]);
   const contentY = useTransform(smoothY, [-1, 1], [-12, 12]);
@@ -91,6 +120,29 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
   const accentLeftY = useTransform(smoothY, [-1, 1], [-26, 26]);
   const accentRightX = useTransform(smoothX, [-1, 1], [36, -36]);
   const accentRightY = useTransform(smoothY, [-1, 1], [24, -24]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 767px), (hover: none), (pointer: coarse)');
+    const syncCompactHero = () => {
+      setIsCompactHero(mediaQuery.matches);
+    };
+
+    syncCompactHero();
+
+    if ('addEventListener' in mediaQuery) {
+      mediaQuery.addEventListener('change', syncCompactHero);
+    } else {
+      mediaQuery.addListener(syncCompactHero);
+    }
+
+    return () => {
+      if ('removeEventListener' in mediaQuery) {
+        mediaQuery.removeEventListener('change', syncCompactHero);
+      } else {
+        mediaQuery.removeListener(syncCompactHero);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     let greetingIndex = 0;
@@ -126,6 +178,9 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
       if (rotationTimer) {
         window.clearTimeout(rotationTimer);
       }
+      if (typeof musicOrbTimerRef.current === 'number') {
+        window.clearTimeout(musicOrbTimerRef.current);
+      }
     };
   }, []);
 
@@ -135,6 +190,44 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
     const normalizedY = ((event.clientY - bounds.top) / bounds.height) * 2 - 1;
     pointerX.set(normalizedX);
     pointerY.set(normalizedY);
+
+    if (isCompactHero) {
+      return;
+    }
+
+    const now = Date.now();
+    const orbX = (musicOrbPosition.x / 100) * bounds.width;
+    const orbY = (musicOrbPosition.y / 100) * bounds.height;
+    const pointerOffsetX = event.clientX - bounds.left;
+    const pointerOffsetY = event.clientY - bounds.top;
+    const distance = Math.hypot(orbX - pointerOffsetX, orbY - pointerOffsetY);
+
+    const shouldEvade = distance < MUSIC_ORB_THRESHOLD || now < musicOrbCooldownRef.current;
+
+    if (!shouldEvade || now - musicOrbLastMoveRef.current < MUSIC_ORB_MOVE_INTERVAL) {
+      return;
+    }
+
+    const angle = Math.atan2(orbY - pointerOffsetY, orbX - pointerOffsetX);
+    const travelDistance = randomBetween(160, 240);
+    const sidewaysDrift = randomBetween(-70, 70);
+    const targetX = orbX + (Math.cos(angle) * travelDistance) + (Math.sin(angle) * sidewaysDrift);
+    const targetY = orbY + (Math.sin(angle) * travelDistance) - (Math.cos(angle) * sidewaysDrift);
+    const nextX = clamp(((targetX / bounds.width) * 100), 10, 90);
+    const nextY = clamp(((targetY / bounds.height) * 100), 14, 84);
+
+    musicOrbCooldownRef.current = now + MUSIC_ORB_EVADE_DURATION;
+    musicOrbLastMoveRef.current = now;
+    setMusicOrbPosition({ x: nextX, y: nextY });
+    setIsMusicOrbEvading(true);
+
+    if (typeof musicOrbTimerRef.current === 'number') {
+      window.clearTimeout(musicOrbTimerRef.current);
+    }
+
+    musicOrbTimerRef.current = window.setTimeout(() => {
+      setIsMusicOrbEvading(false);
+    }, MUSIC_ORB_EVADE_DURATION);
   };
 
   const handleMouseLeave = () => {
@@ -147,17 +240,23 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
         shortInfo: 'Membuat apapun yang bisa di buat.',
         stackInfo: '',
         aboutBtn: 'Lihat About',
+        scrollLabel: 'Scroll ke bawah',
+        scrollHint: 'Project, contact, dan recently played ada di bawah',
+        spotifyTeaser: 'Lihat recently played',
       }
     : {
         shortInfo: 'Make anything that can be made.',
         stackInfo: '',
         aboutBtn: 'Open About',
+        scrollLabel: 'Scroll down',
+        scrollHint: 'Projects, contact, and recently played are just below',
+        spotifyTeaser: 'See recently played',
       };
 
   return (
     <section
       id="hero"
-      className="relative flex min-h-[72vh] items-center overflow-hidden pb-12 pt-20 sm:min-h-[78vh] sm:pt-28 md:pt-32"
+      className="relative flex min-h-[60vh] items-center overflow-hidden pb-24 pt-20 sm:min-h-[64vh] sm:pt-24 sm:pb-28 md:min-h-[68vh] md:pt-28 md:pb-32"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
@@ -171,7 +270,7 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
         style={{ x: accentRightX, y: accentRightY }}
       />
       <motion.div
-        className="pointer-events-none absolute bottom-8 left-[16%] hidden h-36 w-64 rounded-[2.5rem] border border-white/25 bg-white/20 blur-2xl sm:block dark:border-white/10 dark:bg-slate-500/10"
+        className="pointer-events-none absolute -bottom-10 left-[20%] hidden h-28 w-56 rounded-[2.5rem] bg-white/8 opacity-60 blur-3xl sm:block dark:bg-sky-500/5"
         style={{ x: accentRightX, y: accentLeftY }}
       />
 
@@ -190,7 +289,7 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
             transformStyle: 'preserve-3d',
           }}
         >
-          <motion.h1 variants={HERO_ITEM_VARIANTS} className="min-h-[60px] text-[2rem] font-extrabold tracking-tight text-slate-900 sm:min-h-[72px] sm:text-4xl md:min-h-[88px] md:text-6xl dark:text-white">
+          <motion.h1 variants={HERO_ITEM_VARIANTS} className="min-h-[60px] text-[clamp(1.9rem,5vw,4.4rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-slate-900 sm:min-h-[72px] sm:whitespace-nowrap md:min-h-[80px] dark:text-white">
             {typedName}
             <span className="caret-blink ml-1 inline-block h-[0.95em] w-[2px] bg-slate-900 align-[-0.08em] dark:bg-white"></span>
           </motion.h1>
@@ -265,26 +364,79 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
               </RouterLink>
             </motion.div>
           </motion.div>
+
+          <motion.div variants={HERO_ITEM_VARIANTS} className="mt-4 flex flex-col gap-3 sm:hidden">
+            <a
+              href="#recently-played"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-slate-300 bg-white/88 px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-sm transition-colors hover:border-slate-400 hover:text-slate-950 dark:border-slate-700 dark:bg-dark-800/88 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:text-white"
+            >
+              <Music2 className="mr-2 h-4 w-4" />
+              {t.spotifyTeaser}
+            </a>
+            <a
+              href="#home-overview"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-slate-300 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:text-slate-950 dark:border-slate-700 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:text-white"
+            >
+              <ChevronDown className="mr-2 h-4 w-4" />
+              {t.scrollLabel}
+            </a>
+          </motion.div>
+
         </motion.div>
       </div>
 
+      {!isCompactHero ? (
+        <motion.a
+          href="#recently-played"
+          className="absolute z-20 inline-flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200/80 bg-white/78 text-slate-600 shadow-[0_14px_32px_-22px_rgba(15,23,42,0.65)] backdrop-blur-sm transition-colors hover:border-slate-300 hover:text-slate-900 dark:border-slate-700/80 dark:bg-dark-800/78 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:text-white"
+          style={{
+            left: `${musicOrbPosition.x}%`,
+            top: `${musicOrbPosition.y}%`,
+            transition: isMusicOrbEvading
+              ? 'left 620ms cubic-bezier(0.22, 1, 0.36, 1), top 620ms cubic-bezier(0.22, 1, 0.36, 1)'
+              : 'left 900ms cubic-bezier(0.22, 1, 0.36, 1), top 900ms cubic-bezier(0.22, 1, 0.36, 1)',
+          }}
+          animate={{
+            y: [0, -6, 0],
+            scale: [1, 1.04, 1],
+            rotate: [0, -6, 4, 0],
+          }}
+          transition={{
+            duration: isMusicOrbEvading ? 1.9 : 4.2,
+            ease: 'easeInOut',
+            repeat: Infinity,
+          }}
+          whileHover={{ scale: 1.06 }}
+          initial={false}
+          aria-label={t.spotifyTeaser}
+          title={t.spotifyTeaser}
+        >
+          <Music2 className="h-4 w-4" />
+          <span className="sr-only">{t.spotifyTeaser}</span>
+        </motion.a>
+      ) : null}
+
       <motion.div
-        className="absolute bottom-6 hidden w-full justify-center sm:flex"
+        className="absolute bottom-6 z-20 hidden w-full justify-center sm:flex"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.8 }}
       >
-        <RouterLink
-          to="/about"
-          className="rounded-full border border-slate-300 bg-white p-2 text-slate-600 shadow-sm transition-colors hover:border-slate-400 hover:text-slate-900 dark:border-slate-700 dark:bg-dark-800 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:text-white"
+        <a
+          href="#home-overview"
+          className="inline-flex items-center gap-3 rounded-full border border-slate-300 bg-white/92 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-sm transition-colors hover:border-slate-400 hover:text-slate-950 dark:border-slate-700 dark:bg-dark-800/90 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:text-white"
         >
           <motion.div
             animate={{ y: [0, 5, 0] }}
             transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
           >
-            <ChevronDown className="h-6 w-6" />
+            <ChevronDown className="h-5 w-5" />
           </motion.div>
-        </RouterLink>
+          <div className="flex flex-col leading-tight">
+            <span>{t.scrollLabel}</span>
+            <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">{t.scrollHint}</span>
+          </div>
+        </a>
       </motion.div>
     </section>
   );

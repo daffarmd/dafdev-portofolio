@@ -23,7 +23,7 @@ const favoriteTracks = [
 
 const SpotifyFavorites: React.FC = () => {
   return (
-    <section className="section-shell pt-0">
+    <section id="recently-played" className="section-shell pt-0 scroll-mt-24">
       <div className="section-container">
           <div className="flex items-center">
             <div className="rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-700 dark:bg-dark-800">

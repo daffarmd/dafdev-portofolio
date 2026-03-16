@@ -69,12 +69,12 @@ const Home: React.FC<HomeProps> = ({ language }) => {
   ];
 
   return (
-    <div>
+    <div className="relative isolate">
       <Hero language={language} />
 
-      <section className="section-shell pt-0">
-        <div className="section-container">
-          <div className="glass-card p-5 sm:p-7 md:p-8">
+      <section id="home-overview" className="section-shell relative z-10 -mt-10 pt-0 scroll-mt-24 sm:-mt-12 md:-mt-14">
+        <div className="section-container relative">
+          <div className="glass-card bg-white/86 p-5 dark:bg-dark-800/84 sm:p-7 md:p-8">
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{t.nextTitle}</h2>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-300">{t.nextDesc}</p>
 
@@ -89,7 +89,7 @@ const Home: React.FC<HomeProps> = ({ language }) => {
                 >
                   <RouterLink
                     to={to}
-                    className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-4 transition-colors hover:border-slate-400 dark:border-slate-700 dark:bg-dark-800 dark:hover:border-slate-500 sm:p-5"
+                    className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white/92 p-4 transition-colors hover:border-slate-400 dark:border-slate-700 dark:bg-dark-800/80 dark:hover:border-slate-500 sm:p-5"
                   >
                     <Icon className="h-5 w-5 text-slate-700 dark:text-slate-200" />
                     <h3 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">{title}</h3>
