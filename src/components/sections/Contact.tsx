@@ -197,9 +197,9 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
   };
 
   return (
-    <section id="contact" className="section-shell pb-24">
+    <section id="contact" className="section-shell pb-20 sm:pb-24">
       <div className="section-container">
-        <div className="mb-12 max-w-3xl sm:mb-16">
+        <div className="mb-10 max-w-3xl sm:mb-16">
           <motion.span
             className="section-kicker"
             initial={{ opacity: 0, y: 20 }}
@@ -229,62 +229,62 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-2">
+        <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-2 lg:gap-8">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             viewport={{ once: true }}
-            className="glass-card h-full p-5 sm:p-8"
+            className="glass-card h-full p-4 sm:p-8"
           >
-            <h3 className="mb-6 text-2xl font-bold text-slate-900 dark:text-white">
+            <h3 className="mb-5 text-[1.45rem] font-bold text-slate-900 dark:text-white sm:mb-6 sm:text-2xl">
               {t.infoTitle}
             </h3>
 
-            <div className="space-y-6">
-              <div className="flex items-start">
+            <div className="space-y-5 sm:space-y-6">
+              <div className="flex items-start gap-3 sm:gap-4">
                 <div className="flex-shrink-0 rounded-xl border border-slate-200 bg-slate-100 p-3 dark:border-slate-700 dark:bg-dark-700">
                   <Mail className="h-6 w-6 text-slate-700 dark:text-slate-300" />
                 </div>
-                <div className="ml-4 min-w-0">
-                  <h4 className="mb-1 text-lg font-semibold text-slate-900 dark:text-white">Email</h4>
-                  <a href="mailto:muhammaddaffarmd@gmail.com" className="break-all text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
+                <div className="min-w-0">
+                  <h4 className="mb-1 text-base font-semibold text-slate-900 dark:text-white sm:text-lg">Email</h4>
+                  <a href="mailto:muhammaddaffarmd@gmail.com" className="break-all text-sm text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-white sm:text-[1rem]">
                     muhammaddaffarmd@gmail.com
                   </a>
                 </div>
               </div>
 
-              <div className="flex items-start">
+              <div className="flex items-start gap-3 sm:gap-4">
                 <div className="flex-shrink-0 rounded-xl border border-slate-200 bg-slate-100 p-3 dark:border-slate-700 dark:bg-dark-700">
                   <MapPin className="h-6 w-6 text-slate-700 dark:text-slate-300" />
                 </div>
-                <div className="ml-4">
-                  <h4 className="mb-1 text-lg font-semibold text-slate-900 dark:text-white">{t.location}</h4>
-                  <p className="text-slate-600 dark:text-slate-300">
+                <div className="min-w-0">
+                  <h4 className="mb-1 text-base font-semibold text-slate-900 dark:text-white sm:text-lg">{t.location}</h4>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 sm:text-[1rem]">
                     Indonesia, Malang
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="mt-10 space-y-5">
-              <div className="rounded-2xl border border-slate-200/80 bg-white/90 p-5 dark:border-slate-700 dark:bg-dark-700/70 sm:p-6">
+            <div className="mt-8 space-y-4 sm:mt-10 sm:space-y-5">
+              <div className="rounded-2xl border border-slate-200/80 bg-white/90 p-4 dark:border-slate-700 dark:bg-dark-700/70 sm:p-6">
                 <div className="flex items-center gap-3">
                   <div className="flex-shrink-0 rounded-xl border border-slate-200 bg-slate-100 p-3 dark:border-slate-700 dark:bg-dark-800">
                     <FileText className="h-6 w-6 text-slate-700 dark:text-slate-300" />
                   </div>
-                  <h4 className="text-lg font-semibold text-slate-900 dark:text-white">{t.resume}</h4>
+                  <h4 className="text-base font-semibold text-slate-900 dark:text-white sm:text-lg">{t.resume}</h4>
                 </div>
 
                 {resumeItems.length ? (
-                  <div className="mt-5 rounded-[1.5rem] border border-slate-700/80 bg-[#111111] p-4 shadow-[0_24px_60px_-44px_rgba(15,23,42,0.9)] sm:p-6">
+                  <div className="mt-4 rounded-[1.35rem] border border-slate-700/80 bg-[#111111] p-4 shadow-[0_24px_60px_-44px_rgba(15,23,42,0.9)] sm:mt-5 sm:rounded-[1.5rem] sm:p-6">
                     <div className="inline-flex w-fit max-w-full rounded-full border border-slate-700 bg-transparent p-1">
                       {resumeItems.map((resume) => (
                         <button
                           key={resume.id}
                           type="button"
                           onClick={() => setSelectedResume(resume.id)}
-                          className={`rounded-full px-4 py-2 text-xs font-semibold transition-colors sm:px-5 ${
+                          className={`rounded-full px-3 py-2 text-[11px] font-semibold transition-colors sm:px-5 sm:text-xs ${
                             activeResume?.id === resume.id
                               ? 'bg-white text-slate-900'
                               : 'text-slate-200 hover:text-white'
@@ -295,33 +295,33 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
                       ))}
                     </div>
 
-                    <div className="mt-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="mt-6 flex flex-col gap-4 sm:mt-8 sm:flex-row sm:items-end sm:justify-between">
                       <div className="min-w-0">
-                        <p className="break-words text-[1.9rem] font-semibold tracking-tight text-white sm:text-[2.2rem]">
+                        <p className="break-words text-[1.6rem] font-semibold tracking-tight text-white sm:text-[2.2rem]">
                           {activeResume?.label}
                         </p>
-                        <p className="mt-2 text-base text-slate-400 sm:text-lg">{t.resume}</p>
+                        <p className="mt-1.5 text-sm text-slate-400 sm:mt-2 sm:text-lg">{t.resume}</p>
                       </div>
 
-                      <div className="flex shrink-0 items-center gap-3">
+                      <div className="flex shrink-0 items-center gap-2.5">
                         <a
                           href={activeResume?.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-white text-slate-900 transition hover:bg-slate-100"
+                          className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-slate-900 transition hover:bg-slate-100 sm:h-14 sm:w-14"
                           aria-label={`${t.viewResume} ${activeResume?.label}`}
                           title={`${t.viewResume} ${activeResume?.label}`}
                         >
-                          <FileText className="h-5 w-5" />
+                          <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
                         </a>
                         <a
                           href={activeResume?.url}
                           download
-                          className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-slate-600 text-white transition hover:border-slate-400 hover:bg-white/5"
+                          className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-slate-600 text-white transition hover:border-slate-400 hover:bg-white/5 sm:h-14 sm:w-14"
                           aria-label={`${t.downloadResume} ${activeResume?.label}`}
                           title={`${t.downloadResume} ${activeResume?.label}`}
                         >
-                          <Download className="h-5 w-5" />
+                          <Download className="h-4 w-4 sm:h-5 sm:w-5" />
                         </a>
                       </div>
                     </div>
@@ -331,9 +331,9 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
                 )}
               </div>
 
-              <div className="rounded-2xl border border-slate-200/80 bg-white/90 p-5 dark:border-slate-700 dark:bg-dark-700/70 sm:p-6">
-                <h4 className="text-lg font-semibold text-slate-900 dark:text-white">{t.connect}</h4>
-                <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
+              <div className="rounded-2xl border border-slate-200/80 bg-white/90 p-4 dark:border-slate-700 dark:bg-dark-700/70 sm:p-6">
+                <h4 className="text-base font-semibold text-slate-900 dark:text-white sm:text-lg">{t.connect}</h4>
+                <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
                   {t.connectDesc}
                 </p>
                 <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
@@ -350,7 +350,7 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
             viewport={{ once: true }}
             className="h-full"
           >
-            <form onSubmit={handleSubmit} className="glass-card flex h-full flex-col space-y-5 p-5 sm:p-8">
+            <form onSubmit={handleSubmit} className="glass-card flex h-full flex-col space-y-4 p-4 sm:space-y-5 sm:p-8">
               <div>
                 <label htmlFor="name" className="mb-1 block text-sm font-medium text-slate-600 dark:text-slate-300">
                   {t.name}
@@ -410,7 +410,7 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
                   onChange={handleChange}
                   required
                   rows={5}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-800 transition-colors focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400/20 dark:border-slate-600 dark:bg-dark-700 dark:text-white dark:focus:border-slate-300 dark:focus:ring-slate-200/20"
+                  className="min-h-[150px] w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-800 transition-colors focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400/20 dark:border-slate-600 dark:bg-dark-700 dark:text-white dark:focus:border-slate-300 dark:focus:ring-slate-200/20 sm:min-h-[180px]"
                   placeholder={t.messagePlaceholder}
                 ></textarea>
               </div>
@@ -424,8 +424,8 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
                 aria-hidden="true"
               />
 
-              <div className="overflow-x-auto rounded-2xl p-4 sm:p-5">
-                <div className="flex min-h-[92px] min-w-[320px] items-center justify-center">
+              <div className="-mx-1 overflow-x-auto rounded-2xl px-1 py-2 sm:mx-0 sm:px-0 sm:py-0">
+                <div className="flex min-h-[86px] min-w-[304px] items-center justify-start sm:min-h-[92px] sm:justify-center">
                   <HCaptcha
                     key={captchaKey}
                     sitekey={WEB3FORMS_HCAPTCHA_SITE_KEY}
