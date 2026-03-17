@@ -15,7 +15,7 @@ const PERSON_NAME = 'Muhammad Daffa Ramadhan';
 const PERSON_DESCRIPTION = 'Backend Developer specializing in Golang, PostgreSQL, and scalable API systems.';
 
 const HOME_SEO: SeoConfig = {
-  title: 'Muhammad Daffa Ramadhan | Backend Developer Golang & PostgreSQL',
+  title: 'Home | Muhammad Daffa Ramadhan',
   description:
     'Portfolio resmi Muhammad Daffa Ramadhan, Backend Developer yang fokus pada Golang, PostgreSQL, REST API, dan pengembangan sistem backend yang scalable.',
   path: '/',
@@ -25,7 +25,7 @@ const HOME_SEO: SeoConfig = {
 const SEO_CONFIG: Record<string, SeoConfig> = {
   '/': HOME_SEO,
   '/about': {
-    title: 'About Muhammad Daffa Ramadhan | Backend Developer',
+    title: 'About | Muhammad Daffa Ramadhan',
     description: 'Pelajari profil, pengalaman, dan perjalanan karier Muhammad Daffa Ramadhan sebagai Backend Developer.',
     path: '/about',
   },
@@ -35,7 +35,7 @@ const SEO_CONFIG: Record<string, SeoConfig> = {
     path: '/showcase',
   },
   '/contact': {
-    title: 'Contact Muhammad Daffa Ramadhan | Backend Developer',
+    title: 'Contact | Muhammad Daffa Ramadhan',
     description: 'Hubungi Muhammad Daffa Ramadhan untuk diskusi kebutuhan proyek backend dan peluang kolaborasi.',
     path: '/contact',
   },
@@ -137,7 +137,7 @@ const buildPersonProfileSchema = (siteUrl: string) => {
         '@type': 'ProfilePage',
         '@id': profilePageId,
         url: `${siteUrl}/`,
-        name: 'Muhammad Daffa Ramadhan | Backend Developer',
+        name: 'Home | Muhammad Daffa Ramadhan',
         inLanguage: 'id-ID',
         mainEntity: {
           '@id': personId,
