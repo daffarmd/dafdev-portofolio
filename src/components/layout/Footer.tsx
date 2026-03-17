@@ -14,78 +14,72 @@ const Footer: React.FC<FooterProps> = ({ language }) => {
     ? {
         rights: `(c) ${currentYear} Daf Dev. Seluruh hak cipta dilindungi.`,
         collaboration: 'Terbuka untuk kolaborasi',
-        built: 'Dibangun dengan React, Tailwind CSS, dan mindset backend-first.',
+        emailAction: 'Email saya',
       }
     : {
         rights: `(c) ${currentYear} Daf Dev. All rights reserved.`,
         collaboration: 'Open to collaboration',
-        built: 'Built with React, Tailwind CSS, and a backend-first mindset.',
+        emailAction: 'Email me',
       };
 
   return (
-    <footer className="bg-white/40 py-8 backdrop-blur dark:bg-dark-900/80 sm:py-10">
-      <div className="mx-auto w-full max-w-[1080px] border-t border-slate-200/80 px-4 pt-8 dark:border-slate-700 sm:px-6 sm:pt-10 md:px-8">
-        <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-          <div className="flex items-center">
-            <motion.div
-              className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-dark-800 sm:rounded-2xl"
-              animate={{ y: [0, -2, 0], rotate: [-1, 1, -1] }}
-              transition={{ duration: 4.6, repeat: Infinity, ease: 'easeInOut' }}
-              whileHover={{ scale: 1.04, rotate: 0 }}
-            >
-              <motion.img
-                src={meImage}
-                alt="Daf Dev logo"
-                className="h-10 w-10 object-cover"
-                whileHover={{ scale: 1.06 }}
-              />
-            </motion.div>
-            <span className="ml-3 text-lg font-bold text-slate-900 sm:text-xl dark:text-white">
-              Daf.Dev
-            </span>
+    <footer className="pb-8 pt-6 sm:pb-10 sm:pt-8">
+      <div className="mx-auto w-full max-w-[1080px] px-4 sm:px-6 md:px-8">
+        <div className="border-t border-slate-200/80 pt-6 dark:border-slate-700 sm:pt-8">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center">
+              <motion.div
+                className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-dark-800 sm:rounded-2xl"
+                animate={{ y: [0, -2, 0], rotate: [-1, 1, -1] }}
+                transition={{ duration: 4.6, repeat: Infinity, ease: 'easeInOut' }}
+                whileHover={{ scale: 1.04, rotate: 0 }}
+              >
+                <motion.img
+                  src={meImage}
+                  alt="Daf Dev logo"
+                  className="h-11 w-11 object-cover sm:h-12 sm:w-12"
+                  whileHover={{ scale: 1.06 }}
+                />
+              </motion.div>
+              <div className="ml-3">
+                <p className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Daf.Dev</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{t.collaboration}</p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <a
+                href="https://github.com/daffarmd"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition hover:-translate-y-0.5 hover:border-slate-400 hover:text-slate-900 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-300 dark:hover:border-slate-400 dark:hover:text-white"
+                aria-label="GitHub"
+              >
+                <Github className="h-5 w-5" />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/muhammaddaffaramadhan/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition hover:-translate-y-0.5 hover:border-slate-400 hover:text-slate-900 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-300 dark:hover:border-slate-400 dark:hover:text-white"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="h-5 w-5" />
+              </a>
+              <a
+                href="mailto:muhammaddaffarmd@gmail.com"
+                className="inline-flex min-h-[44px] items-center rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+              >
+                <Mail className="mr-2 h-4 w-4" />
+                {t.emailAction}
+                <ArrowUpRight className="ml-2 h-4 w-4" />
+              </a>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <a
-              href="https://github.com/daffarmd"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full border border-slate-300 bg-white p-2.5 text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-300 dark:hover:border-slate-400 dark:hover:text-white"
-              aria-label="GitHub"
-            >
-              <Github className="h-5 w-5" />
-            </a>
-            <a
-              href="https://www.linkedin.com/in/muhammaddaffaramadhan/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full border border-slate-300 bg-white p-2.5 text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-300 dark:hover:border-slate-400 dark:hover:text-white"
-              aria-label="LinkedIn"
-            >
-              <Linkedin className="h-5 w-5" />
-            </a>
-            <a
-              href="mailto:muhammaddaffarmd@gmail.com"
-              className="rounded-full border border-slate-300 bg-white p-2.5 text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-300 dark:hover:border-slate-400 dark:hover:text-white"
-              aria-label="Email"
-            >
-              <Mail className="h-5 w-5" />
-            </a>
-          </div>
-        </div>
-
-        <div className="mt-8 border-t border-slate-200 pt-6 dark:border-slate-700 sm:pt-8">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="mt-6 border-t border-slate-200/80 pt-5 dark:border-slate-700">
             <p className="text-sm text-slate-600 dark:text-slate-400">{t.rights}</p>
-            <a
-              href="mailto:muhammaddaffarmd@gmail.com"
-              className="inline-flex min-h-[44px] items-center text-sm font-semibold text-slate-700 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
-            >
-              {t.collaboration}
-              <ArrowUpRight className="ml-1.5 h-4 w-4" />
-            </a>
           </div>
-          <p className="mt-3 text-xs text-slate-500 dark:text-slate-500">{t.built}</p>
         </div>
       </div>
     </footer>
