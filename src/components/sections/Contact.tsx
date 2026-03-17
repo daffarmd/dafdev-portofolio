@@ -57,11 +57,12 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
         subjectPlaceholder: 'Subjek pesan',
         messagePlaceholder: 'Tulis pesan kamu',
         sending: 'Mengirim...',
-        sent: 'Pesan berhasil dikirim!',
-        sendFailed: 'Pesan gagal dikirim. Coba lagi beberapa saat lagi.',
-        missingConfig: 'Form belum dikonfigurasi. Tambahkan access key Web3Forms di environment Vite.',
-        submissionLimitReached: 'Batas kirim pesan untuk browser ini sudah tercapai.',
-        captchaRequired: 'Selesaikan captcha terlebih dahulu sebelum mengirim pesan.',
+        sent: 'Pesan berhasil dikirim.',
+        sendFailed: 'Pesan belum berhasil dikirim. Coba lagi sebentar lagi atau hubungi saya lewat email.',
+        missingConfig: 'Form sedang tidak tersedia. Silakan hubungi saya langsung lewat email.',
+        submissionLimitReached: 'Batas kirim pesan untuk browser ini sudah tercapai. Silakan coba lagi nanti atau hubungi saya lewat email.',
+        submissionLimitShort: 'Batas tercapai',
+        captchaRequired: 'Silakan selesaikan captcha terlebih dahulu.',
         send: 'Kirim Pesan',
       }
       : {
@@ -88,11 +89,12 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
         subjectPlaceholder: 'Subject of your message',
         messagePlaceholder: 'Your message',
         sending: 'Sending...',
-        sent: 'Message sent successfully!',
-        sendFailed: 'Message failed to send. Please try again in a moment.',
-        missingConfig: 'Form is not configured yet. Add the Web3Forms access key to the Vite environment.',
-        submissionLimitReached: 'The message limit for this browser has been reached.',
-        captchaRequired: 'Complete the captcha before sending the message.',
+        sent: 'Message sent successfully.',
+        sendFailed: 'Your message could not be sent yet. Please try again shortly or contact me by email.',
+        missingConfig: 'The form is temporarily unavailable. Please contact me directly by email.',
+        submissionLimitReached: 'The message limit for this browser has been reached. Please try again later or contact me by email.',
+        submissionLimitShort: 'Limit reached',
+        captchaRequired: 'Please complete the captcha first.',
         send: 'Send Message',
       };
 
@@ -229,111 +231,117 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)] lg:items-stretch">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             viewport={{ once: true }}
-            className="glass-card p-5 sm:p-8"
+            className="glass-card flex h-full flex-col rounded-[1.8rem] p-5 dark:bg-[#121212] sm:p-8"
           >
-            <h3 className="mb-6 text-2xl font-bold text-slate-900 dark:text-white">
+            <h3 className="text-[1.75rem] font-bold tracking-tight text-slate-900 dark:text-white sm:text-[1.9rem]">
               {t.infoTitle}
             </h3>
 
-            <div className="space-y-6">
-              <div className="flex items-start">
-                <div className="flex-shrink-0 rounded-xl border border-slate-200 bg-slate-100 p-3 dark:border-slate-700 dark:bg-dark-700">
+            <div className="mt-8 space-y-5">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 rounded-2xl border border-slate-200 bg-slate-100 p-3.5 dark:border-slate-700 dark:bg-[#171717]">
                   <Mail className="h-6 w-6 text-slate-700 dark:text-slate-300" />
                 </div>
-                <div className="ml-4 min-w-0">
-                  <h4 className="mb-1 text-lg font-semibold text-slate-900 dark:text-white">Email</h4>
-                  <a href="mailto:muhammaddaffarmd@gmail.com" className="break-all text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
+                <div className="min-w-0">
+                  <h4 className="mb-1 text-[1.05rem] font-semibold text-slate-900 dark:text-white">Email</h4>
+                  <a href="mailto:muhammaddaffarmd@gmail.com" className="break-all text-[0.95rem] leading-7 text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
                     muhammaddaffarmd@gmail.com
                   </a>
                 </div>
               </div>
 
-              <div className="flex items-start">
-                <div className="flex-shrink-0 rounded-xl border border-slate-200 bg-slate-100 p-3 dark:border-slate-700 dark:bg-dark-700">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 rounded-2xl border border-slate-200 bg-slate-100 p-3.5 dark:border-slate-700 dark:bg-[#171717]">
                   <MapPin className="h-6 w-6 text-slate-700 dark:text-slate-300" />
                 </div>
-                <div className="ml-4">
-                  <h4 className="mb-1 text-lg font-semibold text-slate-900 dark:text-white">{t.location}</h4>
-                  <p className="text-slate-600 dark:text-slate-300">
+                <div>
+                  <h4 className="mb-1 text-[1.05rem] font-semibold text-slate-900 dark:text-white">{t.location}</h4>
+                  <p className="text-[0.95rem] leading-7 text-slate-600 dark:text-slate-300">
                     Indonesia, Malang
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="mt-10 rounded-2xl border border-slate-200/80 bg-white/90 p-5 dark:border-slate-700 dark:bg-dark-700/70">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 rounded-xl border border-slate-200 bg-slate-100 p-3 dark:border-slate-700 dark:bg-dark-800">
-                  <FileText className="h-6 w-6 text-slate-700 dark:text-slate-300" />
+            <div className="mt-8 rounded-[1.8rem] border border-slate-200/80 bg-white/90 p-5 dark:border-slate-700 dark:bg-[#171717] sm:p-6">
+              <div className="flex items-center gap-4">
+                <div className="flex-shrink-0 rounded-2xl border border-slate-200 bg-slate-100 p-3 dark:border-slate-600 dark:bg-[#111111]">
+                  <FileText className="h-6 w-6 text-slate-700 dark:text-slate-200" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-lg font-semibold text-slate-900 dark:text-white">{t.resume}</h4>
-                  {resumeItems.length ? (
-                    <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50/90 p-4 dark:border-slate-700 dark:bg-dark-800/70">
-                      <div className="inline-flex rounded-full border border-slate-200 bg-white p-1 dark:border-slate-700 dark:bg-dark-900/70">
-                        {resumeItems.map((resume) => (
-                          <button
-                            key={resume.id}
-                            type="button"
-                            onClick={() => setSelectedResume(resume.id)}
-                            className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors sm:px-4 ${
-                              activeResume?.id === resume.id
-                                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
-                                : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
-                            }`}
-                          >
-                            {resume.label}
-                          </button>
-                        ))}
+                  <h4 className="text-[1.05rem] font-semibold text-slate-900 dark:text-white sm:text-[1.15rem]">{t.resume}</h4>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                {resumeItems.length ? (
+                  <div className="rounded-[1.8rem] border border-slate-200 bg-slate-50/90 p-4 dark:border-slate-700 dark:bg-[#101010] sm:p-6">
+                    <div className="inline-flex rounded-full border border-slate-200 bg-white p-1 dark:border-slate-600 dark:bg-[#131313]">
+                      {resumeItems.map((resume) => (
+                        <button
+                          key={resume.id}
+                          type="button"
+                          onClick={() => setSelectedResume(resume.id)}
+                          className={`rounded-full px-4 py-2 text-[0.78rem] font-semibold transition-colors ${
+                            activeResume?.id === resume.id
+                              ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                              : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
+                          }`}
+                        >
+                          {resume.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="mt-7 flex flex-col gap-6 sm:mt-8 sm:flex-row sm:items-end sm:justify-between">
+                      <div className="min-w-0 sm:flex-1">
+                        <p className="text-[1.95rem] font-bold leading-none tracking-tight text-slate-900 dark:text-white sm:text-[2.5rem]">
+                          {activeResume?.label}
+                        </p>
+                        <p className="mt-2 text-[1.02rem] text-slate-500 dark:text-slate-400 sm:text-lg">{t.resume}</p>
                       </div>
 
-                      <div className="mt-4 flex items-center justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-slate-900 dark:text-white">{activeResume?.label}</p>
-                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t.resume}</p>
-                        </div>
-                        <div className="flex shrink-0 items-center gap-2">
-                          <a
-                            href={activeResume?.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
-                            aria-label={`${t.viewResume} ${activeResume?.label}`}
-                            title={`${t.viewResume} ${activeResume?.label}`}
-                          >
-                            <FileText className="h-4 w-4" />
-                          </a>
-                          <a
-                            href={activeResume?.url}
-                            download
-                            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 text-slate-700 transition hover:border-slate-400 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:bg-dark-700"
-                            aria-label={`${t.downloadResume} ${activeResume?.label}`}
-                            title={`${t.downloadResume} ${activeResume?.label}`}
-                          >
-                            <Download className="h-4 w-4" />
-                          </a>
-                        </div>
+                      <div className="flex shrink-0 items-center gap-3 sm:pl-4">
+                        <a
+                          href={activeResume?.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 sm:h-16 sm:w-16"
+                          aria-label={`${t.viewResume} ${activeResume?.label}`}
+                          title={`${t.viewResume} ${activeResume?.label}`}
+                        >
+                          <FileText className="h-5 w-5" />
+                        </a>
+                        <a
+                          href={activeResume?.url}
+                          download
+                          className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-slate-300 text-slate-700 transition hover:border-slate-400 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:bg-[#181818] sm:h-16 sm:w-16"
+                          aria-label={`${t.downloadResume} ${activeResume?.label}`}
+                          title={`${t.downloadResume} ${activeResume?.label}`}
+                        >
+                          <Download className="h-5 w-5" />
+                        </a>
                       </div>
                     </div>
-                  ) : (
-                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t.resumeFallback}</p>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t.resumeFallback}</p>
+                )}
               </div>
             </div>
 
-            <div className="mt-10 rounded-2xl border border-slate-200/80 bg-white/90 p-5 dark:border-slate-700 dark:bg-dark-700/70">
-              <h4 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">{t.connect}</h4>
-              <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">
+            <div className="mt-5 rounded-[1.6rem] border border-slate-200/80 bg-white/90 p-5 dark:border-slate-700 dark:bg-[#171717] sm:p-6">
+              <h4 className="mb-3 text-[1.2rem] font-semibold text-slate-900 dark:text-white">{t.connect}</h4>
+              <p className="mb-3 max-w-[34ch] text-[0.95rem] leading-7 text-slate-600 dark:text-slate-300">
                 {t.connectDesc}
               </p>
-              <p className="text-sm text-slate-600 dark:text-slate-300">
+              <p className="max-w-[30ch] text-[0.95rem] leading-7 text-slate-600 dark:text-slate-300">
                 {t.connectDesc2}
               </p>
             </div>
@@ -344,8 +352,9 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             viewport={{ once: true }}
+            className="h-full"
           >
-            <form onSubmit={handleSubmit} className="glass-card space-y-5 p-5 sm:p-7 md:p-8">
+            <form onSubmit={handleSubmit} className="glass-card flex h-full flex-col space-y-5 rounded-[1.8rem] p-5 dark:bg-[#121212] sm:p-7 md:p-8">
               <div>
                 <label htmlFor="name" className="mb-1 block text-sm font-medium text-slate-600 dark:text-slate-300">
                   {t.name}
@@ -419,7 +428,7 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
                 aria-hidden="true"
               />
 
-              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-dark-700">
+              <div className="flex justify-center overflow-x-auto py-1">
                 <HCaptcha
                   key={captchaKey}
                   sitekey={WEB3FORMS_HCAPTCHA_SITE_KEY}
@@ -448,7 +457,7 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
                 ) : submitSuccess ? (
                   <>{t.sent}</>
                 ) : hasReachedSubmissionLimit ? (
-                  <>{t.submissionLimitReached}</>
+                  <>{t.submissionLimitShort}</>
                 ) : (
                   <>
                     <Send className="mr-2 h-5 w-5" />
