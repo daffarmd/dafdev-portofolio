@@ -199,9 +199,9 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
   };
 
   return (
-    <section id="contact" className="section-shell pb-24">
+    <section id="contact" className="section-shell pb-20 sm:pb-24">
       <div className="section-container">
-        <div className="mb-12 max-w-3xl sm:mb-16">
+        <div className="mb-10 max-w-3xl sm:mb-16">
           <motion.span
             className="section-kicker"
             initial={{ opacity: 0, y: 20 }}
@@ -334,7 +334,6 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
                   <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t.resumeFallback}</p>
                 )}
               </div>
-            </div>
 
             <div className="mt-5 rounded-[1.6rem] border border-slate-200/80 bg-white/90 p-5 dark:border-slate-700 dark:bg-[#171717] sm:p-6">
               <h4 className="mb-3 text-[1.2rem] font-semibold text-slate-900 dark:text-white">{t.connect}</h4>
@@ -414,7 +413,7 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
                   onChange={handleChange}
                   required
                   rows={5}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-800 transition-colors focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400/20 dark:border-slate-600 dark:bg-dark-700 dark:text-white dark:focus:border-slate-300 dark:focus:ring-slate-200/20"
+                  className="min-h-[150px] w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-800 transition-colors focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400/20 dark:border-slate-600 dark:bg-dark-700 dark:text-white dark:focus:border-slate-300 dark:focus:ring-slate-200/20 sm:min-h-[180px]"
                   placeholder={t.messagePlaceholder}
                 ></textarea>
               </div>
