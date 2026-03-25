@@ -10,6 +10,7 @@ import {
   Tag,
   Terminal,
   User,
+  X,
 } from 'lucide-react';
 import { useParams, Link } from 'react-router-dom';
 import { articles } from '../../data/articles';
@@ -21,6 +22,12 @@ const ARTICLE_LANGUAGE_KEY = 'articleLanguage';
 type LastReadArticleState = {
   slug: string;
   updatedAt: string;
+};
+
+type InlineImagePreview = {
+  src: string;
+  alt: string;
+  caption?: string;
 };
 
 const resolveArticleLanguage = (article: Article, language: Language) => {
@@ -110,6 +117,7 @@ const ArticleDetail: React.FC = () => {
   const article = articles.find((item) => item.slug === slug);
   const [copiedBlockId, setCopiedBlockId] = useState<string | null>(null);
   const [articleLanguage, setArticleLanguage] = useState<Language>('en');
+  const [selectedImage, setSelectedImage] = useState<InlineImagePreview | null>(null);
 
   useEffect(() => {
     const savedLanguage = window.localStorage.getItem(ARTICLE_LANGUAGE_KEY);
@@ -131,6 +139,28 @@ const ArticleDetail: React.FC = () => {
     window.localStorage.setItem(LAST_READ_ARTICLE_KEY, JSON.stringify(nextLastReadState));
   }, [article]);
 
+  useEffect(() => {
+    if (!selectedImage) {
+      return undefined;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setSelectedImage(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedImage]);
+
   const handleCopy = async (value: string, blockId: string) => {
     try {
       await navigator.clipboard.writeText(value);
@@ -141,6 +171,10 @@ const ArticleDetail: React.FC = () => {
     } catch (error) {
       console.error('Failed to copy code block', error);
     }
+  };
+
+  const closeImagePreview = () => {
+    setSelectedImage(null);
   };
 
   if (!article) {
@@ -188,6 +222,8 @@ const ArticleDetail: React.FC = () => {
         closingLabel: 'Catatan penutup',
         writtenBy: 'Ditulis oleh',
         allNotes: 'Lihat semua My Notes',
+        imageHint: 'Klik gambar untuk melihat detail',
+        closeImage: 'Tutup preview gambar',
       }
     : {
         back: 'Back to My Notes',
@@ -199,6 +235,8 @@ const ArticleDetail: React.FC = () => {
         closingLabel: 'Closing note',
         writtenBy: 'Written by',
         allNotes: 'View all My Notes',
+        imageHint: 'Click the image to view details',
+        closeImage: 'Close image preview',
       };
 
   const publishedDate = new Date(localizedArticle.date).toLocaleDateString(articleLanguage === 'id' ? 'id-ID' : 'en-US', {
@@ -317,6 +355,37 @@ const ArticleDetail: React.FC = () => {
                     );
                   }
 
+                  if (section.type === 'image') {
+                    return (
+                      <figure key={blockId} className="article-image-block">
+                        <button
+                          type="button"
+                          className="article-image-button group"
+                          onClick={() => setSelectedImage({
+                            src: section.src,
+                            alt: section.alt,
+                            caption: section.caption,
+                          })}
+                          aria-label={`${t.imageHint}: ${section.alt}`}
+                        >
+                          <img
+                            src={section.src}
+                            alt={section.alt}
+                            className="article-image transition-transform duration-500 group-hover:scale-[1.01]"
+                          />
+                          <span className="article-image-hint">
+                            {t.imageHint}
+                          </span>
+                        </button>
+                        {section.caption ? (
+                          <figcaption className="article-image-caption">
+                            {section.caption}
+                          </figcaption>
+                        ) : null}
+                      </figure>
+                    );
+                  }
+
                   if (section.type === 'code') {
                     return (
                       <CodeBlock
@@ -401,6 +470,45 @@ const ArticleDetail: React.FC = () => {
           </div>
         </article>
       </div>
+
+      {selectedImage ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/88 px-4 py-6 backdrop-blur-sm sm:px-8"
+          onClick={closeImagePreview}
+          role="dialog"
+          aria-modal="true"
+          aria-label={selectedImage.alt}
+        >
+          <div
+            className="relative w-full max-w-6xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={closeImagePreview}
+              className="absolute right-3 top-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-slate-950/75 text-white transition-colors hover:bg-slate-900"
+              aria-label={t.closeImage}
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <figure className="overflow-hidden rounded-[1.8rem] border border-white/10 bg-slate-900 shadow-[0_28px_90px_-40px_rgba(0,0,0,0.6)]">
+              <div className="max-h-[78vh] overflow-auto bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.12),transparent_30%),linear-gradient(180deg,#020617_0%,#0f172a_100%)]">
+                <img
+                  src={selectedImage.src}
+                  alt={selectedImage.alt}
+                  className="mx-auto h-auto max-h-[78vh] w-auto max-w-full object-contain"
+                />
+              </div>
+              {selectedImage.caption ? (
+                <figcaption className="border-t border-white/10 px-5 py-4 text-sm leading-6 text-slate-200 sm:px-6">
+                  {selectedImage.caption}
+                </figcaption>
+              ) : null}
+            </figure>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };
