@@ -1,9 +1,317 @@
 import golangArticleCover from '../assets/golang-article-cover.jpg';
 import restApiGolangCover from '../assets/article-rest-api-golang.png';
 import expMe from '../assets/article-exp-me.png';
+import dockerArticleCover from '../assets/docker-artikel-1.png';
+import dockerContainerVsVmImage from '../assets/docker-containervsvm.png';
 import type { Article } from '../types';
 
 export const articles: Article[] = [
+  {
+    id: 3,
+    slug: 'belajar-docker-dasar-container-vs-vm-dan-konsep-docker-container',
+    title: 'Belajar Docker Dasar: Container vs VM dan Konsep Docker Container',
+    excerpt:
+      'Catatan dasar tentang perbedaan container dan virtual machine, plus cara memahami relasi Docker image dan Docker container dari nol.',
+    date: '2026-03-25',
+    readTime: '6 menit baca',
+    tags: ['Docker', 'Containers', 'DevOps Basics'],
+    category: 'DevOps Basics',
+    author: 'Muhammad Daffa Ramadhan',
+    image: dockerArticleCover,
+    imageAlt: 'Cover article about Docker basics, container vs VM, and image vs container',
+    sections: [
+      {
+        type: 'paragraph',
+        content:
+          'Dalam proses belajar Docker, ada beberapa konsep fundamental yang wajib dipahami lebih dulu, terutama perbedaan antara container dan virtual machine, serta bagaimana Docker image dan Docker container saling berhubungan.',
+      },
+      {
+        type: 'paragraph',
+        content:
+          'Catatan ini saya tulis sebagai rangkuman pembelajaran dasar yang saya pahami sejauh ini. Tujuannya sederhana: menjadi pengingat pribadi sekaligus referensi yang mudah dibaca saat ingin memahami Docker dari awal.',
+      },
+      {
+        type: 'heading',
+        content: 'Container vs Virtual Machine (VM)',
+      },
+      {
+        type: 'paragraph',
+        content:
+          'Salah satu konsep paling penting dalam Docker adalah memahami kenapa container terasa jauh lebih ringan dibanding VM, padahal sama-sama dipakai untuk menjalankan aplikasi di lingkungan yang terisolasi.',
+      },
+      {
+        type: 'image',
+        src: dockerContainerVsVmImage,
+        alt: 'Diagram perbandingan container versus virtual machine',
+        caption:
+          'Ilustrasi ini membantu melihat perbedaan struktur antara container yang berbagi kernel host dan virtual machine yang membawa guest OS sendiri.',
+      },
+      {
+        type: 'heading',
+        content: '1. Container',
+      },
+      {
+        type: 'list',
+        items: [
+          'Biasanya berjalan tanpa GUI dan lebih sering diakses lewat CLI.',
+          'Tidak membawa sistem operasi sendiri.',
+          'Berbagi kernel dengan host operating system.',
+          'Lebih ringan, startup lebih cepat, dan cocok untuk workflow modern.',
+          'Sangat portable karena environment-nya lebih konsisten antar mesin.',
+        ],
+      },
+      {
+        type: 'heading',
+        content: '2. Virtual Machine (VM)',
+      },
+      {
+        type: 'list',
+        items: [
+          'Memiliki sistem operasi sendiri di atas hypervisor.',
+          'Sering dipakai dengan GUI dan terasa seperti komputer terpisah.',
+          'Membutuhkan resource lebih besar seperti RAM, storage, dan CPU.',
+          'Waktu booting biasanya lebih lama.',
+          'Secara umum lebih berat dibanding container.',
+        ],
+      },
+      {
+        type: 'heading',
+        content: 'Kesimpulan Perbedaan',
+      },
+      {
+        type: 'list',
+        items: [
+          'Ukuran: VM cenderung lebih besar, sedangkan container lebih ringan.',
+          'Efisiensi: Container lebih efisien karena tidak perlu membawa OS lengkap sendiri.',
+          'Portabilitas: Container lebih mudah dipindahkan dan dijalankan di berbagai environment.',
+        ],
+      },
+      {
+        type: 'heading',
+        content: 'Docker Container: Image vs Container',
+      },
+      {
+        type: 'paragraph',
+        content:
+          'Dalam Docker, ada dua komponen utama yang hampir selalu muncul bersamaan: Docker image dan Docker container. Keduanya saling terkait, tetapi punya peran yang berbeda.',
+      },
+      {
+        type: 'heading',
+        content: 'Docker Image',
+      },
+      {
+        type: 'list',
+        items: [
+          'Bisa dibayangkan sebagai blueprint atau paket instalasi.',
+          'Berisi code, dependency, environment, dan konfigurasi yang dibutuhkan aplikasi.',
+          'Bersifat `read-only`, sehingga image menjadi fondasi yang konsisten.',
+        ],
+      },
+      {
+        type: 'heading',
+        content: 'Docker Container',
+      },
+      {
+        type: 'list',
+        items: [
+          'Merupakan instance yang dibuat dari Docker image.',
+          'Bisa dibayangkan sebagai aplikasi yang sudah dijalankan.',
+          'Bersifat runtime, jadi container aktif ketika proses di dalamnya berjalan.',
+        ],
+      },
+      {
+        type: 'heading',
+        content: 'Cara Kerjanya',
+      },
+      {
+        type: 'list',
+        items: [
+          'Docker container tidak benar-benar menyalin seluruh isi image.',
+          'Container memakai layer dari image secara langsung dan menambahkan layer writable sendiri saat runtime.',
+          'Karena itu, container lebih cepat dibuat dan lebih hemat resource.',
+          'Image tetap utuh dan tidak berubah meskipun container berjalan atau berhenti.',
+        ],
+      },
+      {
+        type: 'heading',
+        content: 'Catatan Penting',
+      },
+      {
+        type: 'paragraph',
+        content:
+          'Image yang sedang dipakai oleh container tidak bisa dihapus begitu saja, karena container masih bergantung pada layer image tersebut untuk tetap bisa berjalan dengan benar.',
+      },
+      {
+        type: 'heading',
+        content: 'Insight Pribadi',
+      },
+      {
+        type: 'list',
+        items: [
+          'Docker terasa menarik karena jauh lebih ringan dibanding VM untuk banyak kebutuhan development.',
+          'Setup environment jadi lebih konsisten antara local, staging, dan production.',
+          'Konsep ini sangat relevan untuk workflow development dan deployment modern.',
+        ],
+      },
+      {
+        type: 'highlight',
+        title: 'Penutup',
+        content:
+          'Memahami perbedaan container vs VM dan relasi image vs container adalah langkah awal yang penting sebelum lanjut ke Dockerfile, Docker Compose, registry, networking, dan orchestration.',
+      },
+    ],
+    translations: {
+      en: {
+        title: 'Docker Basics: Container vs VM and the Core Idea of Docker Containers',
+        excerpt:
+          'A foundational note on the difference between containers and virtual machines, plus how Docker images and containers relate when you are starting from scratch.',
+        readTime: '6 min read',
+        category: 'DevOps Basics',
+        imageAlt: 'Cover article about Docker basics, container vs VM, and image vs container',
+        sections: [
+          {
+            type: 'paragraph',
+            content:
+              'When learning Docker, there are a few fundamental concepts that should be understood first, especially the difference between containers and virtual machines, and how Docker images and Docker containers relate to each other.',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'I wrote this note as a summary of the basic concepts I have learned so far. The goal is simple: to serve as a personal reminder and also as an easy reference when starting to understand Docker from the beginning.',
+          },
+          {
+            type: 'heading',
+            content: 'Container vs Virtual Machine (VM)',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'One of the most important Docker concepts is understanding why containers feel much lighter than virtual machines, even though both can be used to run applications in isolated environments.',
+          },
+          {
+            type: 'image',
+            src: dockerContainerVsVmImage,
+            alt: 'Diagram comparing containers and virtual machines',
+            caption:
+              'This illustration makes it easier to see the structural difference between containers that share the host kernel and virtual machines that carry their own guest OS.',
+          },
+          {
+            type: 'heading',
+            content: '1. Container',
+          },
+          {
+            type: 'list',
+            items: [
+              'They usually run without a GUI and are commonly managed through the CLI.',
+              'They do not carry their own operating system.',
+              'They share the kernel of the host operating system.',
+              'They are lighter, start faster, and fit modern workflows well.',
+              'They are highly portable because the runtime environment is more consistent across machines.',
+            ],
+          },
+          {
+            type: 'heading',
+            content: '2. Virtual Machine (VM)',
+          },
+          {
+            type: 'list',
+            items: [
+              'A VM has its own operating system on top of a hypervisor.',
+              'It is often used with a GUI and feels like a separate computer.',
+              'It needs more resources such as RAM, storage, and CPU.',
+              'Its boot process is typically slower.',
+              'In general, it is heavier than a container.',
+            ],
+          },
+          {
+            type: 'heading',
+            content: 'Key Differences',
+          },
+          {
+            type: 'list',
+            items: [
+              'Size: VMs tend to be larger, while containers are lighter.',
+              'Efficiency: Containers are more efficient because they do not need a full operating system of their own.',
+              'Portability: Containers are easier to move and run across different environments.',
+            ],
+          },
+          {
+            type: 'heading',
+            content: 'Docker Container: Image vs Container',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'In Docker, two core concepts almost always appear together: Docker images and Docker containers. They are closely related, but each one has a different role.',
+          },
+          {
+            type: 'heading',
+            content: 'Docker Image',
+          },
+          {
+            type: 'list',
+            items: [
+              'You can think of it as a blueprint or installation package.',
+              'It contains the code, dependencies, environment, and configuration the application needs.',
+              'It is `read-only`, which makes it a consistent foundation.',
+            ],
+          },
+          {
+            type: 'heading',
+            content: 'Docker Container',
+          },
+          {
+            type: 'list',
+            items: [
+              'It is an instance created from a Docker image.',
+              'You can think of it as the application that has already been launched.',
+              'It exists at runtime, so it is active while the process inside it is running.',
+            ],
+          },
+          {
+            type: 'heading',
+            content: 'How It Works',
+          },
+          {
+            type: 'list',
+            items: [
+              'A Docker container does not fully copy all the contents of its image.',
+              'It reuses the image layers directly and adds its own writable layer at runtime.',
+              'Because of that, containers are faster to create and more resource-efficient.',
+              'The original image stays intact and does not change even when a container is running or stopping.',
+            ],
+          },
+          {
+            type: 'heading',
+            content: 'Important Note',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'An image that is still being used by a container cannot be removed carelessly, because the container still depends on that image layer structure to run correctly.',
+          },
+          {
+            type: 'heading',
+            content: 'Personal Insight',
+          },
+          {
+            type: 'list',
+            items: [
+              'Docker feels compelling because it is much lighter than VMs for many development needs.',
+              'Environment setup becomes more consistent across local, staging, and production.',
+              'This concept fits modern development and deployment workflows very well.',
+            ],
+          },
+          {
+            type: 'highlight',
+            title: 'Closing Note',
+            content:
+              'Understanding container vs VM and image vs container is an important first step before moving on to Dockerfile, Docker Compose, registries, networking, and orchestration.',
+          },
+        ],
+      },
+    },
+  },
   {
     id: 1,
     slug: 'membangun-rest-api-golang-yang-rapi-dan-bisa-langsung-dijalankan',

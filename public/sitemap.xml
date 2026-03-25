@@ -36,6 +36,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://muhammaddaffaramadhan.vercel.app/my-notes/belajar-docker-dasar-container-vs-vm-dan-konsep-docker-container</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://muhammaddaffaramadhan.vercel.app/my-notes/membangun-rest-api-golang-yang-rapi-dan-bisa-langsung-dijalankan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

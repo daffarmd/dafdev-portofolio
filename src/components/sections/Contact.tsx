@@ -334,6 +334,7 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
                   <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t.resumeFallback}</p>
                 )}
               </div>
+            </div>
 
             <div className="mt-5 rounded-[1.6rem] border border-slate-200/80 bg-white/90 p-5 dark:border-slate-700 dark:bg-[#171717] sm:p-6">
               <h4 className="mb-3 text-[1.2rem] font-semibold text-slate-900 dark:text-white">{t.connect}</h4>

@@ -46,6 +46,12 @@ export type ArticleBlock =
       content: string;
     }
   | {
+      type: 'image';
+      src: string;
+      alt: string;
+      caption?: string;
+    }
+  | {
       type: 'list';
       items: string[];
     }
