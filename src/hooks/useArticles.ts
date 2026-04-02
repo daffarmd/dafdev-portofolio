@@ -19,7 +19,7 @@ export const useArticles = (options?: UseArticlesOptions): UseArticlesResult => 
   const scope = options?.scope ?? 'published';
   const { isConfigured, isAdmin, loading: authLoading } = useAuth();
   const [articles, setArticles] = useState<Article[]>(() => (
-    scope === 'published' ? getBuiltInArticles() : []
+    scope === 'published' && !isConfigured ? getBuiltInArticles() : []
   ));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
