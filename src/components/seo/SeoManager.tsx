@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useArticles } from '../../hooks/useArticles';
+import type { Article } from '../../types';
 
 type SeoConfig = {
   title: string;
@@ -7,6 +9,7 @@ type SeoConfig = {
   path: string;
   noindex?: boolean;
   schema?: 'person-profile';
+  image?: string;
 };
 
 const DEFAULT_IMAGE_PATH = '/og-image.png';
@@ -44,15 +47,55 @@ const SEO_CONFIG: Record<string, SeoConfig> = {
     description: 'Artikel teknis dan catatan pengembangan software oleh Muhammad Daffa Ramadhan.',
     path: '/my-notes',
   },
+  '/admin/articles': {
+    title: 'Notes Studio | Muhammad Daffa Ramadhan',
+    description: 'Dashboard admin untuk mengelola artikel portfolio.',
+    path: '/admin/articles',
+    noindex: true,
+  },
+  '/login': {
+    title: 'Admin Login | Muhammad Daffa Ramadhan',
+    description: 'Login admin untuk mengelola artikel portfolio.',
+    path: '/login',
+    noindex: true,
+  },
 };
 
-const getSeoConfig = (pathname: string): SeoConfig => {
+const resolveMetaImage = (siteUrl: string, imagePath?: string) => {
+  if (!imagePath) {
+    return `${siteUrl}${DEFAULT_IMAGE_PATH}`;
+  }
+
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+    return imagePath;
+  }
+
+  return `${siteUrl}${imagePath}`;
+};
+
+const getArticleSeoConfig = (pathname: string, articles: Article[]): SeoConfig | null => {
+  const slug = pathname.replace('/my-notes/', '');
+  const article = articles.find((item) => item.slug === slug);
+
+  if (!article) {
+    return null;
+  }
+
+  return {
+    title: `${article.title} | My Notes | Muhammad Daffa Ramadhan`,
+    description: article.excerpt,
+    path: pathname,
+    image: article.image,
+  };
+};
+
+const getSeoConfig = (pathname: string, articles: Article[]): SeoConfig => {
   if (pathname === '/') {
     return HOME_SEO;
   }
 
   if (pathname.startsWith('/my-notes/')) {
-    return {
+    return getArticleSeoConfig(pathname, articles) ?? {
       ...SEO_CONFIG['/my-notes'],
       path: pathname,
     };
@@ -149,12 +192,13 @@ const buildPersonProfileSchema = (siteUrl: string) => {
 
 const SeoManager = () => {
   const { pathname } = useLocation();
+  const { articles } = useArticles();
 
   useEffect(() => {
     const siteUrl = SITE_URL.replace(/\/$/, '');
-    const seo = getSeoConfig(pathname);
+    const seo = getSeoConfig(pathname, articles);
     const canonicalUrl = `${siteUrl}${seo.path}`;
-    const ogImageUrl = `${siteUrl}${DEFAULT_IMAGE_PATH}`;
+    const ogImageUrl = resolveMetaImage(siteUrl, seo.image);
     const robotsContent = seo.noindex
       ? 'noindex, follow, max-image-preview:large'
       : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
@@ -182,7 +226,7 @@ const SeoManager = () => {
     } else {
       removeElementById('person-profile-schema');
     }
-  }, [pathname]);
+  }, [articles, pathname]);
 
   return null;
 };

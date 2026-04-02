@@ -1,4 +1,3 @@
-import golangArticleCover from '../assets/golang-article-cover.jpg';
 import restApiGolangCover from '../assets/article-rest-api-golang.png';
 import expMe from '../assets/article-exp-me.png';
 import dockerArticleCover from '../assets/docker-artikel-1.png';

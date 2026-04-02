@@ -1,4 +1,6 @@
 export type Language = 'id' | 'en';
+export type ArticleStatus = 'draft' | 'published';
+export type ProfileRole = 'viewer' | 'admin';
 
 export interface Project {
   id: number;
@@ -70,7 +72,7 @@ export type ArticleBlock =
     };
 
 export interface Article {
-  id: number;
+  id: string | number;
   slug: string;
   title: string;
   excerpt: string;
@@ -82,14 +84,18 @@ export interface Article {
   image: string;
   imageAlt: string;
   sections: ArticleBlock[];
+  status?: ArticleStatus;
+  publishedAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
   translations?: {
     en?: {
-      title: string;
-      excerpt: string;
-      readTime: string;
-      category: string;
-      imageAlt: string;
-      sections: ArticleBlock[];
+      title?: string;
+      excerpt?: string;
+      readTime?: string;
+      category?: string;
+      imageAlt?: string;
+      sections?: ArticleBlock[];
     };
   };
 }

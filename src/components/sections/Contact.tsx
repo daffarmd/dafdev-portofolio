@@ -115,7 +115,6 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
     setSubmissionCount(parsedCount);
   }, []);
 
-  const remainingAttempts = Math.max(CONTACT_SUBMISSION_LIMIT - submissionCount, 0);
   const hasReachedSubmissionLimit = submissionCount >= CONTACT_SUBMISSION_LIMIT;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

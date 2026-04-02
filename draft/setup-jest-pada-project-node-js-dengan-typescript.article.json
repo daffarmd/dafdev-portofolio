@@ -1,0 +1,338 @@
+{
+  "id": null,
+  "title": "Setup Jest pada Project Node.js dengan TypeScript",
+  "slug": "setup-jest-pada-project-node-js-dengan-typescript",
+  "excerpt": "Panduan setup Jest pada project Node.js + TypeScript, mulai dari instalasi dependency, konfigurasi Babel dan TypeScript, sampai membuat unit test sederhana.",
+  "date": "2026-04-02",
+  "readTime": "8 min read",
+  "tags": [
+    "Jest",
+    "Node.js",
+    "TypeScript",
+    "Babel",
+    "Unit Testing"
+  ],
+  "category": "Testing",
+  "author": "Muhammad Daffa Ramadhan",
+  "image": "",
+  "imageAlt": "",
+  "status": "draft",
+  "translations": {},
+  "sections": [
+    {
+      "type": "paragraph",
+      "content": "Dalam pengembangan aplikasi, testing penting untuk memastikan kode berjalan sesuai harapan. Salah satu tools yang sering digunakan untuk testing di JavaScript dan TypeScript adalah Jest."
+    },
+    {
+      "type": "paragraph",
+      "content": "Pada artikel ini, kita akan membahas cara setup Jest pada project Node.js + TypeScript, mulai dari instalasi dependency, konfigurasi Babel, konfigurasi TypeScript, sampai membuat unit test sederhana."
+    },
+    {
+      "type": "heading",
+      "content": "Kenapa setup Node.js dulu, baru TypeScript?"
+    },
+    {
+      "type": "paragraph",
+      "content": "Sebelum menggunakan TypeScript, project biasanya disiapkan dulu sebagai project Node.js. Alasannya, TypeScript berjalan di atas ekosistem JavaScript dan Node.js. Jadi dependency, struktur project, dan konfigurasi dasar Node.js sebaiknya sudah siap terlebih dahulu, baru kemudian ditambahkan TypeScript."
+    },
+    {
+      "type": "heading",
+      "content": "1. Install Jest untuk testing"
+    },
+    {
+      "type": "paragraph",
+      "content": "Pertama, install Jest beserta typing-nya:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npm install --save-dev jest @types/jest"
+    },
+    {
+      "type": "paragraph",
+      "content": "Penjelasan:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "`jest` digunakan untuk menjalankan testing",
+        "`@types/jest` digunakan agar TypeScript mengenali function seperti `describe`, `it`, dan `expect`"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "2. Install Babel agar Jest bisa membaca modul JavaScript dan TypeScript"
+    },
+    {
+      "type": "paragraph",
+      "content": "Agar Jest bisa memahami syntax JavaScript modern dan file TypeScript, kita bisa menggunakan Babel."
+    },
+    {
+      "type": "paragraph",
+      "content": "Install dependency berikut:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npm install --save-dev babel-jest @babel/preset-env @babel/preset-typescript"
+    },
+    {
+      "type": "paragraph",
+      "content": "Penjelasan:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "`babel-jest` menghubungkan Babel dengan Jest",
+        "`@babel/preset-env` untuk syntax JavaScript modern",
+        "`@babel/preset-typescript` agar Babel bisa membaca file TypeScript"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": "Referensi setup Babel: https://babeljs.io/setup#installation"
+    },
+    {
+      "type": "heading",
+      "content": "3. Setup TypeScript"
+    },
+    {
+      "type": "paragraph",
+      "content": "Install TypeScript:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npm install --save-dev typescript"
+    },
+    {
+      "type": "paragraph",
+      "content": "Lalu buat file konfigurasi TypeScript:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npx tsc --init"
+    },
+    {
+      "type": "paragraph",
+      "content": "Perintah ini akan menghasilkan file `tsconfig.json`."
+    },
+    {
+      "type": "heading",
+      "content": "4. Konfigurasi Babel"
+    },
+    {
+      "type": "paragraph",
+      "content": "Buat file `babel.config.json` lalu isi dengan:"
+    },
+    {
+      "type": "code",
+      "language": "json",
+      "fileName": "babel.config.json",
+      "code": "{\n  \"presets\": [\n    \"@babel/preset-env\",\n    \"@babel/preset-typescript\"\n  ]\n}"
+    },
+    {
+      "type": "paragraph",
+      "content": "Konfigurasi ini membuat Babel dapat mentranspilasi JavaScript modern dan TypeScript saat test dijalankan oleh Jest."
+    },
+    {
+      "type": "heading",
+      "content": "5. Tambahkan script test di package.json"
+    },
+    {
+      "type": "paragraph",
+      "content": "Agar test bisa dijalankan dengan `npm test`, tambahkan script berikut di `package.json`:"
+    },
+    {
+      "type": "code",
+      "language": "json",
+      "fileName": "package.json",
+      "code": "{\n  \"scripts\": {\n    \"test\": \"jest\"\n  }\n}"
+    },
+    {
+      "type": "paragraph",
+      "content": "Dengan begitu, kita tidak perlu selalu menjalankan `npx jest`, cukup:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npm test"
+    },
+    {
+      "type": "heading",
+      "content": "6. Jika perlu, tambahkan konfigurasi TypeScript untuk Jest"
+    },
+    {
+      "type": "paragraph",
+      "content": "Kadang-kadang TypeScript masih menandai `describe`, `it`, atau `expect` sebagai error. Kalau itu terjadi, tambahkan konfigurasi berikut di `tsconfig.json`:"
+    },
+    {
+      "type": "code",
+      "language": "json",
+      "fileName": "tsconfig.json",
+      "code": "{\n  \"compilerOptions\": {\n    \"types\": [\"jest\", \"node\"]\n  }\n}"
+    },
+    {
+      "type": "paragraph",
+      "content": "Bagian ini memberi tahu TypeScript bahwa project menggunakan environment Jest dan Node.js."
+    },
+    {
+      "type": "heading",
+      "content": "7. Membuat file test pertama"
+    },
+    {
+      "type": "paragraph",
+      "content": "Buat folder `test`, lalu buat file misalnya `test/hello.test.ts`."
+    },
+    {
+      "type": "paragraph",
+      "content": "Isi file:"
+    },
+    {
+      "type": "code",
+      "language": "ts",
+      "fileName": "test/hello.test.ts",
+      "code": "describe(\"Hello\", () => {\n  it(\"should say hello\", () => {\n    const name = \"Daffa\";\n    expect(name).toBe(\"Daffa\");\n  });\n});"
+    },
+    {
+      "type": "paragraph",
+      "content": "Test ini hanya contoh sederhana untuk memastikan Jest sudah berjalan dengan benar."
+    },
+    {
+      "type": "heading",
+      "content": "8. Membuat function sayHello"
+    },
+    {
+      "type": "paragraph",
+      "content": "Sekarang buat file `src/say-hello.ts`:"
+    },
+    {
+      "type": "code",
+      "language": "ts",
+      "fileName": "src/say-hello.ts",
+      "code": "export function sayHello(name: string): string {\n  return `Hello ${name}`;\n}"
+    },
+    {
+      "type": "paragraph",
+      "content": "Catatan: Di TypeScript, lebih tepat menggunakan `string` kecil daripada `String` besar, karena `string` adalah tipe primitif yang umum dipakai."
+    },
+    {
+      "type": "heading",
+      "content": "9. Membuat unit test untuk sayHello"
+    },
+    {
+      "type": "paragraph",
+      "content": "Buat file `test/say-hello.test.ts`:"
+    },
+    {
+      "type": "code",
+      "language": "ts",
+      "fileName": "test/say-hello.test.ts",
+      "code": "import { sayHello } from \"../src/say-hello\";\n\ndescribe(\"sayHello\", () => {\n  it(\"should return hello Daffa\", () => {\n    const name = \"Daffa\";\n    expect(sayHello(name)).toBe(\"Hello Daffa\");\n  });\n});"
+    },
+    {
+      "type": "paragraph",
+      "content": "Test ini memeriksa apakah function `sayHello(\"Daffa\")` benar-benar menghasilkan `\"Hello Daffa\"`."
+    },
+    {
+      "type": "heading",
+      "content": "10. Jika terjadi error pada import"
+    },
+    {
+      "type": "paragraph",
+      "content": "Kalau muncul error saat memakai `import`, tambahkan pengaturan berikut di `tsconfig.json`:"
+    },
+    {
+      "type": "code",
+      "language": "json",
+      "fileName": "tsconfig.json",
+      "code": "{\n  \"compilerOptions\": {\n    \"module\": \"commonjs\",\n    \"moduleResolution\": \"node\"\n  }\n}"
+    },
+    {
+      "type": "paragraph",
+      "content": "Konfigurasi ini membantu TypeScript menyesuaikan sistem module dengan Node.js."
+    },
+    {
+      "type": "heading",
+      "content": "11. Menjalankan test"
+    },
+    {
+      "type": "paragraph",
+      "content": "Setelah semua selesai, jalankan test dengan:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npm test"
+    },
+    {
+      "type": "paragraph",
+      "content": "Kenapa menggunakan `npm test`, bukan `npx jest`? Karena kita sudah menambahkan script ini di `package.json`:"
+    },
+    {
+      "type": "code",
+      "language": "json",
+      "fileName": "package.json",
+      "code": "{\n  \"scripts\": {\n    \"test\": \"jest\"\n  }\n}"
+    },
+    {
+      "type": "paragraph",
+      "content": "Artinya, `npm test` akan menjalankan Jest secara otomatis."
+    },
+    {
+      "type": "heading",
+      "content": "Kesimpulan"
+    },
+    {
+      "type": "paragraph",
+      "content": "Untuk setup Jest pada project Node.js + TypeScript, langkah-langkah utamanya adalah:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "install Jest",
+        "install Babel beserta preset yang dibutuhkan",
+        "install dan inisialisasi TypeScript",
+        "buat konfigurasi Babel",
+        "tambahkan script test di `package.json`",
+        "atur `tsconfig.json` bila perlu",
+        "buat file source dan unit test",
+        "jalankan test dengan `npm test`"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": "Dengan konfigurasi ini, kamu sudah bisa mulai menulis dan menjalankan unit test sederhana pada project TypeScript."
+    },
+    {
+      "type": "heading",
+      "content": "Catatan penting"
+    },
+    {
+      "type": "paragraph",
+      "content": "Pada catatan awal ada beberapa dependency yang sebenarnya tidak wajib untuk setup dasar ini:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "`ts-jest` tidak perlu jika kamu sudah memakai `babel-jest`",
+        "`@jest/globals` juga tidak wajib kalau kamu masih memakai global API Jest biasa seperti `describe`, `it`, dan `expect`"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": "Jadi untuk setup sederhana dengan Babel, dependency yang cukup penting adalah:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npm install --save-dev jest @types/jest typescript babel-jest @babel/preset-env @babel/preset-typescript"
+    },
+    {
+      "type": "highlight",
+      "title": "Next step",
+      "content": "Kalau kamu mau, artikel ini bisa dibenarkan lagi menjadi versi yang lebih natural dan enak dibaca seperti tulisan blog."
+    }
+  ]
+}

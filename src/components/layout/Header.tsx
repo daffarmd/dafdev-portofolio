@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink, NavLink, useLocation } from 'react-router-dom';
-import { Menu, X, Moon, Sun, BookOpen, ArrowUpRight } from 'lucide-react';
+import { Menu, X, Moon, Sun, BookOpen, ArrowUpRight, LockKeyhole, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 import meImage from '../../assets/me.png';
+import { useAuth } from '../../hooks/useAuth';
 
 interface HeaderProps {
   darkMode: boolean;
@@ -13,6 +14,7 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const { isAdmin, loading, signOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -87,6 +89,20 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
           >
             {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </button>
+          {!loading ? (
+            isAdmin ? (
+              <>
+                <RouterLink to="/admin/articles" className="btn-outline text-xs">
+                  <LockKeyhole className="mr-1.5 h-3.5 w-3.5" />
+                  Admin
+                </RouterLink>
+                <button type="button" onClick={() => void signOut()} className="btn-outline text-xs">
+                  <LogOut className="mr-1.5 h-3.5 w-3.5" />
+                  Logout
+                </button>
+              </>
+            ) : null
+          ) : null}
           <RouterLink to="/contact" className="btn-primary text-xs">
             Let's Talk
             <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
@@ -134,6 +150,20 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
                   )}
                 </NavLink>
               ))}
+              {!loading ? (
+                isAdmin ? (
+                  <>
+                    <RouterLink to="/admin/articles" className="btn-outline mt-2 w-full justify-center text-center text-xs">
+                      <LockKeyhole className="mr-1.5 h-3.5 w-3.5" />
+                      Admin
+                    </RouterLink>
+                    <button type="button" onClick={() => void signOut()} className="btn-outline w-full justify-center text-center text-xs">
+                      <LogOut className="mr-1.5 h-3.5 w-3.5" />
+                      Logout
+                    </button>
+                  </>
+                ) : null
+              ) : null}
               <RouterLink to="/contact" className="btn-primary mt-2 w-full justify-center text-center text-xs">
                 Let's Talk
                 <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
