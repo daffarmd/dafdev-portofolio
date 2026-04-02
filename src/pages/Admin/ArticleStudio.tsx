@@ -1,23 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowDown,
   ArrowUp,
-  BookOpen,
+  Bell,
+  Copy,
   CopyPlus,
   Download,
   Eye,
   FileText,
   ImageUp,
-  LayoutDashboard,
-  Moon,
+  MoreHorizontal,
+  PanelLeft,
   Plus,
   Save,
   Search,
-  Settings,
-  Sparkles,
+  Settings2,
   Trash2,
   Upload,
+  X,
 } from 'lucide-react';
 import type { Article, ArticleBlock, ArticleStatus } from '../../types';
 import { useArticles } from '../../hooks/useArticles';
@@ -44,6 +45,19 @@ type EditorBlock = {
   code: string;
 };
 
+type TranslationEditorDraft = {
+  title: string;
+  excerpt: string;
+  readTime: string;
+  category: string;
+  imageAlt: string;
+  sections: EditorBlock[];
+};
+
+type ArticleTranslationDrafts = {
+  en?: TranslationEditorDraft;
+};
+
 type ArticleDraft = {
   id: string | null;
   title: string;
@@ -58,14 +72,15 @@ type ArticleDraft = {
   imageAlt: string;
   status: ArticleStatus;
   sections: EditorBlock[];
-  translations?: Article['translations'];
+  translations?: ArticleTranslationDrafts;
 };
 
 type NoticeTone = 'success' | 'error' | 'neutral';
 type ArticleFilter = 'all' | 'draft' | 'published';
-type StudioTheme = 'nebula' | 'ink';
+type EditorLanguage = 'id' | 'en';
 
-const DEFAULT_COVER_IMAGE = '/og-image.png';
+const DRAFT_IMPORT_ACCEPT = '.json,.md,.markdown,application/json,text/markdown,text/plain';
+
 const CATEGORY_OPTIONS = [
   'Backend Engineering',
   'Frontend Systems',
@@ -117,6 +132,130 @@ const createEmptyBlock = (type: ArticleBlock['type'] = 'paragraph'): EditorBlock
   code: '',
 });
 
+const articleBlocksToEditorBlocks = (sections: ArticleBlock[]): EditorBlock[] => sections.map((section) => {
+  if (section.type === 'paragraph' || section.type === 'heading') {
+    return {
+      ...createEmptyBlock(section.type),
+      content: section.content,
+    };
+  }
+
+  if (section.type === 'list') {
+    return {
+      ...createEmptyBlock('list'),
+      itemsText: section.items.join('\n'),
+    };
+  }
+
+  if (section.type === 'image') {
+    return {
+      ...createEmptyBlock('image'),
+      src: section.src,
+      alt: section.alt,
+      caption: section.caption ?? '',
+    };
+  }
+
+  if (section.type === 'code') {
+    return {
+      ...createEmptyBlock('code'),
+      language: section.language,
+      fileName: section.fileName ?? '',
+      caption: section.caption ?? '',
+      command: section.command ?? '',
+      code: section.code,
+    };
+  }
+
+  return {
+    ...createEmptyBlock('highlight'),
+    title: section.title,
+    content: section.content,
+  };
+});
+
+const editorBlocksToArticleBlocks = (sections: EditorBlock[]): ArticleBlock[] => sections.map((section) => {
+  if (section.type === 'paragraph' || section.type === 'heading') {
+    return {
+      type: section.type,
+      content: section.content.trim(),
+    };
+  }
+
+  if (section.type === 'list') {
+    return {
+      type: 'list' as const,
+      items: section.itemsText.split('\n').map((item) => item.trim()).filter(Boolean),
+    };
+  }
+
+  if (section.type === 'image') {
+    return {
+      type: 'image' as const,
+      src: section.src.trim(),
+      alt: section.alt.trim(),
+      caption: section.caption.trim() || undefined,
+    };
+  }
+
+  if (section.type === 'code') {
+    return {
+      type: 'code' as const,
+      language: section.language.trim(),
+      fileName: section.fileName.trim() || undefined,
+      caption: section.caption.trim() || undefined,
+      command: section.command.trim() || undefined,
+      code: section.code,
+    };
+  }
+
+  return {
+    type: 'highlight' as const,
+    title: section.title.trim(),
+    content: section.content.trim(),
+  };
+});
+
+const filterMeaningfulArticleBlocks = (sections: ArticleBlock[]): ArticleBlock[] => sections.filter((section) => {
+  if (section.type === 'paragraph' || section.type === 'heading') {
+    return Boolean(section.content.trim());
+  }
+
+  if (section.type === 'list') {
+    return section.items.length > 0;
+  }
+
+  if (section.type === 'image') {
+    return Boolean(section.src.trim() && section.alt.trim());
+  }
+
+  if (section.type === 'code') {
+    return Boolean(section.language.trim() && section.code.trim());
+  }
+
+  return Boolean(section.title.trim() && section.content.trim());
+});
+
+const createEmptyTranslationDraft = (): TranslationEditorDraft => ({
+  title: '',
+  excerpt: '',
+  readTime: '',
+  category: '',
+  imageAlt: '',
+  sections: [createEmptyBlock('paragraph')],
+});
+
+const normalizeTranslationDraft = (translation?: NonNullable<Article['translations']>['en']): TranslationEditorDraft => ({
+  title: typeof translation?.title === 'string' ? translation.title : '',
+  excerpt: typeof translation?.excerpt === 'string' ? translation.excerpt : '',
+  readTime: typeof translation?.readTime === 'string' ? translation.readTime : '',
+  category: typeof translation?.category === 'string' ? translation.category : '',
+  imageAlt: typeof translation?.imageAlt === 'string' ? translation.imageAlt : '',
+  sections: Array.isArray(translation?.sections)
+    ? articleBlocksToEditorBlocks(translation.sections.filter((section): section is ArticleBlock => Boolean(section)))
+    : [createEmptyBlock('paragraph')],
+});
+
 const createEmptyDraft = (author = 'Muhammad Daffa Ramadhan'): ArticleDraft => ({
   id: null,
   title: '',
@@ -127,10 +266,13 @@ const createEmptyDraft = (author = 'Muhammad Daffa Ramadhan'): ArticleDraft => (
   tags: '',
   category: '',
   author,
-  image: DEFAULT_COVER_IMAGE,
+  image: '',
   imageAlt: '',
   status: 'draft',
   sections: [createEmptyBlock('paragraph')],
+  translations: {
+    en: createEmptyTranslationDraft(),
+  },
 });
 
 const articleToDraft = (article: Article, overrides?: Partial<ArticleDraft>): ArticleDraft => ({
@@ -143,175 +285,102 @@ const articleToDraft = (article: Article, overrides?: Partial<ArticleDraft>): Ar
   tags: article.tags.join(', '),
   category: article.category,
   author: article.author,
-  image: article.image || DEFAULT_COVER_IMAGE,
+  image: article.image || '',
   imageAlt: article.imageAlt,
   status: article.status ?? 'draft',
-  sections: article.sections.map((section) => {
-    if (section.type === 'paragraph' || section.type === 'heading') {
-      return {
-        ...createEmptyBlock(section.type),
-        content: section.content,
-      };
-    }
-
-    if (section.type === 'list') {
-      return {
-        ...createEmptyBlock('list'),
-        itemsText: section.items.join('\n'),
-      };
-    }
-
-    if (section.type === 'image') {
-      return {
-        ...createEmptyBlock('image'),
-        src: section.src,
-        alt: section.alt,
-        caption: section.caption ?? '',
-      };
-    }
-
-    if (section.type === 'code') {
-      return {
-        ...createEmptyBlock('code'),
-        language: section.language,
-        fileName: section.fileName ?? '',
-        caption: section.caption ?? '',
-        command: section.command ?? '',
-        code: section.code,
-      };
-    }
-
-    return {
-      ...createEmptyBlock('highlight'),
-      title: section.title,
-      content: section.content,
-    };
-  }),
-  translations: article.translations,
+  sections: articleBlocksToEditorBlocks(article.sections),
+  translations: article.translations?.en
+    ? { en: normalizeTranslationDraft(article.translations.en) }
+    : { en: createEmptyTranslationDraft() },
   ...overrides,
 });
 
-const buildArticleInput = (draft: ArticleDraft) => ({
-  id: draft.id,
-  title: draft.title.trim(),
-  slug: draft.slug.trim(),
-  excerpt: draft.excerpt.trim(),
-  date: draft.date,
-  readTime: draft.readTime.trim(),
-  tags: draft.tags.split(',').map((tag) => tag.trim()).filter(Boolean),
-  category: draft.category.trim(),
-  author: draft.author.trim(),
-  image: draft.image.trim() || DEFAULT_COVER_IMAGE,
-  imageAlt: draft.imageAlt.trim() || draft.title.trim(),
-  status: draft.status,
-  translations: draft.translations,
-  sections: draft.sections.map((section) => {
-    if (section.type === 'paragraph' || section.type === 'heading') {
-      return {
-        type: section.type,
-        content: section.content.trim(),
-      };
-    }
-
-    if (section.type === 'list') {
-      return {
-        type: 'list' as const,
-        items: section.itemsText.split('\n').map((item) => item.trim()).filter(Boolean),
-      };
-    }
-
-    if (section.type === 'image') {
-      return {
-        type: 'image' as const,
-        src: section.src.trim(),
-        alt: section.alt.trim(),
-        caption: section.caption.trim() || undefined,
-      };
-    }
-
-    if (section.type === 'code') {
-      return {
-        type: 'code' as const,
-        language: section.language.trim(),
-        fileName: section.fileName.trim() || undefined,
-        caption: section.caption.trim() || undefined,
-        command: section.command.trim() || undefined,
-        code: section.code,
-      };
-    }
-
-    return {
-      type: 'highlight' as const,
-      title: section.title.trim(),
-      content: section.content.trim(),
-    };
-  }),
-});
-
-const validateDraft = (draft: ArticleDraft, allArticles: Article[]): string | null => {
-  if (!draft.title.trim()) {
-    return 'Title wajib diisi.';
+const buildTranslationInput = (translation?: TranslationEditorDraft): NonNullable<Article['translations']>['en'] | undefined => {
+  if (!translation) {
+    return undefined;
   }
 
-  if (!draft.slug.trim()) {
-    return 'Slug wajib diisi.';
+  const sections = filterMeaningfulArticleBlocks(editorBlocksToArticleBlocks(translation.sections));
+  const hasContent = Boolean(
+    translation.title.trim()
+    || translation.excerpt.trim()
+    || translation.readTime.trim()
+    || translation.category.trim()
+    || translation.imageAlt.trim()
+    || sections.length > 0,
+  );
+
+  if (!hasContent) {
+    return undefined;
   }
 
-  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(draft.slug.trim())) {
-    return 'Slug harus lowercase, tanpa spasi, dan pakai tanda minus.';
-  }
+  return {
+    ...(translation.title.trim() ? { title: translation.title.trim() } : {}),
+    ...(translation.excerpt.trim() ? { excerpt: translation.excerpt.trim() } : {}),
+    ...(translation.readTime.trim() ? { readTime: translation.readTime.trim() } : {}),
+    ...(translation.category.trim() ? { category: translation.category.trim() } : {}),
+    ...(translation.imageAlt.trim() ? { imageAlt: translation.imageAlt.trim() } : {}),
+    ...(sections.length > 0 ? { sections } : {}),
+  };
+};
 
-  if (allArticles.some((article) => article.slug === draft.slug.trim() && article.id !== draft.id)) {
-    return 'Slug sudah dipakai artikel lain.';
-  }
+const buildArticleInput = (draft: ArticleDraft) => {
+  const englishTranslation = buildTranslationInput(draft.translations?.en);
 
-  if (!draft.excerpt.trim()) {
-    return 'Excerpt wajib diisi.';
-  }
+  return {
+    id: draft.id,
+    title: draft.title.trim(),
+    slug: draft.slug.trim(),
+    excerpt: draft.excerpt.trim(),
+    date: draft.date,
+    readTime: draft.readTime.trim(),
+    tags: draft.tags.split(',').map((tag) => tag.trim()).filter(Boolean),
+    category: draft.category.trim(),
+    author: draft.author.trim(),
+    image: draft.image.trim(),
+    imageAlt: draft.imageAlt.trim() || draft.title.trim(),
+    status: draft.status,
+    translations: englishTranslation ? { en: englishTranslation } : undefined,
+    sections: editorBlocksToArticleBlocks(draft.sections),
+  };
+};
 
-  if (!draft.category.trim()) {
-    return 'Category wajib diisi.';
-  }
+const validateEditorSections = (sections: EditorBlock[]): string | null => {
+  if (sections.length === 0) return 'Tambahkan minimal satu content block.';
 
-  if (!draft.author.trim()) {
-    return 'Author wajib diisi.';
-  }
-
-  if (!draft.readTime.trim()) {
-    return 'Read time wajib diisi.';
-  }
-
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(draft.date)) {
-    return 'Date harus memakai format YYYY-MM-DD.';
-  }
-
-  if (draft.sections.length === 0) {
-    return 'Tambahkan minimal satu content block.';
-  }
-
-  for (const section of draft.sections) {
+  for (const section of sections) {
     if ((section.type === 'paragraph' || section.type === 'heading') && !section.content.trim()) {
       return `${blockTypeLabel[section.type]} block tidak boleh kosong.`;
     }
-
     if (section.type === 'list' && section.itemsText.split('\n').map((item) => item.trim()).filter(Boolean).length === 0) {
       return 'List block harus punya minimal satu item.';
     }
-
     if (section.type === 'image' && (!section.src.trim() || !section.alt.trim())) {
       return 'Image block butuh image URL dan alt text.';
     }
-
     if (section.type === 'code' && (!section.language.trim() || !section.code.trim())) {
       return 'Code block butuh language dan isi kode.';
     }
-
     if (section.type === 'highlight' && (!section.title.trim() || !section.content.trim())) {
       return 'Highlight block butuh title dan content.';
     }
   }
 
   return null;
+};
+
+const validateDraft = (draft: ArticleDraft, allArticles: Article[]): string | null => {
+  if (!draft.title.trim()) return 'Title wajib diisi.';
+  if (!draft.slug.trim()) return 'Slug wajib diisi.';
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(draft.slug.trim())) return 'Slug harus lowercase, tanpa spasi, dan pakai tanda minus.';
+  if (allArticles.some((article) => article.slug === draft.slug.trim() && article.id !== draft.id)) return 'Slug sudah dipakai artikel lain.';
+  if (!draft.excerpt.trim()) return 'Excerpt wajib diisi.';
+  if (!draft.category.trim()) return 'Category wajib diisi.';
+  if (!draft.author.trim()) return 'Author wajib diisi.';
+  if (!draft.readTime.trim()) return 'Read time wajib diisi.';
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(draft.date)) return 'Date harus memakai format YYYY-MM-DD.';
+
+  return validateEditorSections(draft.sections);
 };
 
 const downloadJson = (fileName: string, data: unknown) => {
@@ -324,12 +393,532 @@ const downloadJson = (fileName: string, data: unknown) => {
   URL.revokeObjectURL(objectUrl);
 };
 
+const downloadText = (fileName: string, data: string, mimeType = 'text/plain;charset=utf-8') => {
+  const blob = new Blob([data], { type: mimeType });
+  const objectUrl = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = objectUrl;
+  anchor.download = fileName;
+  anchor.click();
+  URL.revokeObjectURL(objectUrl);
+};
+
+const getDraftExportBaseName = (draft: ArticleDraft) => slugify(draft.slug || draft.title || 'untitled-story');
+
+const escapeMarkdown = (value: string) => value.replace(/([*_`[\]])/g, '\\$1');
+
+const draftToMarkdown = (draft: ArticleDraft) => {
+  const tags = draft.tags.split(',').map((tag) => tag.trim()).filter(Boolean);
+  const lines: string[] = [
+    '---',
+    `title: "${draft.title.replace(/"/g, '\\"')}"`,
+    `slug: "${draft.slug.replace(/"/g, '\\"')}"`,
+    `date: "${draft.date}"`,
+    `readTime: "${draft.readTime.replace(/"/g, '\\"')}"`,
+    `category: "${draft.category.replace(/"/g, '\\"')}"`,
+    `author: "${draft.author.replace(/"/g, '\\"')}"`,
+    `status: "${draft.status}"`,
+    `coverImage: "${draft.image.replace(/"/g, '\\"')}"`,
+    `coverImageAlt: "${draft.imageAlt.replace(/"/g, '\\"')}"`,
+    'tags:',
+    ...(tags.length > 0 ? tags.map((tag) => `  - "${tag.replace(/"/g, '\\"')}"`) : ['  - ""']),
+    '---',
+    '',
+  ];
+
+  if (draft.title.trim()) {
+    lines.push(`# ${draft.title.trim()}`, '');
+  }
+
+  if (draft.excerpt.trim()) {
+    lines.push(draft.excerpt.trim(), '');
+  }
+
+  if (draft.image.trim()) {
+    lines.push(`![${draft.imageAlt.trim() || draft.title.trim() || 'cover image'}](${draft.image.trim()})`, '');
+  }
+
+  draft.sections.forEach((section) => {
+    if (section.type === 'paragraph' && section.content.trim()) {
+      lines.push(section.content.trim(), '');
+      return;
+    }
+
+    if (section.type === 'heading' && section.content.trim()) {
+      lines.push(`## ${section.content.trim()}`, '');
+      return;
+    }
+
+    if (section.type === 'list') {
+      const items = section.itemsText.split('\n').map((item) => item.trim()).filter(Boolean);
+      if (items.length > 0) {
+        lines.push(...items.map((item) => `- ${item}`), '');
+      }
+      return;
+    }
+
+    if (section.type === 'image' && section.src.trim()) {
+      lines.push(`![${section.alt.trim() || 'image'}](${section.src.trim()})`);
+      if (section.caption.trim()) {
+        lines.push(`_${section.caption.trim()}_`);
+      }
+      lines.push('');
+      return;
+    }
+
+    if (section.type === 'code' && section.code.trim()) {
+      if (section.fileName.trim()) {
+        lines.push(`**${escapeMarkdown(section.fileName.trim())}**`);
+      }
+      if (section.caption.trim()) {
+        lines.push(section.caption.trim());
+      }
+      lines.push(`\`\`\`${section.language.trim() || 'txt'}`, section.code, '```');
+      if (section.command.trim()) {
+        lines.push('', `Command: \`${section.command.trim()}\``);
+      }
+      lines.push('');
+      return;
+    }
+
+    if (section.type === 'highlight' && (section.title.trim() || section.content.trim())) {
+      if (section.title.trim()) {
+        lines.push(`> **${section.title.trim()}**`);
+      }
+      if (section.content.trim()) {
+        lines.push(...section.content.trim().split('\n').map((line) => `> ${line}`));
+      }
+      lines.push('');
+    }
+  });
+
+  return lines.join('\n').trimEnd();
+};
+
+const stripWrappedQuotes = (value: string) => value.trim().replace(/^"(.*)"$/s, '$1').replace(/\\"/g, '"');
+
+const normalizeDraftStatus = (value: unknown): ArticleStatus => value === 'published' ? 'published' : 'draft';
+
+const toEditorBlock = (section: unknown): EditorBlock | null => {
+  if (!section || typeof section !== 'object') {
+    return null;
+  }
+
+  const block = section as Record<string, unknown>;
+  const type = block.type;
+  if (type === 'paragraph' || type === 'heading') {
+    return {
+      ...createEmptyBlock(type),
+      content: typeof block.content === 'string' ? block.content : '',
+    };
+  }
+
+  if (type === 'list') {
+    const items = Array.isArray(block.items)
+      ? block.items.filter((item): item is string => typeof item === 'string')
+      : [];
+
+    return {
+      ...createEmptyBlock('list'),
+      itemsText: items.join('\n'),
+    };
+  }
+
+  if (type === 'image') {
+    return {
+      ...createEmptyBlock('image'),
+      src: typeof block.src === 'string' ? block.src : '',
+      alt: typeof block.alt === 'string' ? block.alt : '',
+      caption: typeof block.caption === 'string' ? block.caption : '',
+    };
+  }
+
+  if (type === 'code') {
+    return {
+      ...createEmptyBlock('code'),
+      language: typeof block.language === 'string' ? block.language : 'txt',
+      fileName: typeof block.fileName === 'string' ? block.fileName : '',
+      caption: typeof block.caption === 'string' ? block.caption : '',
+      command: typeof block.command === 'string' ? block.command : '',
+      code: typeof block.code === 'string' ? block.code : '',
+    };
+  }
+
+  if (type === 'highlight') {
+    return {
+      ...createEmptyBlock('highlight'),
+      title: typeof block.title === 'string' ? block.title : '',
+      content: typeof block.content === 'string' ? block.content : '',
+    };
+  }
+
+  return null;
+};
+
+const normalizeImportedDraft = (value: unknown, fallbackAuthor: string): ArticleDraft => {
+  if (!value || typeof value !== 'object') {
+    throw new Error('Isi file JSON tidak valid untuk draft artikel.');
+  }
+
+  const raw = value as Record<string, unknown>;
+  const sectionsRaw = Array.isArray(raw.sections) ? raw.sections : [];
+  const sections = sectionsRaw.map(toEditorBlock).filter((section): section is EditorBlock => Boolean(section));
+
+  const tags = Array.isArray(raw.tags)
+    ? raw.tags.filter((tag): tag is string => typeof tag === 'string').join(', ')
+    : typeof raw.tags === 'string'
+      ? raw.tags
+      : '';
+
+  const title = typeof raw.title === 'string' ? raw.title : '';
+  const slug = typeof raw.slug === 'string' && raw.slug.trim() ? raw.slug : slugify(title);
+  const rawTranslations = raw.translations && typeof raw.translations === 'object'
+    ? raw.translations as Record<string, unknown>
+    : null;
+  const rawEnglishTranslation = rawTranslations?.en && typeof rawTranslations.en === 'object'
+    ? rawTranslations.en as Record<string, unknown>
+    : null;
+  const translationSections = Array.isArray(rawEnglishTranslation?.sections)
+    ? rawEnglishTranslation.sections.map(toEditorBlock).filter((section): section is EditorBlock => Boolean(section))
+    : [];
+
+  return {
+    id: null,
+    title,
+    slug,
+    excerpt: typeof raw.excerpt === 'string' ? raw.excerpt : '',
+    date: typeof raw.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw.date) ? raw.date : getTodayDate(),
+    readTime: typeof raw.readTime === 'string' && raw.readTime.trim() ? raw.readTime : '5 min read',
+    tags,
+    category: typeof raw.category === 'string' ? raw.category : '',
+    author: typeof raw.author === 'string' && raw.author.trim() ? raw.author : fallbackAuthor,
+    image: typeof raw.image === 'string' ? raw.image : '',
+    imageAlt: typeof raw.imageAlt === 'string' ? raw.imageAlt : '',
+    status: normalizeDraftStatus(raw.status),
+    sections: sections.length > 0 ? sections : [createEmptyBlock('paragraph')],
+    translations: {
+      en: {
+        title: typeof rawEnglishTranslation?.title === 'string' ? rawEnglishTranslation.title : '',
+        excerpt: typeof rawEnglishTranslation?.excerpt === 'string' ? rawEnglishTranslation.excerpt : '',
+        readTime: typeof rawEnglishTranslation?.readTime === 'string' ? rawEnglishTranslation.readTime : '',
+        category: typeof rawEnglishTranslation?.category === 'string' ? rawEnglishTranslation.category : '',
+        imageAlt: typeof rawEnglishTranslation?.imageAlt === 'string' ? rawEnglishTranslation.imageAlt : '',
+        sections: translationSections.length > 0 ? translationSections : [createEmptyBlock('paragraph')],
+      },
+    },
+  };
+};
+
+const parseFrontmatter = (markdown: string) => {
+  if (!markdown.startsWith('---\n')) {
+    return {
+      frontmatter: {} as Record<string, string | string[]>,
+      body: markdown,
+    };
+  }
+
+  const closingIndex = markdown.indexOf('\n---', 4);
+  if (closingIndex < 0) {
+    return {
+      frontmatter: {} as Record<string, string | string[]>,
+      body: markdown,
+    };
+  }
+
+  const rawFrontmatter = markdown.slice(4, closingIndex);
+  const body = markdown.slice(closingIndex + 4).replace(/^\n/, '');
+  const frontmatter: Record<string, string | string[]> = {};
+  let currentArrayKey: string | null = null;
+
+  rawFrontmatter.split('\n').forEach((line) => {
+    const arrayItemMatch = line.match(/^\s*-\s+(.*)$/);
+    if (currentArrayKey && arrayItemMatch) {
+      const current = frontmatter[currentArrayKey];
+      if (Array.isArray(current)) {
+        current.push(stripWrappedQuotes(arrayItemMatch[1]));
+      }
+      return;
+    }
+
+    currentArrayKey = null;
+    const keyValueMatch = line.match(/^([A-Za-z][\w-]*):\s*(.*)$/);
+    if (!keyValueMatch) {
+      return;
+    }
+
+    const [, key, rawValue] = keyValueMatch;
+    if (!rawValue.trim()) {
+      frontmatter[key] = [];
+      currentArrayKey = key;
+      return;
+    }
+
+    frontmatter[key] = stripWrappedQuotes(rawValue);
+  });
+
+  return { frontmatter, body };
+};
+
+const parseMarkdownToDraft = (markdown: string, fallbackAuthor: string): ArticleDraft => {
+  const normalizedMarkdown = markdown.replace(/\r\n/g, '\n').trim();
+  const { frontmatter, body } = parseFrontmatter(normalizedMarkdown);
+  const lines = body.split('\n');
+  const sections: EditorBlock[] = [];
+
+  let title = typeof frontmatter.title === 'string' ? frontmatter.title : '';
+  let slug = typeof frontmatter.slug === 'string' ? frontmatter.slug : '';
+  let excerpt = '';
+  let date = typeof frontmatter.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(frontmatter.date) ? frontmatter.date : getTodayDate();
+  let readTime = typeof frontmatter.readTime === 'string' ? frontmatter.readTime : '5 min read';
+  let category = typeof frontmatter.category === 'string' ? frontmatter.category : '';
+  let author = typeof frontmatter.author === 'string' && frontmatter.author.trim() ? frontmatter.author : fallbackAuthor;
+  let status = normalizeDraftStatus(frontmatter.status);
+  let image = typeof frontmatter.coverImage === 'string' ? frontmatter.coverImage : '';
+  let imageAlt = typeof frontmatter.coverImageAlt === 'string' ? frontmatter.coverImageAlt : '';
+  const tags = Array.isArray(frontmatter.tags) ? frontmatter.tags.join(', ') : '';
+
+  const isBlank = (line: string) => line.trim() === '';
+  const isDivider = (line: string) => /^---+$/.test(line.trim());
+  const isHeading = (line: string) => /^##\s+/.test(line.trim());
+  const isListItem = (line: string) => /^-\s+/.test(line.trim());
+  const isCodeFence = (line: string) => /^```/.test(line.trim());
+  const isImage = (line: string) => /^!\[[^\]]*\]\(([^)]+)\)$/.test(line.trim());
+  const isQuote = (line: string) => /^>\s?/.test(line.trim());
+
+  const parseImageLine = (line: string) => {
+    const match = line.trim().match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+    return match ? { alt: match[1], src: match[2] } : null;
+  };
+
+  const parseCommandLine = (line: string) => {
+    const match = line.trim().match(/^Command:\s*`(.+)`$/);
+    return match ? match[1] : '';
+  };
+
+  let index = 0;
+  while (index < lines.length && isBlank(lines[index])) {
+    index += 1;
+  }
+
+  if (index < lines.length && /^#\s+/.test(lines[index].trim())) {
+    title = lines[index].trim().replace(/^#\s+/, '').trim();
+    index += 1;
+  }
+
+  while (index < lines.length && isBlank(lines[index])) {
+    index += 1;
+  }
+
+  if (!excerpt) {
+    const excerptLines: string[] = [];
+    while (index < lines.length && !isBlank(lines[index]) && !isDivider(lines[index]) && !isHeading(lines[index]) && !isListItem(lines[index]) && !isCodeFence(lines[index]) && !isImage(lines[index]) && !isQuote(lines[index])) {
+      excerptLines.push(lines[index].trim());
+      index += 1;
+    }
+
+    if (excerptLines.length > 0) {
+      excerpt = excerptLines.join(' ');
+    }
+  }
+
+  while (index < lines.length) {
+    const currentLine = lines[index];
+    const trimmed = currentLine.trim();
+
+    if (isBlank(currentLine) || isDivider(currentLine)) {
+      index += 1;
+      continue;
+    }
+
+    if (isHeading(currentLine)) {
+      sections.push({
+        ...createEmptyBlock('heading'),
+        content: trimmed.replace(/^##\s+/, '').trim(),
+      });
+      index += 1;
+      continue;
+    }
+
+    if (!image && isImage(currentLine) && sections.length === 0) {
+      const parsedImage = parseImageLine(currentLine);
+      if (parsedImage) {
+        image = parsedImage.src;
+        imageAlt = parsedImage.alt;
+      }
+      index += 1;
+      while (index < lines.length && isBlank(lines[index])) {
+        index += 1;
+      }
+      continue;
+    }
+
+    if (isImage(currentLine)) {
+      const parsedImage = parseImageLine(currentLine);
+      if (!parsedImage) {
+        index += 1;
+        continue;
+      }
+
+      let caption = '';
+      if (index + 1 < lines.length) {
+        const nextLine = lines[index + 1].trim();
+        const captionMatch = nextLine.match(/^_(.+)_$/);
+        if (captionMatch) {
+          caption = captionMatch[1].trim();
+          index += 1;
+        }
+      }
+
+      sections.push({
+        ...createEmptyBlock('image'),
+        src: parsedImage.src,
+        alt: parsedImage.alt,
+        caption,
+      });
+      index += 1;
+      continue;
+    }
+
+    if (isQuote(currentLine)) {
+      const quoteLines: string[] = [];
+      while (index < lines.length && isQuote(lines[index])) {
+        quoteLines.push(lines[index].trim().replace(/^>\s?/, ''));
+        index += 1;
+      }
+
+      const firstLine = quoteLines[0] ?? '';
+      const titleMatch = firstLine.match(/^\*\*(.+)\*\*$/);
+      sections.push({
+        ...createEmptyBlock('highlight'),
+        title: titleMatch ? titleMatch[1].trim() : 'Highlight',
+        content: titleMatch ? quoteLines.slice(1).join('\n').trim() : quoteLines.join('\n').trim(),
+      });
+      continue;
+    }
+
+    if (isListItem(currentLine)) {
+      const items: string[] = [];
+      while (index < lines.length && isListItem(lines[index])) {
+        items.push(lines[index].trim().replace(/^-\s+/, '').trim());
+        index += 1;
+      }
+
+      sections.push({
+        ...createEmptyBlock('list'),
+        itemsText: items.join('\n'),
+      });
+      continue;
+    }
+
+    if (isCodeFence(currentLine)) {
+      const language = trimmed.replace(/^```/, '').trim() || 'txt';
+      index += 1;
+      const codeLines: string[] = [];
+      while (index < lines.length && !isCodeFence(lines[index])) {
+        codeLines.push(lines[index]);
+        index += 1;
+      }
+      if (index < lines.length && isCodeFence(lines[index])) {
+        index += 1;
+      }
+
+      let command = '';
+      while (index < lines.length && isBlank(lines[index])) {
+        index += 1;
+      }
+      if (index < lines.length && parseCommandLine(lines[index])) {
+        command = parseCommandLine(lines[index]);
+        index += 1;
+      }
+
+      sections.push({
+        ...createEmptyBlock('code'),
+        language,
+        code: codeLines.join('\n'),
+        command,
+      });
+      continue;
+    }
+
+    if (/^\*\*(.+)\*\*$/.test(trimmed) && index + 1 < lines.length && isCodeFence(lines[index + 1])) {
+      const fileName = trimmed.replace(/^\*\*|\*\*$/g, '').trim();
+      const language = lines[index + 1].trim().replace(/^```/, '').trim() || 'txt';
+      index += 2;
+      const codeLines: string[] = [];
+      while (index < lines.length && !isCodeFence(lines[index])) {
+        codeLines.push(lines[index]);
+        index += 1;
+      }
+      if (index < lines.length && isCodeFence(lines[index])) {
+        index += 1;
+      }
+
+      let command = '';
+      while (index < lines.length && isBlank(lines[index])) {
+        index += 1;
+      }
+      if (index < lines.length && parseCommandLine(lines[index])) {
+        command = parseCommandLine(lines[index]);
+        index += 1;
+      }
+
+      sections.push({
+        ...createEmptyBlock('code'),
+        language,
+        fileName,
+        code: codeLines.join('\n'),
+        command,
+      });
+      continue;
+    }
+
+    const paragraphLines: string[] = [];
+    while (index < lines.length && !isBlank(lines[index]) && !isDivider(lines[index]) && !isHeading(lines[index]) && !isListItem(lines[index]) && !isCodeFence(lines[index]) && !isImage(lines[index]) && !isQuote(lines[index])) {
+      paragraphLines.push(lines[index].trim());
+      index += 1;
+    }
+
+    if (paragraphLines.length > 0) {
+      sections.push({
+        ...createEmptyBlock('paragraph'),
+        content: paragraphLines.join(' '),
+      });
+    }
+  }
+
+  return {
+    id: null,
+    title,
+    slug: slug || slugify(title),
+    excerpt,
+    date,
+    readTime,
+    tags,
+    category,
+    author,
+    image,
+    imageAlt,
+    status,
+    sections: sections.length > 0 ? sections : [createEmptyBlock('paragraph')],
+  };
+};
+
 const getInitials = (value: string) => value
   .split(/\s+/)
   .filter(Boolean)
   .slice(0, 2)
   .map((part) => part[0]?.toUpperCase() ?? '')
   .join('') || 'AD';
+
+const getBlockPlainText = (section: EditorBlock) => {
+  if (section.type === 'paragraph' || section.type === 'heading') return section.content;
+  if (section.type === 'list') return section.itemsText;
+  if (section.type === 'image') return `${section.alt} ${section.caption}`.trim();
+  if (section.type === 'code') return `${section.fileName} ${section.caption} ${section.command} ${section.code}`.trim();
+  return `${section.title} ${section.content}`.trim();
+};
+
+const countWords = (value: string) => value.trim().split(/\s+/).filter(Boolean).length;
 
 const ArticleStudio: React.FC = () => {
   const { articles: adminArticles, loading, error } = useArticles({ scope: 'admin' });
@@ -345,24 +934,86 @@ const ArticleStudio: React.FC = () => {
   const [uploadingBlockId, setUploadingBlockId] = useState<string | null>(null);
   const [libraryQuery, setLibraryQuery] = useState('');
   const [articleFilter, setArticleFilter] = useState<ArticleFilter>('all');
-  const [studioTheme, setStudioTheme] = useState<StudioTheme>('nebula');
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+  const [insertMenuAnchor, setInsertMenuAnchor] = useState<string | 'start' | null>(null);
+  const [isLibraryOpen, setIsLibraryOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isHelperVisible, setIsHelperVisible] = useState(true);
+  const [editorLanguage, setEditorLanguage] = useState<EditorLanguage>('id');
+  const titleTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const defaultAuthor = profile?.fullName || profile?.email || 'Muhammad Daffa Ramadhan';
+  const ensureEnglishTranslationDraft = (current: ArticleDraft): TranslationEditorDraft => (
+    current.translations?.en ?? createEmptyTranslationDraft()
+  );
+
+  const syncTextareaHeight = (textarea: HTMLTextAreaElement | null) => {
+    if (!textarea) {
+      return;
+    }
+
+    textarea.style.height = '0px';
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  };
+
+  useEffect(() => {
+    syncTextareaHeight(titleTextareaRef.current);
+  }, [draft.title]);
 
   const markDraftDirty = () => {
     setHasPendingChanges(true);
   };
 
-  const jumpTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const updateEnglishTranslationDraft = (updater: (current: TranslationEditorDraft) => TranslationEditorDraft) => {
+    markDraftDirty();
+    setDraft((current) => ({
+      ...current,
+      translations: {
+        ...(current.translations ?? {}),
+        en: updater(ensureEnglishTranslationDraft(current)),
+      },
+    }));
+  };
+
+  const updateActiveSections = (updater: (sections: EditorBlock[]) => EditorBlock[]) => {
+    markDraftDirty();
+    setDraft((current) => {
+      if (editorLanguage === 'id') {
+        return {
+          ...current,
+          sections: updater(current.sections),
+        };
+      }
+
+      const englishTranslation = ensureEnglishTranslationDraft(current);
+      return {
+        ...current,
+        translations: {
+          ...(current.translations ?? {}),
+          en: {
+            ...englishTranslation,
+            sections: updater(englishTranslation.sections),
+          },
+        },
+      };
+    });
+  };
+
+  const revealSupportPanel = (panelId: 'studio-library' | 'studio-settings') => {
+    window.setTimeout(() => {
+      document.getElementById(panelId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 40);
   };
 
   const resetDraft = () => {
     setDraft(createEmptyDraft(defaultAuthor));
     setHasPendingChanges(false);
     setLastSavedAt(null);
+    setInsertMenuAnchor(null);
+    setIsLibraryOpen(false);
+    setIsSettingsOpen(false);
+    setEditorLanguage('id');
     setNotice({
       tone: 'neutral',
       message: 'Fresh draft ready. Isi judul, metadata, lalu mulai menulis isi artikel.',
@@ -378,54 +1029,68 @@ const ArticleStudio: React.FC = () => {
   };
 
   const handleBlockChange = (blockId: string, updates: Partial<EditorBlock>) => {
-    markDraftDirty();
-    setDraft((current) => ({
-      ...current,
-      sections: current.sections.map((section) => (
-        section.id === blockId
-          ? { ...section, ...updates }
-          : section
-      )),
-    }));
+    updateActiveSections((sections) => sections.map((section) => (
+      section.id === blockId
+        ? { ...section, ...updates }
+        : section
+    )));
+  };
+
+  const insertBlockAt = (afterBlockId: string | null, type: ArticleBlock['type']) => {
+    updateActiveSections((currentSections) => {
+      const nextBlock = createEmptyBlock(type);
+      const nextSections = [...currentSections];
+
+      if (!afterBlockId) {
+        nextSections.unshift(nextBlock);
+      } else {
+        const index = nextSections.findIndex((section) => section.id === afterBlockId);
+        if (index < 0) {
+          nextSections.push(nextBlock);
+        } else {
+          nextSections.splice(index + 1, 0, nextBlock);
+        }
+      }
+
+      return nextSections;
+    });
   };
 
   const handleAddBlock = (type: ArticleBlock['type']) => {
-    markDraftDirty();
-    setDraft((current) => ({
-      ...current,
-      sections: [...current.sections, createEmptyBlock(type)],
-    }));
+    const lastBlockId = activeSections.length > 0 ? activeSections[activeSections.length - 1].id : null;
+    insertBlockAt(lastBlockId, type);
+    setInsertMenuAnchor(null);
+  };
+
+  const handleInsertBlockAfter = (afterBlockId: string | null, type: ArticleBlock['type']) => {
+    insertBlockAt(afterBlockId, type);
+    setInsertMenuAnchor(null);
   };
 
   const handleRemoveBlock = (blockId: string) => {
-    markDraftDirty();
-    setDraft((current) => ({
-      ...current,
-      sections: current.sections.filter((section) => section.id !== blockId),
-    }));
+    setInsertMenuAnchor((current) => (current === blockId ? null : current));
+    updateActiveSections((sections) => {
+      const remainingSections = sections.filter((section) => section.id !== blockId);
+      return remainingSections.length > 0 ? remainingSections : [createEmptyBlock('paragraph')];
+    });
   };
 
   const handleMoveBlock = (blockId: string, direction: 'up' | 'down') => {
-    markDraftDirty();
-    setDraft((current) => {
-      const index = current.sections.findIndex((section) => section.id === blockId);
+    updateActiveSections((sections) => {
+      const index = sections.findIndex((section) => section.id === blockId);
       if (index < 0) {
-        return current;
+        return sections;
       }
 
       const targetIndex = direction === 'up' ? index - 1 : index + 1;
-      if (targetIndex < 0 || targetIndex >= current.sections.length) {
-        return current;
+      if (targetIndex < 0 || targetIndex >= sections.length) {
+        return sections;
       }
 
-      const nextSections = [...current.sections];
+      const nextSections = [...sections];
       const [movedSection] = nextSections.splice(index, 1);
       nextSections.splice(targetIndex, 0, movedSection);
-
-      return {
-        ...current,
-        sections: nextSections,
-      };
+      return nextSections;
     });
   };
 
@@ -433,6 +1098,9 @@ const ArticleStudio: React.FC = () => {
     setDraft(articleToDraft(article));
     setHasPendingChanges(false);
     setLastSavedAt(article.updatedAt ?? article.publishedAt ?? null);
+    setInsertMenuAnchor(null);
+    setIsLibraryOpen(false);
+    setEditorLanguage('id');
     setNotice({
       tone: 'neutral',
       message: `Editing "${article.title}" from Supabase.`,
@@ -449,6 +1117,9 @@ const ArticleStudio: React.FC = () => {
     }));
     setHasPendingChanges(true);
     setLastSavedAt(null);
+    setInsertMenuAnchor(null);
+    setIsLibraryOpen(false);
+    setEditorLanguage('id');
     setNotice({
       tone: 'neutral',
       message: `Template loaded from "${article.title}". Fine-tune the copy, then save as a new draft.`,
@@ -477,12 +1148,139 @@ const ArticleStudio: React.FC = () => {
     }
   };
 
+  const handleDeleteCurrentArticle = async () => {
+    const article = adminArticles.find((item) => item.id === draft.id);
+    if (article) {
+      await handleDeleteArticle(article);
+    }
+  };
+
   const handleExport = () => {
     downloadJson('supabase-articles-export.json', adminArticles);
     setNotice({
       tone: 'success',
       message: 'Database article export berhasil dibuat.',
     });
+  };
+
+  const handleExportDraftJson = () => {
+    const fileName = `${getDraftExportBaseName(draft)}.article.json`;
+    downloadJson(fileName, buildArticleInput(draft));
+    setNotice({
+      tone: 'success',
+      message: `Draft aktif berhasil diexport ke ${fileName}.`,
+    });
+  };
+
+  const buildActiveMarkdownDraft = (): ArticleDraft => {
+    if (editorLanguage === 'id') {
+      return draft;
+    }
+
+    const englishTranslation = ensureEnglishTranslationDraft(draft);
+    return {
+      ...draft,
+      title: englishTranslation.title.trim() || draft.title,
+      excerpt: englishTranslation.excerpt.trim() || draft.excerpt,
+      readTime: englishTranslation.readTime.trim() || draft.readTime,
+      category: englishTranslation.category.trim() || draft.category,
+      imageAlt: englishTranslation.imageAlt.trim() || draft.imageAlt,
+      sections: englishTranslation.sections.length > 0 ? englishTranslation.sections : draft.sections,
+      translations: undefined,
+    };
+  };
+
+  const handleExportDraftMarkdown = () => {
+    const activeDraft = buildActiveMarkdownDraft();
+    const fileName = `${getDraftExportBaseName(activeDraft)}${editorLanguage === 'en' ? '-en' : ''}.md`;
+    downloadText(fileName, draftToMarkdown(activeDraft), 'text/markdown;charset=utf-8');
+    setNotice({
+      tone: 'success',
+      message: `Draft aktif berhasil diexport ke ${fileName}.`,
+    });
+  };
+
+  const handleCopyDraftMarkdown = async () => {
+    try {
+      await navigator.clipboard.writeText(draftToMarkdown(buildActiveMarkdownDraft()));
+      setNotice({
+        tone: 'success',
+        message: 'Markdown draft aktif berhasil dicopy ke clipboard.',
+      });
+    } catch (copyError) {
+      setNotice({
+        tone: 'error',
+        message: copyError instanceof Error ? copyError.message : 'Gagal copy markdown ke clipboard.',
+      });
+    }
+  };
+
+  const applyImportedDraft = (nextDraft: ArticleDraft, sourceLabel: string) => {
+    setDraft({
+      ...nextDraft,
+      id: null,
+      author: nextDraft.author.trim() || defaultAuthor,
+      sections: nextDraft.sections.length > 0 ? nextDraft.sections : [createEmptyBlock('paragraph')],
+    });
+    setHasPendingChanges(true);
+    setLastSavedAt(null);
+    setInsertMenuAnchor(null);
+    setIsLibraryOpen(false);
+    setIsSettingsOpen(false);
+    setIsHelperVisible(true);
+    setEditorLanguage('id');
+    setNotice({
+      tone: 'success',
+      message: `Draft dari ${sourceLabel} berhasil diimport. Review isi lalu simpan ke Supabase.`,
+    });
+  };
+
+  const handleImportDraftFile = async (file: File | null) => {
+    if (!file) {
+      return;
+    }
+
+    try {
+      const rawText = await file.text();
+      const lowerFileName = file.name.toLowerCase();
+      let nextDraft: ArticleDraft;
+
+      if (lowerFileName.endsWith('.json')) {
+        const parsed = JSON.parse(rawText) as unknown;
+        const candidate = Array.isArray(parsed) ? parsed[0] : parsed;
+        if (!candidate) {
+          throw new Error('File JSON tidak berisi draft artikel.');
+        }
+        nextDraft = normalizeImportedDraft(candidate, defaultAuthor);
+      } else if (lowerFileName.endsWith('.md') || lowerFileName.endsWith('.markdown') || file.type.includes('markdown')) {
+        nextDraft = parseMarkdownToDraft(rawText, defaultAuthor);
+      } else {
+        try {
+          const parsed = JSON.parse(rawText) as unknown;
+          const candidate = Array.isArray(parsed) ? parsed[0] : parsed;
+          if (!candidate) {
+            throw new Error('File JSON tidak berisi draft artikel.');
+          }
+          nextDraft = normalizeImportedDraft(candidate, defaultAuthor);
+        } catch {
+          nextDraft = parseMarkdownToDraft(rawText, defaultAuthor);
+        }
+      }
+
+      applyImportedDraft(nextDraft, file.name);
+    } catch (importError) {
+      setNotice({
+        tone: 'error',
+        message: importError instanceof Error ? importError.message : 'Gagal import draft dari file.',
+      });
+    }
+  };
+
+  const handleImportInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const input = event.currentTarget;
+    const file = input.files?.[0] ?? null;
+    await handleImportDraftFile(file);
+    input.value = '';
   };
 
   const persistDraft = async (nextStatus: ArticleStatus = draft.status) => {
@@ -506,6 +1304,7 @@ const ArticleStudio: React.FC = () => {
       setDraft(articleToDraft(savedArticle));
       setHasPendingChanges(false);
       setLastSavedAt(new Date().toISOString());
+      setInsertMenuAnchor(null);
       setNotice({
         tone: 'success',
         message: savedArticle.status === 'published'
@@ -587,13 +1386,29 @@ const ArticleStudio: React.FC = () => {
   const publishedCount = adminArticles.filter((article) => article.status === 'published').length;
   const draftCount = adminArticles.filter((article) => article.status !== 'published').length;
   const currentArticle = adminArticles.find((article) => article.id === draft.id) ?? null;
+  const englishTranslationDraft = ensureEnglishTranslationDraft(draft);
+  const activeTitle = editorLanguage === 'id' ? draft.title : englishTranslationDraft.title;
+  const activeExcerpt = editorLanguage === 'id' ? draft.excerpt : englishTranslationDraft.excerpt;
+  const activeReadTime = editorLanguage === 'id' ? draft.readTime : englishTranslationDraft.readTime;
+  const activeCategory = editorLanguage === 'id' ? draft.category : englishTranslationDraft.category;
+  const activeImageAlt = editorLanguage === 'id' ? draft.imageAlt : englishTranslationDraft.imageAlt;
+  const activeSections = editorLanguage === 'id' ? draft.sections : englishTranslationDraft.sections;
   const draftTags = draft.tags.split(',').map((tag) => tag.trim()).filter(Boolean);
   const avatarName = profile?.fullName || profile?.email || 'Admin';
   const avatarInitials = getInitials(avatarName);
   const previewPath = `/my-notes/${draft.slug || 'your-slug'}`;
+  const handlePreviewRouteClick = () => {
+    window.localStorage.setItem('articleLanguage', editorLanguage);
+  };
+  const storyStateLabel = draft.status === 'published' ? 'Published' : 'Draft';
   const lastSyncedLabel = lastSavedAt
     ? new Date(lastSavedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : null;
+  const saveStateLabel = isSaving
+    ? 'Saving...'
+    : hasPendingChanges
+      ? 'Unsaved'
+      : 'Saved';
   const syncLabel = isSaving
     ? 'Syncing to Supabase...'
     : hasPendingChanges
@@ -601,16 +1416,48 @@ const ArticleStudio: React.FC = () => {
       : lastSyncedLabel
         ? `Last synced at ${lastSyncedLabel}`
         : 'Ready to write';
-  const metaTitlePreview = draft.title.trim() || 'Your title becomes the meta title preview';
-  const metaDescriptionPreview = draft.excerpt.trim() || 'Your excerpt becomes the meta description preview';
+  const metaTitlePreview = activeTitle.trim() || 'Your title becomes the meta title preview';
+  const metaDescriptionPreview = activeExcerpt.trim() || 'Your excerpt becomes the meta description preview';
+  const wordCountEstimate = countWords([
+    activeTitle,
+    activeExcerpt,
+    ...activeSections.map(getBlockPlainText),
+  ].join(' '));
+  const estimatedReadLabel = wordCountEstimate > 0
+    ? `${Math.max(1, Math.ceil(wordCountEstimate / 220))} min estimate`
+    : 'Start writing to estimate';
+  const englishSectionValidation = validateEditorSections(englishTranslationDraft.sections);
+  const englishHasContent = Boolean(
+    englishTranslationDraft.title.trim()
+    || englishTranslationDraft.excerpt.trim()
+    || englishTranslationDraft.readTime.trim()
+    || englishTranslationDraft.category.trim()
+    || englishTranslationDraft.imageAlt.trim()
+    || englishTranslationDraft.sections.some((section) => getBlockPlainText(section).trim() || section.type === 'image'),
+  );
+  const englishReady = Boolean(
+    englishTranslationDraft.title.trim()
+    && englishTranslationDraft.excerpt.trim()
+    && englishTranslationDraft.readTime.trim()
+    && englishTranslationDraft.category.trim()
+    && englishTranslationDraft.imageAlt.trim()
+    && !englishSectionValidation,
+  );
+  const englishStateLabel = englishReady ? 'EN ready' : englishHasContent ? 'EN incomplete' : 'EN empty';
+  const activeLanguageLabel = editorLanguage === 'id' ? 'Bahasa utama' : 'English translation';
+  const storyStatusClassName = draft.status === 'published'
+    ? 'studio-medium-status-live'
+    : hasPendingChanges
+      ? 'studio-medium-status-pending'
+      : 'studio-medium-status-draft';
   const noticeClassName = notice?.tone === 'success'
-    ? 'border-cyan-400/30 bg-cyan-500/10 text-cyan-100'
+    ? 'studio-medium-notice studio-medium-notice-success'
     : notice?.tone === 'error'
-      ? 'border-rose-400/30 bg-rose-500/10 text-rose-100'
-      : 'border-white/10 bg-white/5 text-slate-200';
+      ? 'studio-medium-notice studio-medium-notice-error'
+      : 'studio-medium-notice studio-medium-notice-neutral';
   const articleFilterTabs: Array<{ id: ArticleFilter; label: string; count: number }> = [
-    { id: 'all', label: 'All', count: adminArticles.length },
-    { id: 'draft', label: 'Draft', count: draftCount },
+    { id: 'all', label: 'All stories', count: adminArticles.length },
+    { id: 'draft', label: 'Drafts', count: draftCount },
     { id: 'published', label: 'Published', count: publishedCount },
   ];
   const filteredAdminArticles = adminArticles.filter((article) => {
@@ -637,93 +1484,131 @@ const ArticleStudio: React.FC = () => {
     return matchesFilter && haystack.includes(normalizedQuery);
   });
 
+  const handleLocalizedFieldChange = (
+    field: keyof Pick<TranslationEditorDraft, 'title' | 'excerpt' | 'readTime' | 'category' | 'imageAlt'>,
+    value: string,
+  ) => {
+    if (editorLanguage === 'id') {
+      if (field === 'title' || field === 'excerpt' || field === 'readTime' || field === 'category' || field === 'imageAlt') {
+        handleDraftChange(field, value);
+      }
+      return;
+    }
+
+    updateEnglishTranslationDraft((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  };
+
+  const renderInsertMenu = (anchorId: string | 'start', afterBlockId: string | null) => (
+    insertMenuAnchor === anchorId ? (
+      <div className="studio-medium-insert-menu">
+        {BLOCK_TYPES.map((type) => (
+          <button
+            key={`${anchorId}-${type}`}
+            type="button"
+            onClick={() => handleInsertBlockAfter(afterBlockId, type)}
+            className="studio-medium-insert-menu-button"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            {blockTypeLabel[type]}
+          </button>
+        ))}
+      </div>
+    ) : null
+  );
+
   const renderBlockFields = (section: EditorBlock, index: number) => {
+    const blockPlaceholderLead = editorLanguage === 'en'
+      ? 'Write the English version of this section...'
+      : 'Tell the story like you are writing a Medium draft...';
+
     if (section.type === 'paragraph' || section.type === 'heading') {
       return (
-        <label className="studio-admin-field mt-5">
-          <span className="studio-admin-label">
-            {section.type === 'heading' ? 'Heading text' : 'Paragraph content'}
-          </span>
-          <textarea
-            value={section.content}
-            onChange={(event) => handleBlockChange(section.id, { content: event.target.value })}
-            className={`studio-admin-textarea ${section.type === 'paragraph' ? 'min-h-[240px]' : 'min-h-[160px]'}`}
-            placeholder={section.type === 'heading'
-              ? 'Write a section heading...'
-              : index === 0
-                ? 'Start writing your article...'
+        <textarea
+          value={section.content}
+          onChange={(event) => handleBlockChange(section.id, { content: event.target.value })}
+          className={section.type === 'heading' ? 'studio-medium-heading-input' : 'studio-medium-body-input'}
+          placeholder={section.type === 'heading'
+            ? editorLanguage === 'en' ? 'English subheading' : 'Subheading'
+            : index === 0
+              ? blockPlaceholderLead
+              : editorLanguage === 'en'
+                ? 'Continue the English translation, keep the meaning consistent, and refine the phrasing here...'
                 : 'Continue the narrative, explain the idea, or drop implementation details here...'}
-          />
-        </label>
+          spellCheck
+        />
       );
     }
 
     if (section.type === 'list') {
       return (
-        <label className="studio-admin-field mt-5">
-          <span className="studio-admin-label">List items</span>
+        <div className="studio-medium-field-stack">
           <textarea
             value={section.itemsText}
             onChange={(event) => handleBlockChange(section.id, { itemsText: event.target.value })}
-            className="studio-admin-textarea min-h-[220px]"
-            placeholder={'First bullet\nSecond bullet\nThird bullet'}
+            className="studio-medium-body-input studio-medium-body-input-compact"
+            placeholder={editorLanguage === 'en'
+              ? 'First bullet in English\nSecond bullet in English\nThird bullet in English'
+              : 'First bullet\nSecond bullet\nThird bullet'}
+            spellCheck
           />
-          <span className="studio-admin-helper">Use one line per bullet item.</span>
-        </label>
+          <p className="studio-medium-helper">One line becomes one bullet point in the published article.</p>
+        </div>
       );
     }
 
     if (section.type === 'image') {
       return (
-        <div className="mt-5 grid gap-4">
+        <div className="studio-medium-field-stack">
           {section.src ? (
-            <div className="overflow-hidden rounded-[1.4rem] border border-white/10 bg-slate-950/60 p-2">
+            <div className="studio-medium-inline-preview">
               <img
                 src={section.src}
                 alt={section.alt || `Inline block ${index + 1}`}
-                className="h-52 w-full rounded-[1rem] object-cover"
+                className="h-60 w-full rounded-[1.35rem] object-cover"
               />
             </div>
           ) : null}
 
-          <label className="studio-admin-field">
-            <span className="studio-admin-label">Image URL</span>
-            <input
-              type="text"
-              value={section.src}
-              onChange={(event) => handleBlockChange(section.id, { src: event.target.value })}
-              className="studio-admin-input"
-              placeholder="https://..."
-            />
-          </label>
-
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="studio-admin-field">
-              <span className="studio-admin-label">Alt text</span>
+            <label className="studio-medium-field">
+              <span className="studio-medium-label">Image URL</span>
+              <input
+                type="text"
+                value={section.src}
+                onChange={(event) => handleBlockChange(section.id, { src: event.target.value })}
+                className="studio-medium-text-input"
+                placeholder="https://..."
+              />
+            </label>
+
+            <label className="studio-medium-field">
+              <span className="studio-medium-label">Alt text</span>
               <input
                 type="text"
                 value={section.alt}
                 onChange={(event) => handleBlockChange(section.id, { alt: event.target.value })}
-                className="studio-admin-input"
+                className="studio-medium-text-input"
                 placeholder="Describe the image context"
-              />
-            </label>
-
-            <label className="studio-admin-field">
-              <span className="studio-admin-label">Caption</span>
-              <input
-                type="text"
-                value={section.caption}
-                onChange={(event) => handleBlockChange(section.id, { caption: event.target.value })}
-                className="studio-admin-input"
-                placeholder="Optional caption"
               />
             </label>
           </div>
 
-          <label className="studio-admin-field">
-            <span className="studio-admin-label">Upload inline image</span>
-            <label className="studio-admin-secondary-button w-fit cursor-pointer">
+          <label className="studio-medium-field">
+            <span className="studio-medium-label">Caption</span>
+            <input
+              type="text"
+              value={section.caption}
+              onChange={(event) => handleBlockChange(section.id, { caption: event.target.value })}
+              className="studio-medium-text-input"
+              placeholder="Optional caption"
+            />
+          </label>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="studio-medium-toolbar-button cursor-pointer">
               <ImageUp className="h-4 w-4" />
               {uploadingBlockId === section.id ? 'Uploading...' : 'Upload image'}
               <input
@@ -733,67 +1618,69 @@ const ArticleStudio: React.FC = () => {
                 onChange={(event) => void handleBlockImageUpload(section.id, event.target.files?.[0] ?? null)}
               />
             </label>
-          </label>
+            <p className="studio-medium-helper">Inline assets go to the Supabase storage bucket for article images.</p>
+          </div>
         </div>
       );
     }
 
     if (section.type === 'code') {
       return (
-        <div className="mt-5 grid gap-4">
+        <div className="studio-medium-field-stack">
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="studio-admin-field">
-              <span className="studio-admin-label">Language</span>
+            <label className="studio-medium-field">
+              <span className="studio-medium-label">Language</span>
               <input
                 type="text"
                 value={section.language}
                 onChange={(event) => handleBlockChange(section.id, { language: event.target.value })}
-                className="studio-admin-input"
+                className="studio-medium-text-input"
                 placeholder="ts"
               />
             </label>
 
-            <label className="studio-admin-field">
-              <span className="studio-admin-label">File name</span>
+            <label className="studio-medium-field">
+              <span className="studio-medium-label">File name</span>
               <input
                 type="text"
                 value={section.fileName}
                 onChange={(event) => handleBlockChange(section.id, { fileName: event.target.value })}
-                className="studio-admin-input"
+                className="studio-medium-text-input"
                 placeholder="article-editor.tsx"
               />
             </label>
 
-            <label className="studio-admin-field">
-              <span className="studio-admin-label">Caption</span>
+            <label className="studio-medium-field">
+              <span className="studio-medium-label">Caption</span>
               <input
                 type="text"
                 value={section.caption}
                 onChange={(event) => handleBlockChange(section.id, { caption: event.target.value })}
-                className="studio-admin-input"
+                className="studio-medium-text-input"
                 placeholder="Optional context"
               />
             </label>
 
-            <label className="studio-admin-field">
-              <span className="studio-admin-label">Command</span>
+            <label className="studio-medium-field">
+              <span className="studio-medium-label">Command</span>
               <input
                 type="text"
                 value={section.command}
                 onChange={(event) => handleBlockChange(section.id, { command: event.target.value })}
-                className="studio-admin-input"
+                className="studio-medium-text-input"
                 placeholder="npm run build"
               />
             </label>
           </div>
 
-          <label className="studio-admin-field">
-            <span className="studio-admin-label">Code block</span>
+          <label className="studio-medium-field">
+            <span className="studio-medium-label">Code block</span>
             <textarea
               value={section.code}
               onChange={(event) => handleBlockChange(section.id, { code: event.target.value })}
-              className="studio-admin-textarea min-h-[300px] font-mono text-sm leading-7"
+              className="studio-medium-code-input"
               placeholder="export const articleEditor = () => {"
+              spellCheck={false}
             />
           </label>
         </div>
@@ -801,25 +1688,26 @@ const ArticleStudio: React.FC = () => {
     }
 
     return (
-      <div className="mt-5 grid gap-4">
-        <label className="studio-admin-field">
-          <span className="studio-admin-label">Highlight title</span>
+      <div className="studio-medium-field-stack">
+        <label className="studio-medium-field">
+          <span className="studio-medium-label">Highlight title</span>
           <input
             type="text"
             value={section.title}
             onChange={(event) => handleBlockChange(section.id, { title: event.target.value })}
-            className="studio-admin-input"
+            className="studio-medium-text-input"
             placeholder="Key takeaway"
           />
         </label>
 
-        <label className="studio-admin-field">
-          <span className="studio-admin-label">Highlight content</span>
+        <label className="studio-medium-field">
+          <span className="studio-medium-label">Highlight content</span>
           <textarea
             value={section.content}
             onChange={(event) => handleBlockChange(section.id, { content: event.target.value })}
-            className="studio-admin-textarea min-h-[220px]"
+            className="studio-medium-body-input studio-medium-body-input-compact"
             placeholder="Summarize the core insight, decision, or next action..."
+            spellCheck
           />
         </label>
       </div>
@@ -827,143 +1715,133 @@ const ArticleStudio: React.FC = () => {
   };
 
   return (
-    <div className={`dark studio-admin-shell ${studioTheme === 'ink' ? 'studio-admin-shell-muted' : ''}`}>
-      <div className="mx-auto w-full max-w-[1580px] px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
-        <header id="studio-dashboard-home" className="studio-admin-topbar">
-          <div className="flex min-w-0 flex-1 items-center gap-4">
-            <Link to="/admin/articles" className="studio-admin-brand">
-              <span className="studio-admin-brand-mark">
-                <Sparkles className="h-4 w-4" />
-              </span>
-              <span className="min-w-0">
-                <span className="block truncate text-sm font-semibold text-white">Daf.Dev Studio</span>
-                <span className="block truncate text-xs text-slate-400">Article editor dashboard</span>
-              </span>
+    <div className="studio-medium-shell">
+      <div className="studio-medium-frame">
+        <header className="studio-medium-topbar studio-medium-topbar-compact">
+          <div className="studio-medium-topbar-left">
+            <Link to="/admin/articles" className="studio-medium-brand">
+              <span className="studio-medium-brand-wordmark">Daf.Dev</span>
             </Link>
-            <nav className="hidden items-center gap-2 xl:flex">
-              <button type="button" onClick={() => jumpTo('studio-dashboard-home')} className="studio-admin-nav-link studio-admin-nav-link-active">
-                <LayoutDashboard className="h-4 w-4" />
-                Dashboard
-              </button>
-              <button type="button" onClick={() => jumpTo('studio-library')} className="studio-admin-nav-link">
-                <BookOpen className="h-4 w-4" />
-                Articles
-              </button>
-              <button type="button" onClick={() => { setArticleFilter('draft'); jumpTo('studio-library'); }} className="studio-admin-nav-link">
-                <FileText className="h-4 w-4" />
-                Drafts
-              </button>
-              <button type="button" onClick={() => jumpTo('studio-publishing')} className="studio-admin-nav-link">
-                <Settings className="h-4 w-4" />
-                Settings
-              </button>
-            </nav>
+
+            <div className="studio-medium-topbar-meta">
+              <span className={`studio-medium-draft-label ${storyStatusClassName}`}>{storyStateLabel}</span>
+              <span className="studio-medium-topbar-meta-copy">{saveStateLabel}</span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium text-slate-300 sm:flex">
-              <span className={`h-2.5 w-2.5 rounded-full ${isSaving ? 'bg-cyan-400 shadow-[0_0_14px_rgba(34,211,238,0.95)]' : hasPendingChanges ? 'bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.85)]' : 'bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,0.85)]'}`} />
-              {syncLabel}
-            </div>
-            <button type="button" onClick={() => setStudioTheme((current) => (current === 'nebula' ? 'ink' : 'nebula'))} className="studio-admin-icon-button" aria-label="Toggle admin theme">
-              {studioTheme === 'nebula' ? <Moon className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
+          <div className="studio-medium-toolbar">
+            {draft.slug ? (
+              <Link to={previewPath} onClick={handlePreviewRouteClick} className="studio-medium-icon-button" aria-label="Preview story">
+                <Eye className="h-4 w-4" />
+              </Link>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => {
+                const nextOpen = !isLibraryOpen;
+                setIsLibraryOpen(nextOpen);
+                if (nextOpen) {
+                  setIsSettingsOpen(false);
+                  revealSupportPanel('studio-library');
+                }
+              }}
+              className="studio-medium-icon-button"
+              aria-label="Toggle story library"
+            >
+              <PanelLeft className="h-4 w-4" />
             </button>
-            <div className="studio-admin-avatar">
-              <span className="studio-admin-avatar-mark">{avatarInitials}</span>
-              <div className="hidden min-w-0 text-left sm:block">
-                <p className="truncate text-sm font-semibold text-white">{avatarName}</p>
-                <p className="truncate text-xs text-slate-400">{profile?.role ?? 'admin'}</p>
-              </div>
+            <button
+              type="button"
+              onClick={() => {
+                const nextOpen = !isSettingsOpen;
+                setIsSettingsOpen(nextOpen);
+                if (nextOpen) {
+                  setIsLibraryOpen(false);
+                  revealSupportPanel('studio-settings');
+                }
+              }}
+              className="studio-medium-icon-button"
+              aria-label="Toggle story settings"
+            >
+              <Settings2 className="h-4 w-4" />
+            </button>
+            <button type="button" onClick={() => void persistDraft('published')} disabled={isSaving} className="studio-medium-publish-button studio-medium-publish-button-compact">
+              {draft.status === 'published' ? 'Update' : 'Publish'}
+            </button>
+            <button type="button" onClick={handleExport} className="studio-medium-icon-button" aria-label="Export story library">
+              <MoreHorizontal className="h-4 w-4" />
+            </button>
+            <button type="button" className="studio-medium-icon-button" aria-label="Notifications">
+              <Bell className="h-4 w-4" />
+            </button>
+            <div className="studio-medium-avatar studio-medium-avatar-compact">
+              <span className="studio-medium-avatar-mark">{avatarInitials}</span>
             </div>
           </div>
         </header>
 
-        <section className="studio-admin-hero-card">
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <div className="studio-admin-stat-card">
-              <span className="studio-admin-stat-label">Articles</span>
-              <p className="studio-admin-stat-value">{adminArticles.length}</p>
-              <p className="studio-admin-stat-copy">Total entries stored in Supabase.</p>
-            </div>
-            <div className="studio-admin-stat-card">
-              <span className="studio-admin-stat-label">Published</span>
-              <p className="studio-admin-stat-value">{publishedCount}</p>
-              <p className="studio-admin-stat-copy">Live notes visible on the public notes page.</p>
-            </div>
-            <div className="studio-admin-stat-card">
-              <span className="studio-admin-stat-label">Draft Queue</span>
-              <p className="studio-admin-stat-value">{draftCount}</p>
-              <p className="studio-admin-stat-copy">In-progress notes waiting for review.</p>
-            </div>
-            <div className="studio-admin-stat-card">
-              <span className="studio-admin-stat-label">Focus</span>
-              <p className="studio-admin-stat-value">{draft.sections.length}</p>
-              <p className="studio-admin-stat-copy">Blocks inside the active article canvas.</p>
-            </div>
-          </div>
-
-          {notice && notice.tone !== 'neutral' ? (
-            <div className={`mt-6 rounded-[1.4rem] border px-4 py-3 text-sm leading-6 ${noticeClassName}`}>
-              {notice.message}
-            </div>
-          ) : null}
-
-          {error ? (
-            <div className="mt-4 rounded-[1.4rem] border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm leading-6 text-rose-100">
-              {error}
-            </div>
-          ) : null}
-        </section>
-
-        <div className="studio-dashboard-shell mt-8">
-          <aside id="studio-library" className="studio-sidebar">
-            <div className="studio-sidebar-card studio-admin-sidebar-card">
-              <div className="flex items-center justify-between gap-3">
+        <div className="studio-medium-layout">
+          <aside id="studio-library" className={`studio-medium-support-panel ${isLibraryOpen ? '' : 'hidden'}`}>
+            <section className="studio-medium-panel">
+              <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="studio-admin-card-label">Workspace</p>
-                  <h2 className="mt-2 text-xl font-semibold text-white">
-                    {draft.id ? 'Editing article' : 'Create new article'}
-                  </h2>
+                  <p className="studio-medium-kicker">Story desk</p>
+                  <h2 className="studio-medium-panel-title">Library and workflow</h2>
+                  <p className="studio-medium-panel-copy">
+                    Pull an existing story into focus, start a new draft, or branch from a built-in template.
+                  </p>
                 </div>
-                <span className="studio-admin-badge">{draft.id ? 'Editing' : 'New draft'}</span>
+                <span className={`studio-medium-draft-label ${storyStatusClassName}`}>{storyStateLabel}</span>
               </div>
-              <p className="mt-3 text-sm leading-7 text-slate-300">
-                Search the library, pull an existing note into focus, or start a fresh draft from scratch.
-              </p>
 
               <div className="mt-5 grid gap-3">
-                <button type="button" onClick={resetDraft} className="studio-admin-primary-button w-full justify-center">
+                <button type="button" onClick={resetDraft} className="studio-medium-publish-button w-full justify-center">
                   <Plus className="h-4 w-4" />
-                  New Article
+                  New story
                 </button>
+                <label className="studio-medium-toolbar-button w-full cursor-pointer justify-center">
+                  <Upload className="h-4 w-4" />
+                  Import MD / JSON
+                  <input
+                    type="file"
+                    accept={DRAFT_IMPORT_ACCEPT}
+                    className="hidden"
+                    onChange={(event) => void handleImportInputChange(event)}
+                  />
+                </label>
                 <button
                   type="button"
                   onClick={() => handleDraftChange('slug', slugify(draft.title))}
-                  className="studio-admin-secondary-button w-full justify-center"
+                  className="studio-medium-toolbar-button w-full justify-center"
                 >
                   <FileText className="h-4 w-4" />
-                  Generate Slug
+                  Generate slug
                 </button>
-                <button type="button" onClick={handleExport} className="studio-admin-secondary-button w-full justify-center">
+                <button type="button" onClick={handleExport} className="studio-medium-toolbar-button w-full justify-center">
                   <Download className="h-4 w-4" />
                   Export JSON
                 </button>
-                {draft.slug ? (
-                  <Link to={previewPath} className="studio-admin-secondary-button w-full justify-center">
-                    <Eye className="h-4 w-4" />
-                    Open Preview Route
-                  </Link>
-                ) : null}
               </div>
 
-              <div className="mt-6 studio-admin-search">
-                <Search className="h-4 w-4 text-slate-500" />
+              <div className="mt-6 grid grid-cols-2 gap-3">
+                <div className="studio-medium-mini-stat">
+                  <span className="studio-medium-mini-label">Stories</span>
+                  <strong>{adminArticles.length}</strong>
+                </div>
+                <div className="studio-medium-mini-stat">
+                  <span className="studio-medium-mini-label">Published</span>
+                  <strong>{publishedCount}</strong>
+                </div>
+              </div>
+
+              <div className="mt-6 studio-medium-search">
+                <Search className="h-4 w-4 text-slate-400" />
                 <input
                   type="text"
                   value={libraryQuery}
                   onChange={(event) => setLibraryQuery(event.target.value)}
                   placeholder="Search title, slug, tag, or category"
-                  className="studio-admin-search-input"
+                  className="studio-medium-search-input"
                 />
               </div>
 
@@ -973,64 +1851,64 @@ const ArticleStudio: React.FC = () => {
                     key={tab.id}
                     type="button"
                     onClick={() => setArticleFilter(tab.id)}
-                    className={`studio-admin-filter-chip ${articleFilter === tab.id ? 'studio-admin-filter-chip-active' : ''}`}
+                    className={`studio-medium-filter-chip ${articleFilter === tab.id ? 'studio-medium-filter-chip-active' : ''}`}
                   >
                     {tab.label}
-                    <span className="studio-admin-filter-count">{tab.count}</span>
+                    <span className="studio-medium-filter-count">{tab.count}</span>
                   </button>
                 ))}
               </div>
-            </div>
+            </section>
 
-            <div className="studio-sidebar-card studio-admin-sidebar-card">
+            <section className="studio-medium-panel">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="studio-admin-card-label">Articles</p>
-                  <h2 className="mt-2 text-lg font-semibold text-white">Supabase library</h2>
+                  <p className="studio-medium-kicker">Supabase</p>
+                  <h2 className="studio-medium-panel-title">Saved stories</h2>
                 </div>
-                <span className="studio-admin-badge">{filteredAdminArticles.length}</span>
+                <span className="studio-medium-filter-count">{filteredAdminArticles.length}</span>
               </div>
 
               <div className="mt-5 space-y-3">
                 {loading ? (
-                  <div className="studio-admin-empty-card">
-                    Loading your article library...
-                  </div>
+                  <div className="studio-medium-empty-state">Loading your story library...</div>
                 ) : filteredAdminArticles.length === 0 ? (
-                  <div className="studio-admin-empty-card">
-                    {libraryQuery.trim() ? 'No articles matched your current search.' : 'No articles yet. Create the first draft from the workspace actions above.'}
+                  <div className="studio-medium-empty-state">
+                    {libraryQuery.trim()
+                      ? 'No stories matched the current filter.'
+                      : 'No stories yet. Start a new draft from the action card above.'}
                   </div>
                 ) : (
                   filteredAdminArticles.map((article) => (
                     <article
                       key={article.slug}
-                      className={`studio-sidebar-item studio-admin-article-card ${draft.id === article.id ? 'studio-admin-article-card-active' : ''}`}
+                      className={`studio-medium-story-card ${draft.id === article.id ? 'studio-medium-story-card-active' : ''}`}
                     >
-                      <button
-                        type="button"
-                        onClick={() => handleLoadAdminArticle(article)}
-                        className="w-full text-left"
-                      >
+                      <button type="button" onClick={() => handleLoadAdminArticle(article)} className="w-full text-left">
                         <div className="flex items-center justify-between gap-3">
-                          <span className={`studio-admin-status-chip ${article.status === 'published' ? 'studio-admin-status-chip-live' : ''}`}>
+                          <span className={`studio-medium-draft-label ${article.status === 'published' ? 'studio-medium-status-live' : 'studio-medium-status-draft'}`}>
                             {article.status ?? 'draft'}
                           </span>
                           <span className="text-xs text-slate-500">{article.date}</span>
                         </div>
-                        <h3 className="mt-4 text-sm font-semibold leading-6 text-white">
+                        <h3 className="mt-4 text-base font-semibold leading-6 text-slate-900">
                           {article.title}
                         </h3>
-                        <p className="mt-2 text-xs leading-5 text-slate-400">
-                          {article.category || 'Uncategorized'} • /my-notes/{article.slug}
+                        <p className="mt-2 text-sm leading-6 text-slate-600 line-clamp-2">
+                          {article.excerpt}
                         </p>
+                        <div className="mt-3 studio-medium-story-meta">
+                          <span>{article.category || 'Uncategorized'}</span>
+                          <span>{article.readTime}</span>
+                        </div>
                       </button>
 
                       <div className="mt-4 flex flex-wrap gap-2">
-                        <Link to={`/my-notes/${article.slug}`} className="studio-admin-soft-button">
+                        <Link to={`/my-notes/${article.slug}`} className="studio-medium-toolbar-button">
                           <Eye className="h-3.5 w-3.5" />
                           View
                         </Link>
-                        <button type="button" onClick={() => void handleDeleteArticle(article)} className="studio-admin-soft-button studio-admin-soft-danger">
+                        <button type="button" onClick={() => void handleDeleteArticle(article)} className="studio-medium-toolbar-button studio-medium-toolbar-danger">
                           <Trash2 className="h-3.5 w-3.5" />
                           Delete
                         </button>
@@ -1039,30 +1917,33 @@ const ArticleStudio: React.FC = () => {
                   ))
                 )}
               </div>
-            </div>
+            </section>
 
-            <div className="studio-sidebar-card studio-admin-sidebar-card">
-              <p className="studio-admin-card-label">Templates</p>
-              <h2 className="mt-2 text-lg font-semibold text-white">Built-in source notes</h2>
+            <section className="studio-medium-panel">
+              <div>
+                <p className="studio-medium-kicker">Built-in notes</p>
+                <h2 className="studio-medium-panel-title">Templates</h2>
+                <p className="studio-medium-panel-copy">
+                  Pull an existing portfolio note into the editor as a starting point.
+                </p>
+              </div>
 
               <div className="mt-5 space-y-3">
                 {builtInArticles.map((article) => (
-                  <article key={article.slug} className="studio-sidebar-item studio-admin-template-card">
+                  <article key={article.slug} className="studio-medium-story-card">
                     <div className="flex items-center justify-between gap-3">
-                      <span className="studio-admin-status-chip">source</span>
-                      <span className="text-xs text-slate-500">
-                        {article.date}
-                      </span>
+                      <span className="studio-medium-draft-label studio-medium-status-draft">Template</span>
+                      <span className="text-xs text-slate-500">{article.date}</span>
                     </div>
-                    <h3 className="mt-4 text-sm font-semibold leading-6 text-white">
+                    <h3 className="mt-4 text-base font-semibold leading-6 text-slate-900">
                       {article.title}
                     </h3>
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <button type="button" onClick={() => handleUseAsTemplate(article)} className="studio-admin-soft-button">
+                      <button type="button" onClick={() => handleUseAsTemplate(article)} className="studio-medium-toolbar-button">
                         <CopyPlus className="h-3.5 w-3.5" />
                         Use template
                       </button>
-                      <Link to={`/my-notes/${article.slug}`} className="studio-admin-soft-button">
+                      <Link to={`/my-notes/${article.slug}`} className="studio-medium-toolbar-button">
                         <Eye className="h-3.5 w-3.5" />
                         View
                       </Link>
@@ -1070,204 +1951,384 @@ const ArticleStudio: React.FC = () => {
                   </article>
                 ))}
               </div>
-            </div>
+            </section>
           </aside>
 
-          <section className="studio-admin-editor-shell">
-            <div className="studio-editor-header studio-admin-editor-header">
-              <div>
-                <p className="studio-admin-card-label">Article Canvas</p>
-                <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white">
-                  {draft.title || 'Untitled article'}
-                </h2>
-                <p className="mt-3 text-sm leading-7 text-slate-300">
-                  {currentArticle
-                    ? `You are editing an existing entry from Supabase. Refine the copy, update metadata, then sync changes.`
-                    : 'Start from a clean page, capture the core idea, and shape the narrative before publishing.'}
-                </p>
-              </div>
+          <form className="studio-medium-editor-form" onSubmit={handleSave}>
+            <datalist id="article-category-options">
+              {CATEGORY_OPTIONS.map((option) => (
+                <option key={option} value={option} />
+              ))}
+            </datalist>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <span className={`studio-admin-status-chip ${draft.status === 'published' ? 'studio-admin-status-chip-live' : ''}`}>
-                  {draft.status}
-                </span>
-                <span className="studio-admin-status-chip">{draft.sections.length} blocks</span>
-              </div>
-            </div>
+            <main className="studio-medium-editor-main">
+              {notice && notice.tone !== 'neutral' ? (
+                <div className={noticeClassName}>{notice.message}</div>
+              ) : null}
 
-            <form className="studio-admin-form-layout" onSubmit={handleSave}>
-              <datalist id="article-category-options">
-                {CATEGORY_OPTIONS.map((option) => (
-                  <option key={option} value={option} />
-                ))}
-              </datalist>
+              {error ? (
+                <div className="studio-medium-notice studio-medium-notice-error">{error}</div>
+              ) : null}
 
-              <section id="studio-basics" className="studio-editor-section">
-                <div className="studio-editor-section-head">
-                  <div>
-                    <p className="studio-section-kicker">Basics</p>
-                    <h3 className="mt-2 text-xl font-bold text-slate-950 dark:text-white">Article identity</h3>
+              <section className="studio-medium-canvas">
+                <div className="studio-medium-meta-strip">
+                  <span className={`studio-medium-draft-label ${storyStatusClassName}`}>{storyStateLabel}</span>
+                  <span className="studio-medium-meta-pill">{activeSections.length} block{activeSections.length === 1 ? '' : 's'}</span>
+                  <span className="studio-medium-meta-pill">{wordCountEstimate} words</span>
+                  <span className="studio-medium-meta-pill">{estimatedReadLabel}</span>
+                  <span className="studio-medium-meta-pill">{syncLabel}</span>
+                </div>
+
+                <div className="studio-medium-language-strip">
+                  <div className="studio-medium-language-tabs">
+                    {(['id', 'en'] as const).map((language) => (
+                      <button
+                        key={language}
+                        type="button"
+                        onClick={() => setEditorLanguage(language)}
+                        className={`studio-medium-language-tab ${editorLanguage === language ? 'studio-medium-language-tab-active' : ''}`}
+                      >
+                        {language.toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="studio-medium-language-meta">
+                    <span className="studio-medium-language-copy">{activeLanguageLabel}</span>
+                    <span className={`studio-medium-language-badge ${englishReady ? 'studio-medium-language-badge-ready' : englishHasContent ? 'studio-medium-language-badge-pending' : ''}`}>
+                      {englishStateLabel}
+                    </span>
                   </div>
                 </div>
 
-                <div className="mt-5 grid gap-5 md:grid-cols-2">
-                <label className="studio-field">
-                  <span className="studio-label">Title</span>
-                  <input
-                    type="text"
-                    value={draft.title}
-                    onChange={(event) => handleDraftChange('title', event.target.value)}
-                    className="studio-input"
-                    placeholder="Belajar Docker Dasar..."
-                  />
-                </label>
+                <textarea
+                  ref={titleTextareaRef}
+                  value={activeTitle}
+                  onChange={(event) => {
+                    handleLocalizedFieldChange('title', event.target.value);
+                    syncTextareaHeight(event.currentTarget);
+                  }}
+                  className="studio-medium-title-input"
+                  placeholder={editorLanguage === 'en' ? 'English title' : 'Title'}
+                  rows={1}
+                  spellCheck
+                />
 
-                <label className="studio-field">
-                  <span className="studio-label">Slug</span>
-                  <input
-                    type="text"
-                    value={draft.slug}
-                    onChange={(event) => handleDraftChange('slug', slugify(event.target.value))}
-                    className="studio-input"
-                    placeholder="belajar-docker-dasar"
-                  />
-                </label>
+                <textarea
+                  value={activeExcerpt}
+                  onChange={(event) => handleLocalizedFieldChange('excerpt', event.target.value)}
+                  className="studio-medium-dek-input"
+                  placeholder={editorLanguage === 'en'
+                    ? 'Write the English summary so readers know what this story is about.'
+                    : 'Write a short dek or opening summary so readers know what this story is about.'}
+                  spellCheck
+                />
 
-                <label className="studio-field md:col-span-2">
-                  <span className="studio-label">Excerpt</span>
-                  <textarea
-                    value={draft.excerpt}
-                    onChange={(event) => handleDraftChange('excerpt', event.target.value)}
-                    className="studio-textarea min-h-[112px]"
-                    placeholder="Ringkasan singkat artikel..."
-                  />
-                </label>
+                <div className="studio-medium-cover-preview studio-medium-cover-preview-hero">
+                  {draft.image ? (
+                    <img
+                      src={draft.image}
+                      alt={activeImageAlt || activeTitle || draft.title || 'Cover preview'}
+                      className="studio-medium-cover-image"
+                    />
+                  ) : (
+                    <div className="studio-medium-cover-empty">
+                      <ImageUp className="h-8 w-8" />
+                      <p className="studio-medium-cover-empty-title">No cover image yet</p>
+                      <p className="studio-medium-cover-empty-copy">
+                        Upload an image or paste a URL from settings to give the story a visual entry point.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="studio-medium-cover-toolbar">
+                  <label className="studio-medium-cover-action cursor-pointer" aria-label="Upload cover image">
+                    <ImageUp className="h-4 w-4" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(event) => void handleCoverUpload(event.target.files?.[0] ?? null)}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSettingsOpen(true);
+                      setIsLibraryOpen(false);
+                      revealSupportPanel('studio-settings');
+                    }}
+                    className="studio-medium-cover-action"
+                    aria-label="Open settings"
+                  >
+                    <Settings2 className="h-4 w-4" />
+                  </button>
+                  {draft.slug ? (
+                    <Link to={previewPath} onClick={handlePreviewRouteClick} className="studio-medium-cover-action" aria-label="Preview story">
+                      <Eye className="h-4 w-4" />
+                    </Link>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => handleDraftChange('slug', slugify(draft.title))}
+                    className="studio-medium-cover-action"
+                    aria-label="Generate slug"
+                  >
+                    <FileText className="h-4 w-4" />
+                  </button>
+                  <button type="button" onClick={handleExport} className="studio-medium-cover-action" aria-label="Export library">
+                    <Download className="h-4 w-4" />
+                  </button>
+                  {draft.id ? (
+                    <button
+                      type="button"
+                      onClick={() => void handleDeleteCurrentArticle()}
+                      className="studio-medium-cover-action studio-medium-cover-action-danger"
+                      aria-label="Delete article"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  ) : null}
+                </div>
+
+                <p className="studio-medium-cover-caption">
+                  {activeImageAlt || 'Add a cover alt text from settings for better accessibility.'}
+                </p>
+
+                <div className="studio-medium-quick-insert">
+                  <div className="studio-medium-block-rail">
+                    <button
+                      type="button"
+                      onClick={() => setInsertMenuAnchor((current) => (current === 'start' ? null : 'start'))}
+                      className="studio-medium-insert-anchor"
+                      aria-label="Insert the first block"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                    {renderInsertMenu('start', null)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="studio-medium-kicker">Start writing</p>
+                    <p className="mt-2 text-sm leading-7 text-slate-600">
+                      Start with a paragraph, heading, list, image, code block, or highlight without leaving the main writing lane.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-8">
+                  {activeSections.map((section, index) => (
+                    <div key={section.id} className="studio-medium-block-shell">
+                      <div className="studio-medium-block-rail">
+                        <button
+                          type="button"
+                          onClick={() => setInsertMenuAnchor((current) => (current === section.id ? null : section.id))}
+                          className="studio-medium-insert-anchor"
+                          aria-label={`Insert a block after block ${index + 1}`}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </button>
+                        {renderInsertMenu(section.id, section.id)}
+                      </div>
+
+                      <div className="studio-medium-block-card">
+                        <div className="studio-medium-block-toolbar">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <span className="studio-medium-block-type">{blockTypeLabel[section.type]}</span>
+                            <span className="text-sm text-slate-400">Section {index + 1}</span>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleMoveBlock(section.id, 'up')}
+                              className="studio-medium-toolbar-button"
+                              aria-label="Move block up"
+                            >
+                              <ArrowUp className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleMoveBlock(section.id, 'down')}
+                              className="studio-medium-toolbar-button"
+                              aria-label="Move block down"
+                            >
+                              <ArrowDown className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveBlock(section.id)}
+                              className="studio-medium-toolbar-button studio-medium-toolbar-danger"
+                              aria-label="Delete block"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {renderBlockFields(section, index)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="studio-medium-route-note">
+                  <p className="studio-medium-kicker">Narrative route</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    Your story will be published at <span className="font-semibold text-slate-900">{previewPath}</span>
+                  </p>
                 </div>
               </section>
+            </main>
 
-              <section id="studio-publishing" className="studio-editor-section">
-                <div className="studio-editor-section-head">
-                  <div>
-                    <p className="studio-section-kicker">Publishing</p>
-                    <h3 className="mt-2 text-xl font-bold text-slate-950 dark:text-white">Status and metadata</h3>
-                  </div>
+            <aside id="studio-settings" className={`studio-medium-support-panel ${isSettingsOpen ? '' : 'hidden'}`}>
+              <section className="studio-medium-panel studio-medium-panel-muted">
+                <div>
+                  <p className="studio-medium-kicker">Story settings</p>
+                  <h2 className="studio-medium-panel-title">Metadata</h2>
+                  <p className="studio-medium-panel-copy">
+                    Keep publishing fields separate from the writing canvas so the editor stays focused.
+                  </p>
+                  <p className="studio-medium-helper mt-3">
+                    Slug, date, author, tags, and cover image are shared. Read time, category, alt text, and body follow the active language tab.
+                  </p>
                 </div>
 
-                <div className="mt-5 grid gap-5 md:grid-cols-2">
-                <label className="studio-field">
-                  <span className="studio-label">Status</span>
-                  <select
-                    value={draft.status}
-                    onChange={(event) => handleDraftChange('status', event.target.value as ArticleStatus)}
-                    className="studio-input"
+                <div className="mt-5 grid gap-4">
+                  <label className="studio-medium-field">
+                    <span className="studio-medium-label">Slug</span>
+                    <input
+                      type="text"
+                      value={draft.slug}
+                      onChange={(event) => handleDraftChange('slug', slugify(event.target.value))}
+                      className="studio-medium-text-input"
+                      placeholder="mengenal-conventional-commit-message"
+                    />
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDraftChange('slug', slugify(draft.title))}
+                    className="studio-medium-toolbar-button w-full justify-center"
                   >
-                    <option value="draft">draft</option>
-                    <option value="published">published</option>
-                  </select>
-                </label>
+                    <FileText className="h-4 w-4" />
+                    Generate slug from title
+                  </button>
 
-                <label className="studio-field">
-                  <span className="studio-label">Date</span>
-                  <input
-                    type="date"
-                    value={draft.date}
-                    onChange={(event) => handleDraftChange('date', event.target.value)}
-                    className="studio-input"
-                  />
-                </label>
+                  <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-1">
+                    <label className="studio-medium-field">
+                      <span className="studio-medium-label">Status</span>
+                      <select
+                        value={draft.status}
+                        onChange={(event) => handleDraftChange('status', event.target.value as ArticleStatus)}
+                        className="studio-medium-text-input"
+                      >
+                        <option value="draft">draft</option>
+                        <option value="published">published</option>
+                      </select>
+                    </label>
 
-                <label className="studio-field">
-                  <span className="studio-label">Read Time</span>
-                  <input
-                    type="text"
-                    value={draft.readTime}
-                    onChange={(event) => handleDraftChange('readTime', event.target.value)}
-                    className="studio-input"
-                    placeholder="6 min read"
-                  />
-                </label>
+                    <label className="studio-medium-field">
+                      <span className="studio-medium-label">Date</span>
+                      <input
+                        type="date"
+                        value={draft.date}
+                        onChange={(event) => handleDraftChange('date', event.target.value)}
+                        className="studio-medium-text-input"
+                      />
+                    </label>
+                  </div>
 
-                <label className="studio-field">
-                  <span className="studio-label">Category</span>
-                  <input
-                    type="text"
-                    list="article-category-options"
-                    value={draft.category}
-                    onChange={(event) => handleDraftChange('category', event.target.value)}
-                    className="studio-input"
-                    placeholder="Backend Engineering"
-                  />
-                </label>
+                  <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-1">
+                    <label className="studio-medium-field">
+                      <span className="studio-medium-label">Read time</span>
+                      <input
+                        type="text"
+                        value={activeReadTime}
+                        onChange={(event) => handleLocalizedFieldChange('readTime', event.target.value)}
+                        className="studio-medium-text-input"
+                        placeholder={editorLanguage === 'en' ? '6 min read' : '6 min baca'}
+                      />
+                    </label>
 
-                <label className="studio-field">
-                  <span className="studio-label">Author</span>
-                  <input
-                    type="text"
-                    value={draft.author}
-                    onChange={(event) => handleDraftChange('author', event.target.value)}
-                    className="studio-input"
-                    placeholder="Muhammad Daffa Ramadhan"
-                  />
-                </label>
+                    <label className="studio-medium-field">
+                      <span className="studio-medium-label">Category</span>
+                      <input
+                        type="text"
+                        list="article-category-options"
+                        value={activeCategory}
+                        onChange={(event) => handleLocalizedFieldChange('category', event.target.value)}
+                        className="studio-medium-text-input"
+                        placeholder="Backend Engineering"
+                      />
+                    </label>
+                  </div>
 
-                <label className="studio-field md:col-span-2">
-                  <span className="studio-label">Tags</span>
-                  <input
-                    type="text"
-                    value={draft.tags}
-                    onChange={(event) => handleDraftChange('tags', event.target.value)}
-                    className="studio-input"
-                    placeholder="Docker, DevOps, Containers"
-                  />
-                  <span className="studio-helper">Pisahkan tag dengan koma.</span>
+                  <label className="studio-medium-field">
+                    <span className="studio-medium-label">Author</span>
+                    <input
+                      type="text"
+                      value={draft.author}
+                      onChange={(event) => handleDraftChange('author', event.target.value)}
+                      className="studio-medium-text-input"
+                      placeholder="Muhammad Daffa Ramadhan"
+                    />
+                  </label>
+
+                  <label className="studio-medium-field">
+                    <span className="studio-medium-label">Tags</span>
+                    <input
+                      type="text"
+                      value={draft.tags}
+                      onChange={(event) => handleDraftChange('tags', event.target.value)}
+                      className="studio-medium-text-input"
+                      placeholder="Git, Conventional Commit, Version Control"
+                    />
+                    <span className="studio-medium-helper">Separate tags with commas.</span>
+                  </label>
+
                   {draftTags.length > 0 ? (
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {draftTags.map((tag) => (
-                        <span key={tag} className="studio-admin-tag-pill">
+                        <span key={tag} className="studio-medium-tag">
                           {tag}
                         </span>
                       ))}
                     </div>
                   ) : null}
-                </label>
                 </div>
               </section>
 
-              <section id="studio-cover" className="studio-editor-section">
-                <div className="studio-editor-section-head">
-                  <div>
-                    <p className="studio-section-kicker">Cover & Media</p>
-                    <h3 className="mt-2 text-xl font-bold text-slate-950 dark:text-white">Cover image</h3>
-                  </div>
+              <section className="studio-medium-panel">
+                <div>
+                  <p className="studio-medium-kicker">Cover and accessibility</p>
+                  <h2 className="studio-medium-panel-title">Cover image</h2>
                 </div>
 
-                <div className="mt-5 grid gap-5 md:grid-cols-2">
-                <label className="studio-field">
-                  <span className="studio-label">Cover Image URL</span>
-                  <input
-                    type="text"
-                    value={draft.image}
-                    onChange={(event) => handleDraftChange('image', event.target.value)}
-                    className="studio-input"
-                    placeholder="https://..."
-                  />
-                </label>
+                <div className="mt-5 grid gap-4">
+                  <label className="studio-medium-field">
+                    <span className="studio-medium-label">Cover image URL</span>
+                    <input
+                      type="text"
+                      value={draft.image}
+                      onChange={(event) => handleDraftChange('image', event.target.value)}
+                      className="studio-medium-text-input"
+                      placeholder="https://..."
+                    />
+                  </label>
 
-                <label className="studio-field">
-                  <span className="studio-label">Cover Image Alt</span>
-                  <input
-                    type="text"
-                    value={draft.imageAlt}
-                    onChange={(event) => handleDraftChange('imageAlt', event.target.value)}
-                    className="studio-input"
-                    placeholder="Cover article image"
-                  />
-                </label>
+                  <label className="studio-medium-field">
+                    <span className="studio-medium-label">Cover image alt ({editorLanguage.toUpperCase()})</span>
+                    <input
+                      type="text"
+                      value={activeImageAlt}
+                      onChange={(event) => handleLocalizedFieldChange('imageAlt', event.target.value)}
+                      className="studio-medium-text-input"
+                      placeholder="Describe the visual and its context"
+                    />
+                  </label>
 
-                <label className="studio-field md:col-span-2">
-                  <span className="studio-label">Upload Cover Image</span>
-                  <label className="studio-action-button w-fit cursor-pointer">
-                    <Upload className="h-3.5 w-3.5" />
+                  <label className="studio-medium-toolbar-button cursor-pointer justify-center">
+                    <Upload className="h-4 w-4" />
                     {isUploadingCover ? 'Uploading...' : 'Upload cover'}
                     <input
                       type="file"
@@ -1276,151 +2337,180 @@ const ArticleStudio: React.FC = () => {
                       onChange={(event) => void handleCoverUpload(event.target.files?.[0] ?? null)}
                     />
                   </label>
-                  <span className="studio-helper">File akan diupload ke Supabase Storage bucket cover.</span>
-                </label>
-                </div>
 
-                <div className="mt-5 studio-cover-preview">
-                  <img
-                    src={draft.image || '/og-image.png'}
-                    alt={draft.imageAlt || draft.title || 'Cover preview'}
-                    className="h-48 w-full rounded-[1.4rem] object-cover"
-                  />
+                  <p className="studio-medium-helper">The uploaded file will go to the public cover bucket in Supabase Storage.</p>
                 </div>
               </section>
 
-              <section id="studio-content" className="studio-editor-section">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div>
-                    <p className="studio-section-kicker">Content Blocks</p>
-                    <h3 className="mt-2 text-xl font-bold text-slate-950 dark:text-white">Compose article body</h3>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {BLOCK_TYPES.map((type) => (
-                      <button
-                        key={type}
-                        type="button"
-                        onClick={() => handleAddBlock(type)}
-                        className="studio-action-button"
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                        {blockTypeLabel[type]}
-                      </button>
-                    ))}
-                  </div>
+              <section className="studio-medium-panel">
+                <div>
+                  <p className="studio-medium-kicker">SEO preview</p>
+                  <h2 className="studio-medium-panel-title">What the note will show</h2>
                 </div>
 
-                <div className="mt-5 space-y-4">
-                  {draft.sections.map((section, index) => (
-                    <div key={section.id} className="studio-block-card">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <span className="studio-chip">{section.type}</span>
-                          <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                            Block {index + 1}
-                          </p>
-                        </div>
-
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleMoveBlock(section.id, 'up')}
-                            className="studio-icon-button"
-                            aria-label="Move block up"
-                          >
-                            <ArrowUp className="h-4 w-4" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleMoveBlock(section.id, 'down')}
-                            className="studio-icon-button"
-                            aria-label="Move block down"
-                          >
-                            <ArrowDown className="h-4 w-4" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveBlock(section.id)}
-                            className="studio-icon-button studio-icon-danger"
-                            aria-label="Delete block"
-                          >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                      {renderBlockFields(section, index)}
-                    </div>
-                  ))}
+                <div className="mt-5 rounded-[1.5rem] border border-slate-200/80 bg-white/80 p-4 shadow-[0_16px_50px_-38px_rgba(15,23,42,0.22)]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-secondary-700">Route</p>
+                  <p className="mt-2 break-all text-sm font-medium text-slate-600">{previewPath}</p>
+                  <h3 className="mt-5 text-lg font-semibold leading-tight text-slate-900">
+                    {metaTitlePreview}
+                  </h3>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">
+                    {metaDescriptionPreview}
+                  </p>
                 </div>
               </section>
 
-              <section id="studio-actions" className="studio-editor-section">
-                <div className="studio-editor-section-head">
-                  <div>
-                    <p className="studio-section-kicker">Finalize</p>
-                    <h3 className="mt-2 text-xl font-bold text-slate-950 dark:text-white">Save actions</h3>
-                  </div>
+              <section className="studio-medium-panel">
+                <div>
+                  <p className="studio-medium-kicker">Publishing actions</p>
+                  <h2 className="studio-medium-panel-title">Finalize</h2>
                 </div>
 
-                <div className="mt-5 grid gap-4 md:grid-cols-2">
-                  <label className="studio-field">
-                    <span className="studio-label">Meta title preview</span>
-                    <input type="text" value={metaTitlePreview} readOnly className="studio-input" />
-                    <span className="studio-helper">Saat ini mengikuti judul artikel.</span>
+                <div className="mt-5 grid gap-3">
+                  <button type="submit" disabled={isSaving} className="studio-medium-toolbar-button w-full justify-center">
+                    <Save className="h-4 w-4" />
+                    {isSaving ? 'Saving...' : 'Save article'}
+                  </button>
+                  <button type="button" onClick={() => void persistDraft('published')} disabled={isSaving} className="studio-medium-publish-button w-full justify-center">
+                    {draft.status === 'published' ? 'Update publication' : 'Publish story'}
+                  </button>
+                  {draft.slug ? (
+                    <Link to={previewPath} onClick={handlePreviewRouteClick} className="studio-medium-toolbar-button w-full justify-center">
+                      <Eye className="h-4 w-4" />
+                      Open preview route
+                    </Link>
+                  ) : null}
+                  <label className="studio-medium-toolbar-button w-full cursor-pointer justify-center">
+                    <Upload className="h-4 w-4" />
+                    Import MD / JSON
+                    <input
+                      type="file"
+                      accept={DRAFT_IMPORT_ACCEPT}
+                      className="hidden"
+                      onChange={(event) => void handleImportInputChange(event)}
+                    />
                   </label>
-                  <label className="studio-field">
-                    <span className="studio-label">Meta description preview</span>
-                    <textarea value={metaDescriptionPreview} readOnly className="studio-textarea min-h-[112px]" />
-                    <span className="studio-helper">Saat ini mengikuti excerpt artikel.</span>
-                  </label>
-                </div>
-
-              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/80 pt-6 dark:border-slate-700">
-                <div className="text-sm leading-6 text-slate-500 dark:text-slate-400">
-                  Route artikel: <span className="font-semibold text-slate-700 dark:text-slate-200">{previewPath}</span>
-                </div>
-
-                <div className="flex flex-wrap gap-3">
+                  <button type="button" onClick={handleExportDraftJson} className="studio-medium-toolbar-button w-full justify-center">
+                    <Download className="h-4 w-4" />
+                    Export draft JSON
+                  </button>
+                  <button type="button" onClick={handleExportDraftMarkdown} className="studio-medium-toolbar-button w-full justify-center">
+                    <FileText className="h-4 w-4" />
+                    Export draft Markdown
+                  </button>
+                  <button type="button" onClick={() => void handleCopyDraftMarkdown()} className="studio-medium-toolbar-button w-full justify-center">
+                    <Copy className="h-4 w-4" />
+                    Copy Markdown
+                  </button>
+                  <button type="button" onClick={resetDraft} className="studio-medium-toolbar-button w-full justify-center">
+                    Reset form
+                  </button>
                   {draft.id ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const currentArticle = adminArticles.find((article) => article.id === draft.id);
-                        if (currentArticle) {
-                          void handleDeleteArticle(currentArticle);
-                        }
-                      }}
-                      className="btn-outline border-rose-200 text-rose-700 hover:border-rose-300 hover:bg-rose-50 hover:text-rose-800 dark:border-rose-900/40 dark:text-rose-200 dark:hover:border-rose-800"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete Article
+                    <button type="button" onClick={() => void handleDeleteCurrentArticle()} className="studio-medium-toolbar-button studio-medium-toolbar-danger w-full justify-center">
+                      <Trash2 className="h-4 w-4" />
+                      Delete article
                     </button>
                   ) : null}
-                  <button type="button" onClick={resetDraft} className="btn-outline">
-                    Reset Form
-                  </button>
-                  <button type="submit" disabled={isSaving} className="btn-primary">
-                    <Save className="mr-2 h-4 w-4" />
-                    {isSaving ? 'Saving...' : 'Save Article'}
-                  </button>
                 </div>
-              </div>
-              </section>
-            </form>
-          </section>
-        </div>
 
-        <div className="studio-admin-floating-actions">
-          <button type="button" onClick={() => void persistDraft('draft')} disabled={isSaving} className="studio-admin-secondary-button">
-            <Save className="h-4 w-4" />
-            Save Draft
-          </button>
-          <button type="button" onClick={() => void persistDraft('published')} disabled={isSaving} className="studio-admin-primary-button">
-            <Sparkles className="h-4 w-4" />
-            Publish
-          </button>
+                {currentArticle ? (
+                  <div className="mt-5 rounded-[1.35rem] border border-slate-200/80 bg-slate-50 px-4 py-4 text-sm leading-6 text-slate-600">
+                    Editing <span className="font-semibold text-slate-900">{currentArticle.title}</span> from Supabase.
+                  </div>
+                ) : (
+                  <div className="mt-5 rounded-[1.35rem] border border-slate-200/80 bg-slate-50 px-4 py-4 text-sm leading-6 text-slate-600">
+                    Fresh draft mode. Shape the story in the center canvas, then publish when the metadata is ready.
+                  </div>
+                )}
+              </section>
+            </aside>
+          </form>
+
+          {isHelperVisible ? (
+            <div className="studio-medium-helper-dock">
+              <button
+                type="button"
+                onClick={() => setIsHelperVisible(false)}
+                className="studio-medium-helper-close"
+                aria-label="Hide writing helper"
+              >
+                <X className="h-5 w-5" />
+              </button>
+
+              <div className="studio-medium-helper-copy">
+                <p className="studio-medium-helper-title">Use the center canvas to write, then open Library or Settings from the top bar.</p>
+                <p className="studio-medium-helper-subtitle">
+                  The bottom shortcuts help you add new blocks without leaving the writing flow.
+                </p>
+              </div>
+
+              <div className="studio-medium-helper-actions">
+                {BLOCK_TYPES.map((type) => (
+                  <button
+                    key={`dock-${type}`}
+                    type="button"
+                    onClick={() => handleAddBlock(type)}
+                    className="studio-medium-helper-action"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    {blockTypeLabel[type]}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => void persistDraft('draft')}
+                  disabled={isSaving}
+                  className="studio-medium-helper-action studio-medium-helper-action-primary"
+                >
+                  <Save className="h-3.5 w-3.5" />
+                  Save draft
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExportDraftJson}
+                  className="studio-medium-helper-action"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Draft JSON
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExportDraftMarkdown}
+                  className="studio-medium-helper-action"
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  Draft Markdown
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleCopyDraftMarkdown()}
+                  className="studio-medium-helper-action"
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                  Copy Markdown
+                </button>
+                <label className="studio-medium-helper-action cursor-pointer">
+                  <Upload className="h-3.5 w-3.5" />
+                  Import MD / JSON
+                  <input
+                    type="file"
+                    accept={DRAFT_IMPORT_ACCEPT}
+                    className="hidden"
+                    onChange={(event) => void handleImportInputChange(event)}
+                  />
+                </label>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsHelperVisible(true)}
+              className="studio-medium-helper-reopen"
+            >
+              <Plus className="h-4 w-4" />
+              Open writing helper
+            </button>
+          )}
         </div>
       </div>
     </div>

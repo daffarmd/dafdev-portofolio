@@ -90,12 +90,12 @@ export interface Article {
   updatedAt?: string;
   translations?: {
     en?: {
-      title: string;
-      excerpt: string;
-      readTime: string;
-      category: string;
-      imageAlt: string;
-      sections: ArticleBlock[];
+      title?: string;
+      excerpt?: string;
+      readTime?: string;
+      category?: string;
+      imageAlt?: string;
+      sections?: ArticleBlock[];
     };
   };
 }

@@ -18,6 +18,8 @@ type AuthContextValue = {
   profile: AuthProfile | null;
   isAdmin: boolean;
   signInWithPassword: (email: string, password: string) => Promise<{ error: string | null }>;
+  requestPasswordReset: (email: string, redirectTo?: string) => Promise<{ error: string | null }>;
+  updatePassword: (password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refreshProfile: (userId?: string | null) => Promise<void>;
 };
@@ -120,6 +122,40 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     }
   };
 
+  const requestPasswordReset = async (email: string, redirectTo?: string) => {
+    if (!isSupabaseConfigured || !supabase) {
+      return { error: 'Supabase belum dikonfigurasi.' };
+    }
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo,
+      });
+
+      return { error: error?.message ?? null };
+    } catch (error) {
+      return {
+        error: error instanceof Error ? error.message : 'Request reset password gagal dijalankan.',
+      };
+    }
+  };
+
+  const updatePassword = async (password: string) => {
+    if (!isSupabaseConfigured || !supabase) {
+      return { error: 'Supabase belum dikonfigurasi.' };
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+
+      return { error: error?.message ?? null };
+    } catch (error) {
+      return {
+        error: error instanceof Error ? error.message : 'Update password gagal dijalankan.',
+      };
+    }
+  };
+
   const signOut = async () => {
     if (!supabase) {
       return;
@@ -138,6 +174,8 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     profile,
     isAdmin: profile?.role === 'admin',
     signInWithPassword,
+    requestPasswordReset,
+    updatePassword,
     signOut,
     refreshProfile,
   }), [loading, profile, session]);

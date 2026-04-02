@@ -24,10 +24,28 @@ const resolveArticleLanguage = (article: Article, language: Language) => {
     return article;
   }
 
+  const english = article.translations.en;
+  const hasEnglishContent = Boolean(
+    english.title?.trim()
+    || english.excerpt?.trim()
+    || english.readTime?.trim()
+    || english.category?.trim()
+    || english.imageAlt?.trim()
+    || (english.sections?.length ?? 0) > 0
+  );
+
+  if (!hasEnglishContent) {
+    return article;
+  }
+
   return {
     ...article,
-    ...article.translations.en,
-    sections: article.translations.en.sections,
+    title: english.title?.trim() || article.title,
+    excerpt: english.excerpt?.trim() || article.excerpt,
+    readTime: english.readTime?.trim() || article.readTime,
+    category: english.category?.trim() || article.category,
+    imageAlt: english.imageAlt?.trim() || article.imageAlt,
+    sections: english.sections && english.sections.length > 0 ? english.sections : article.sections,
   };
 };
 
@@ -125,21 +143,20 @@ const Articles: React.FC = () => {
   const t = articleLanguage === 'id'
     ? {
         label: 'Daf Notes',
-        title: 'Catatan tentang pengalaman saya.',
+        title: 'Catatan dari perjalanan saya.',
         subtitle: ':)',
         cta: 'Mulai baca',
         studio: 'Buka studio',
-        articleCount: `${articles.length} artikel tersedia`,
+        articleCount: `${articles.length} catatan tersedia`,
         recent: 'Baru dibaca',
-        latest: 'Tulisan terbaru',
+        latest: 'Catatan terbaru',
         readNow: 'Baca sekarang',
         continue: 'Lanjut baca',
         sectionLabel: 'My Notes',
-        sectionTitle: 'Tulisan terbaru',
-        updated: 'Update terakhir',
-        readArticle: 'Baca artikel',
+        sectionTitle: 'Catatan terbaru',
+        updated: 'Terakhir update',
+        readArticle: 'Baca catatan',
         fallback: 'Source code fallback',
-        live: 'Supabase live',
       }
     : {
         label: 'Daf Notes',
@@ -157,7 +174,6 @@ const Articles: React.FC = () => {
         updated: 'Last updated',
         readArticle: 'Read note',
         fallback: 'Source code fallback',
-        live: 'Supabase live',
       };
 
   return (
@@ -255,11 +271,11 @@ const Articles: React.FC = () => {
                   </span>
                 </div>
 
-                <h2 className="mt-4 max-w-lg text-xl font-bold leading-tight sm:mt-5 sm:text-2xl lg:text-3xl">
+                <h2 className="mt-4 max-w-lg min-h-[3.4rem] break-words text-xl font-bold leading-tight sm:mt-5 sm:min-h-[4.2rem] sm:text-2xl lg:min-h-[5.2rem] lg:text-3xl">
                   {localizedSpotlightArticle.title}
                 </h2>
 
-                <p className="mt-3 max-w-xl text-sm leading-6 text-white/90 sm:mt-4 sm:text-base sm:leading-7">
+                <p className="mt-3 max-w-xl min-h-[4.5rem] text-sm leading-6 text-white/90 line-clamp-3 sm:mt-4 sm:min-h-[5.25rem] sm:text-base sm:leading-7">
                   {localizedSpotlightArticle.excerpt}
                 </p>
 
@@ -291,9 +307,7 @@ const Articles: React.FC = () => {
                   day: 'numeric',
                 })}
               </span>
-              <span className="rounded-full border border-slate-200/80 bg-white/80 px-4 py-2 text-sm font-medium text-slate-600 shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-dark-800/80 dark:text-slate-300">
-                {source === 'supabase' ? t.live : t.fallback}
-              </span>
+
             </div>
           </div>
 
@@ -336,11 +350,11 @@ const Articles: React.FC = () => {
                         </span>
                       </div>
 
-                      <h3 className="mt-5 max-w-3xl text-2xl font-bold tracking-tight text-slate-950 transition-colors duration-300 group-hover:text-primary-700 dark:text-white dark:group-hover:text-primary-300">
+                      <h3 className="mt-5 max-w-3xl min-h-[3.9rem] break-words text-2xl font-bold tracking-tight text-slate-950 transition-colors duration-300 group-hover:text-primary-700 dark:text-white dark:group-hover:text-primary-300">
                         {localizedArticle.title}
                       </h3>
 
-                      <p className="mt-4 max-w-3xl text-base leading-8 text-slate-600 dark:text-slate-300">
+                      <p className="mt-4 max-w-3xl min-h-[6rem] text-base leading-8 text-slate-600 line-clamp-3 dark:text-slate-300">
                         {localizedArticle.excerpt}
                       </p>
                     </div>

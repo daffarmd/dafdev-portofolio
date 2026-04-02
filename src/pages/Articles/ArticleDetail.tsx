@@ -36,10 +36,28 @@ const resolveArticleLanguage = (article: Article, language: Language) => {
     return article;
   }
 
+  const english = article.translations.en;
+  const hasEnglishContent = Boolean(
+    english.title?.trim()
+    || english.excerpt?.trim()
+    || english.readTime?.trim()
+    || english.category?.trim()
+    || english.imageAlt?.trim()
+    || (english.sections?.length ?? 0) > 0
+  );
+
+  if (!hasEnglishContent) {
+    return article;
+  }
+
   return {
     ...article,
-    ...article.translations.en,
-    sections: article.translations.en.sections,
+    title: english.title?.trim() || article.title,
+    excerpt: english.excerpt?.trim() || article.excerpt,
+    readTime: english.readTime?.trim() || article.readTime,
+    category: english.category?.trim() || article.category,
+    imageAlt: english.imageAlt?.trim() || article.imageAlt,
+    sections: english.sections && english.sections.length > 0 ? english.sections : article.sections,
   };
 };
 

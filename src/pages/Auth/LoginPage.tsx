@@ -100,6 +100,15 @@ const LoginPage: React.FC = () => {
               />
             </label>
 
+            <div className="flex justify-end">
+              <Link
+                to="/reset-password"
+                className="text-sm font-semibold text-primary-700 transition-colors hover:text-primary-900 dark:text-primary-300 dark:hover:text-primary-100"
+              >
+                Forgot password?
+              </Link>
+            </div>
+
             {error ? (
               <div className="rounded-[1.25rem] border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-800 dark:border-rose-900 dark:bg-rose-900/20 dark:text-rose-200">
                 {error}

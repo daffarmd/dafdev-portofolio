@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, useParams } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, useNavigate, useParams } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import SeoManager from './components/seo/SeoManager';
@@ -16,6 +16,7 @@ const Articles = lazy(() => import('./pages/Articles/Articles'));
 const ArticleDetail = lazy(() => import('./pages/Articles/ArticleDetail'));
 const ArticleStudio = lazy(() => import('./pages/Admin/ArticleStudio'));
 const LoginPage = lazy(() => import('./pages/Auth/LoginPage'));
+const ResetPasswordPage = lazy(() => import('./pages/Auth/ResetPasswordPage'));
 const QueueAppDemo = lazy(() => import('./pages/Showcase/QueueAppDemo'));
 const HospitalAppDemo = lazy(() => import('./pages/Showcase/HospitalAppDemo'));
 
@@ -25,6 +26,33 @@ const ScrollToTop: React.FC = () => {
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }, [pathname]);
+
+  return null;
+};
+
+const AuthHashRedirect: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const hash = window.location.hash.startsWith('#')
+      ? window.location.hash.slice(1)
+      : window.location.hash;
+
+    if (!hash) {
+      return;
+    }
+
+    const params = new URLSearchParams(hash);
+    if (params.get('type') !== 'recovery' || location.pathname === '/reset-password') {
+      return;
+    }
+
+    navigate({
+      pathname: '/reset-password',
+      hash: window.location.hash,
+    }, { replace: true });
+  }, [location.pathname, navigate]);
 
   return null;
 };
@@ -76,6 +104,7 @@ const AppChrome: React.FC<AppChromeProps> = ({ darkMode, toggleDarkMode, languag
             <Route path="/showcase/hospital-app" element={<HospitalAppDemo />} />
             <Route path="/contact" element={<ContactPage language={language} />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/my-notes" element={<Articles />} />
             <Route path="/my-notes/:slug" element={<ArticleDetail />} />
             <Route
@@ -121,6 +150,7 @@ function App() {
     <AuthProvider>
       <Router>
         <ScrollToTop />
+        <AuthHashRedirect />
         <SeoManager />
         <AppChrome
           darkMode={darkMode}

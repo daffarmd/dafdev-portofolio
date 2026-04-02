@@ -60,19 +60,25 @@ const isTranslationsRecord = (value: unknown): value is Article['translations'] 
   }
 
   const translations = value as Record<string, unknown>;
-  if (!translations.en || typeof translations.en !== 'object') {
+  if (!translations.en) {
+    return true;
+  }
+
+  if (typeof translations.en !== 'object') {
     return false;
   }
 
   const english = translations.en as Record<string, unknown>;
   return (
-    typeof english.title === 'string' &&
-    typeof english.excerpt === 'string' &&
-    typeof english.readTime === 'string' &&
-    typeof english.category === 'string' &&
-    typeof english.imageAlt === 'string' &&
-    Array.isArray(english.sections) &&
-    english.sections.every(isArticleBlock)
+    (english.title === undefined || typeof english.title === 'string') &&
+    (english.excerpt === undefined || typeof english.excerpt === 'string') &&
+    (english.readTime === undefined || typeof english.readTime === 'string') &&
+    (english.category === undefined || typeof english.category === 'string') &&
+    (english.imageAlt === undefined || typeof english.imageAlt === 'string') &&
+    (
+      english.sections === undefined
+      || (Array.isArray(english.sections) && english.sections.every(isArticleBlock))
+    )
   );
 };
 
