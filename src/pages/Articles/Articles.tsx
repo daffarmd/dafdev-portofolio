@@ -4,10 +4,12 @@ import {
   ArrowRight,
   CalendarDays,
   Clock3,
+  PenSquare,
   Sparkles,
 } from 'lucide-react';
-import { articles, featuredArticle } from '../../data/articles';
 import type { Article, Language } from '../../types';
+import { useArticles } from '../../hooks/useArticles';
+import { useAuth } from '../../hooks/useAuth';
 
 const LAST_READ_ARTICLE_KEY = 'lastReadArticleSlug';
 const ARTICLE_LANGUAGE_KEY = 'articleLanguage';
@@ -30,7 +32,10 @@ const resolveArticleLanguage = (article: Article, language: Language) => {
 };
 
 const Articles: React.FC = () => {
-  const [spotlightArticle, setSpotlightArticle] = useState<Article>(featuredArticle);
+  const { articles, loading, source } = useArticles();
+  const { isAdmin } = useAuth();
+  const featuredArticle = articles[0] ?? null;
+  const [spotlightArticle, setSpotlightArticle] = useState<Article | null>(featuredArticle);
   const [spotlightMode, setSpotlightMode] = useState<'recent' | 'latest'>('latest');
   const [articleLanguage, setArticleLanguage] = useState<Language>('en');
 
@@ -38,6 +43,14 @@ const Articles: React.FC = () => {
     const savedLanguage = window.localStorage.getItem(ARTICLE_LANGUAGE_KEY);
     if (savedLanguage === 'id' || savedLanguage === 'en') {
       setArticleLanguage(savedLanguage);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!featuredArticle) {
+      setSpotlightArticle(null);
+      setSpotlightMode('latest');
+      return;
     }
 
     const savedLastReadArticle = window.localStorage.getItem(LAST_READ_ARTICLE_KEY);
@@ -72,12 +85,40 @@ const Articles: React.FC = () => {
 
     setSpotlightArticle(featuredArticle);
     setSpotlightMode('latest');
-  }, []);
+  }, [articles, featuredArticle]);
 
   const handleLanguageChange = (language: Language) => {
     setArticleLanguage(language);
     window.localStorage.setItem(ARTICLE_LANGUAGE_KEY, language);
   };
+
+  if (!featuredArticle || !spotlightArticle) {
+    return (
+      <div className="min-h-screen py-14 pt-28 sm:pt-32">
+        <div className="mx-auto w-full max-w-3xl px-6 md:px-8">
+          <div className="rounded-[2rem] border border-slate-200/80 bg-white/92 p-8 text-center shadow-[0_24px_70px_-40px_rgba(15,23,42,0.18)] backdrop-blur-sm dark:border-slate-700 dark:bg-dark-800/92 sm:p-12">
+            <h1 className="font-display text-3xl font-bold tracking-tight text-slate-950 dark:text-white">
+              No notes yet
+            </h1>
+            <p className="mx-auto mt-4 max-w-md text-base leading-7 text-slate-600 dark:text-slate-300">
+              {loading
+                ? 'Memuat artikel...'
+                : 'Tambahkan artikel pertama dari dashboard admin agar halaman ini langsung terisi.'}
+            </p>
+            {isAdmin ? (
+              <Link
+                to="/admin/articles"
+                className="mt-8 inline-flex min-h-[48px] items-center rounded-full bg-slate-950 px-6 py-3 text-sm font-semibold text-white transition-transform duration-300 hover:-translate-y-0.5 dark:bg-white dark:text-slate-950"
+              >
+                <PenSquare className="mr-2 h-4 w-4" />
+                Open Studio
+              </Link>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const localizedSpotlightArticle = resolveArticleLanguage(spotlightArticle, articleLanguage);
 
@@ -87,6 +128,7 @@ const Articles: React.FC = () => {
         title: 'Catatan tentang pengalaman saya.',
         subtitle: ':)',
         cta: 'Mulai baca',
+        studio: 'Buka studio',
         articleCount: `${articles.length} artikel tersedia`,
         recent: 'Baru dibaca',
         latest: 'Tulisan terbaru',
@@ -96,12 +138,15 @@ const Articles: React.FC = () => {
         sectionTitle: 'Tulisan terbaru',
         updated: 'Update terakhir',
         readArticle: 'Baca artikel',
+        fallback: 'Source code fallback',
+        live: 'Supabase live',
       }
     : {
         label: 'Daf Notes',
         title: 'Notes from my journey.',
         subtitle: ':)',
         cta: 'Start reading',
+        studio: 'Open studio',
         articleCount: `${articles.length} notes available`,
         recent: 'Recently read',
         latest: 'Latest note',
@@ -111,6 +156,8 @@ const Articles: React.FC = () => {
         sectionTitle: 'Latest notes',
         updated: 'Last updated',
         readArticle: 'Read note',
+        fallback: 'Source code fallback',
+        live: 'Supabase live',
       };
 
   return (
@@ -165,6 +212,15 @@ const Articles: React.FC = () => {
                     {t.cta}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
+                  {isAdmin ? (
+                    <Link
+                      to="/admin/articles"
+                      className="inline-flex min-h-[48px] items-center rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-950 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-100 dark:hover:text-white"
+                    >
+                      <PenSquare className="mr-2 h-4 w-4" />
+                      {t.studio}
+                    </Link>
+                  ) : null}
                   <span className="text-sm text-slate-500 dark:text-slate-400">
                     {t.articleCount}
                   </span>
@@ -227,12 +283,17 @@ const Articles: React.FC = () => {
               </h2>
             </div>
 
-            <div className="rounded-full border border-slate-200/80 bg-white/80 px-4 py-2 text-sm font-medium text-slate-600 shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-dark-800/80 dark:text-slate-300">
-              {t.updated} {new Date(featuredArticle.date).toLocaleDateString(articleLanguage === 'id' ? 'id-ID' : 'en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="rounded-full border border-slate-200/80 bg-white/80 px-4 py-2 text-sm font-medium text-slate-600 shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-dark-800/80 dark:text-slate-300">
+                {t.updated} {new Date(featuredArticle.date).toLocaleDateString(articleLanguage === 'id' ? 'id-ID' : 'en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </span>
+              <span className="rounded-full border border-slate-200/80 bg-white/80 px-4 py-2 text-sm font-medium text-slate-600 shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-dark-800/80 dark:text-slate-300">
+                {source === 'supabase' ? t.live : t.fallback}
+              </span>
             </div>
           </div>
 

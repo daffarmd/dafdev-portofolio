@@ -13,8 +13,9 @@ import {
   X,
 } from 'lucide-react';
 import { useParams, Link } from 'react-router-dom';
-import { articles } from '../../data/articles';
 import type { Article, Language } from '../../types';
+import { useArticle } from '../../hooks/useArticle';
+import { useAuth } from '../../hooks/useAuth';
 
 const LAST_READ_ARTICLE_KEY = 'lastReadArticleSlug';
 const ARTICLE_LANGUAGE_KEY = 'articleLanguage';
@@ -114,7 +115,8 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
 
 const ArticleDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const article = articles.find((item) => item.slug === slug);
+  const { isAdmin } = useAuth();
+  const { article, loading } = useArticle(slug, { includeDrafts: isAdmin });
   const [copiedBlockId, setCopiedBlockId] = useState<string | null>(null);
   const [articleLanguage, setArticleLanguage] = useState<Language>('en');
   const [selectedImage, setSelectedImage] = useState<InlineImagePreview | null>(null);
@@ -176,6 +178,16 @@ const ArticleDetail: React.FC = () => {
   const closeImagePreview = () => {
     setSelectedImage(null);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen py-14 pt-28 sm:pt-32">
+        <div className="mx-auto w-full max-w-3xl px-6 md:px-8">
+          <div className="h-40 rounded-[2rem] border border-slate-200/80 bg-white/92 shadow-[0_24px_70px_-40px_rgba(15,23,42,0.18)] backdrop-blur-sm dark:border-slate-700 dark:bg-dark-800/92" />
+        </div>
+      </div>
+    );
+  }
 
   if (!article) {
     return (
