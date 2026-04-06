@@ -76,6 +76,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     let mounted = true;
 
     const bootstrapAuth = async () => {
+      setLoading(true);
       const { data } = await supabase.auth.getSession();
 
       if (!mounted) {
@@ -93,8 +94,9 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
-      void refreshProfile(nextSession?.user.id ?? null);
-      setLoading(false);
+      void (async () => {
+        await refreshProfile(nextSession?.user.id ?? null);
+      })();
     });
 
     return () => {

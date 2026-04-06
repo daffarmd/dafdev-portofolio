@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { ChevronDown, Github, Linkedin, ArrowUpRight } from 'lucide-react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { ArrowUpRight, ChevronRight, FileText, Github, Linkedin } from 'lucide-react';
 import type { Language } from '../../types';
 import golangIcon from '../../assets/golang-icon.png';
 import postgresIcon from '../../assets/postgres-icon.png';
 import reactIcon from '../../assets/react-icon.png';
 import svelteIcon from '../../assets/svelte-icon.png';
+
+const RESUME_URL_ID = import.meta.env.VITE_RESUME_URL_ID?.trim() || '/CV_MuhammadDaffaRamadhan_ID.pdf';
+const RESUME_URL_EN = import.meta.env.VITE_RESUME_URL_EN?.trim() || '/CV_MuhammadDaffaRamadhan_ENG.pdf';
 
 interface HeroProps {
   language: Language;
@@ -75,6 +78,8 @@ const TECH_STACK = [
 
 const Hero: React.FC<HeroProps> = ({ language }) => {
   const [typedName, setTypedName] = useState('');
+  const [resumeMenuOpen, setResumeMenuOpen] = useState(false);
+  const resumeMenuRef = useRef<HTMLDivElement>(null);
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
   const smoothX = useSpring(pointerX, { stiffness: 140, damping: 22, mass: 0.55 });
@@ -127,6 +132,28 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
     };
   }, []);
 
+  useEffect(() => {
+    const handlePointerDown = (event: MouseEvent) => {
+      if (resumeMenuRef.current && !resumeMenuRef.current.contains(event.target as Node)) {
+        setResumeMenuOpen(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setResumeMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, []);
+
   const handleMouseMove = (event: React.MouseEvent<HTMLElement>) => {
     const bounds = event.currentTarget.getBoundingClientRect();
     const normalizedX = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
@@ -143,16 +170,26 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
 
   const t = language === 'id'
     ? {
-        shortInfo: 'Membuat apapun yang bisa di buat.',
-        stackInfo: '',
-        scrollLabel: 'Scroll ke bawah',
-        scrollHint: 'Project, contact, dan recently played ada di bawah',
-      }
+      shortInfo: 'Membuat apapun yang bisa di buat.',
+      stackInfo: '',
+      resumeTitle: 'CV / Resume',
+      resumeMenuTitle: 'Pilih versi CV',
+      resumeMenuHint: 'Buka versi yang paling relevan untuk HRD',
+      resumeIdTitle: 'CV Indonesia',
+      resumeIdDesc: 'Untuk rekrutmen lokal atau HRD Indonesia',
+      resumeEnTitle: 'CV English',
+      resumeEnDesc: 'For international hiring or bilingual review',
+    }
     : {
         shortInfo: 'Make anything that can be made.',
         stackInfo: '',
-        scrollLabel: 'Scroll down',
-        scrollHint: 'Projects, contact, and recently played are just below',
+        resumeTitle: 'CV / Resume',
+        resumeMenuTitle: 'Choose CV version',
+        resumeMenuHint: 'Open the version that fits the recruiter',
+        resumeIdTitle: 'Indonesian CV',
+        resumeIdDesc: 'For local recruitment or Indonesian HR',
+        resumeEnTitle: 'English CV',
+        resumeEnDesc: 'For international hiring or bilingual review',
       };
 
   return (
@@ -262,40 +299,116 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
             </motion.a>
           </motion.div>
 
-          <motion.div variants={HERO_ITEM_VARIANTS} className="mt-4 flex flex-col gap-3 sm:hidden">
-            <a
-              href="#home-overview"
-              className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-slate-300 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:text-slate-950 dark:border-slate-700 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:text-white"
-            >
-              <ChevronDown className="mr-2 h-4 w-4" />
-              {t.scrollLabel}
-            </a>
+          <motion.div variants={HERO_ITEM_VARIANTS} className="mt-5">
+            <div ref={resumeMenuRef} className="relative flex w-full max-w-full flex-col sm:hidden">
+              <button
+                type="button"
+                aria-expanded={resumeMenuOpen}
+                aria-haspopup="menu"
+                onClick={() => setResumeMenuOpen((current) => !current)}
+                className="inline-flex min-h-[44px] w-full items-center justify-center rounded-full bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_18px_40px_-24px_rgba(15,23,42,0.45)] transition-transform duration-300 hover:-translate-y-0.5 sm:w-auto dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                {t.resumeTitle}
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </button>
+
+              <AnimatePresence>
+                {resumeMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -6, y: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -6, y: 0, scale: 0.98 }}
+                    transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                    className="relative z-30 mt-3 w-full overflow-hidden rounded-3xl border border-slate-200 bg-white p-2 shadow-[0_24px_80px_-36px_rgba(15,23,42,0.4)] sm:mt-0 sm:w-[clamp(18rem,26vw,24rem)] sm:max-w-[calc(100vw-2rem)] dark:border-slate-700 dark:bg-dark-800"
+                  >
+                    <div className="px-3 pb-2 pt-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
+                        {t.resumeMenuTitle}
+                      </p>
+                      <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                        {t.resumeMenuHint}
+                      </p>
+                    </div>
+
+                    <a
+                      href={RESUME_URL_ID}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      role="menuitem"
+                      onClick={() => setResumeMenuOpen(false)}
+                      className="flex items-center justify-between rounded-2xl px-3 py-3 text-left transition-colors hover:bg-slate-100 sm:px-4 dark:hover:bg-slate-700/60"
+                    >
+                      <div className="pr-3">
+                        <p className="text-sm font-semibold text-slate-900 sm:text-[15px] dark:text-white">
+                          {t.resumeIdTitle}
+                        </p>
+                        <p className="mt-0.5 text-xs leading-relaxed text-slate-500 sm:text-sm dark:text-slate-400">
+                          {t.resumeIdDesc}
+                        </p>
+                      </div>
+                      <ArrowUpRight className="h-4 w-4 flex-none text-slate-400" />
+                    </a>
+
+                    <a
+                      href={RESUME_URL_EN}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      role="menuitem"
+                      onClick={() => setResumeMenuOpen(false)}
+                      className="flex items-center justify-between rounded-2xl px-3 py-3 text-left transition-colors hover:bg-slate-100 sm:px-4 dark:hover:bg-slate-700/60"
+                    >
+                      <div className="pr-3">
+                        <p className="text-sm font-semibold text-slate-900 sm:text-[15px] dark:text-white">
+                          {t.resumeEnTitle}
+                        </p>
+                        <p className="mt-0.5 text-xs leading-relaxed text-slate-500 sm:text-sm dark:text-slate-400">
+                          {t.resumeEnDesc}
+                        </p>
+                      </div>
+                      <ArrowUpRight className="h-4 w-4 flex-none text-slate-400" />
+                    </a>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+
+          <motion.div variants={HERO_ITEM_VARIANTS} className="mt-6 hidden sm:block">
+            <div className="inline-flex w-fit max-w-full items-stretch gap-1 overflow-hidden rounded-[1.35rem] border border-slate-300/80 bg-white/90 p-1 shadow-[0_18px_44px_-28px_rgba(15,23,42,0.25)] backdrop-blur-sm dark:border-slate-700 dark:bg-dark-800/90">
+              <a
+                href={language === 'id' ? RESUME_URL_ID : RESUME_URL_EN}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-[1rem] bg-slate-950 px-[18px] py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-[0_16px_34px_-22px_rgba(15,23,42,0.45)] dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
+              >
+                <FileText className="h-4 w-4" />
+                {t.resumeTitle}
+                <ArrowUpRight className="h-4 w-4" />
+              </a>
+
+              <a
+                href={RESUME_URL_ID}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[42px] items-center justify-center rounded-[1rem] px-[18px] py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-950 dark:text-slate-200 dark:hover:bg-dark-700 dark:hover:text-white"
+              >
+                ID
+              </a>
+
+              <a
+                href={RESUME_URL_EN}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[42px] items-center justify-center rounded-[1rem] px-[18px] py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-950 dark:text-slate-200 dark:hover:bg-dark-700 dark:hover:text-white"
+              >
+                EN
+              </a>
+            </div>
           </motion.div>
 
         </motion.div>
       </div>
-      <motion.div
-        className="absolute bottom-6 z-20 hidden w-full justify-center sm:flex"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.8 }}
-      >
-        <a
-          href="#home-overview"
-          className="inline-flex items-center gap-3 rounded-full border border-slate-300 bg-white/92 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-sm transition-colors hover:border-slate-400 hover:text-slate-950 dark:border-slate-700 dark:bg-dark-800/90 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:text-white"
-        >
-          <motion.div
-            animate={{ y: [0, 5, 0] }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <ChevronDown className="h-5 w-5" />
-          </motion.div>
-          <div className="flex flex-col leading-tight">
-            <span>{t.scrollLabel}</span>
-            <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">{t.scrollHint}</span>
-          </div>
-        </a>
-      </motion.div>
     </section>
   );
 };

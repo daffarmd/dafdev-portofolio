@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
-import { Mail, MapPin, Send, FileText, Download } from 'lucide-react';
+import { Mail, MapPin, Send } from 'lucide-react';
 import type { Language } from '../../types';
 
 interface ContactProps {
@@ -9,13 +9,9 @@ interface ContactProps {
 }
 
 const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY?.trim();
-const RESUME_URL_ID = import.meta.env.VITE_RESUME_URL_ID?.trim() || '/CV_MuhammadDaffaRamadhan_ID.pdf';
-const RESUME_URL_EN = import.meta.env.VITE_RESUME_URL_EN?.trim() || '/CV_MuhammadDaffaRamadhan_ENG.pdf';
 const WEB3FORMS_HCAPTCHA_SITE_KEY = '50b2fe65-b00b-4b9e-ad62-3ba471098be2';
 const CONTACT_SUBMISSION_LIMIT = 2;
 const CONTACT_SUBMISSION_STORAGE_KEY = 'contactSubmissionCount';
-
-type ResumeLanguage = 'id' | 'en';
 
 const Contact: React.FC<ContactProps> = ({ language }) => {
   const [formData, setFormData] = useState({
@@ -24,7 +20,6 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
     subject: '',
     message: '',
   });
-  const [selectedResume, setSelectedResume] = useState<ResumeLanguage>(language === 'id' ? 'id' : 'en');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -39,12 +34,6 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
         subtitle: 'Punya ide proyek atau ingin diskusi peluang kerja sama? Silakan hubungi saya.',
         infoTitle: 'Informasi Kontak',
         location: 'Lokasi',
-        resume: 'CV / Resume',
-        resumeId: 'ID',
-        resumeEn: 'English',
-        viewResume: 'Lihat',
-        downloadResume: 'Download CV',
-        resumeFallback: 'CV tersedia jika diminta lewat email.',
         connect: 'Terhubung dengan saya',
         connectDesc: 'Saya terbuka untuk diskusi proyek baru, peluang kerja, atau kolaborasi.',
         connectDesc2: 'Tersedia untuk freelance maupun posisi full-time.',
@@ -71,12 +60,6 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
         subtitle: 'Have a project idea or want to discuss opportunities? Feel free to reach out.',
         infoTitle: 'Contact Information',
         location: 'Location',
-        resume: 'CV / Resume',
-        resumeId: 'ID',
-        resumeEn: 'English',
-        viewResume: 'View',
-        downloadResume: 'Download CV',
-        resumeFallback: 'Resume is available on request via email.',
         connect: 'Connect with me',
         connectDesc: 'I\'m open to discussing new projects, opportunities, or partnerships.',
         connectDesc2: 'Available for freelance and full-time positions.',
@@ -97,12 +80,6 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
         captchaRequired: 'Please complete the captcha first.',
         send: 'Send Message',
       };
-
-  const resumeItems = [
-    { id: 'id' as const, label: t.resumeId, url: RESUME_URL_ID },
-    { id: 'en' as const, label: t.resumeEn, url: RESUME_URL_EN },
-  ].filter((item) => Boolean(item.url));
-  const activeResume = resumeItems.find((item) => item.id === selectedResume) ?? resumeItems[0];
 
   useEffect(() => {
     const savedCount = window.localStorage.getItem(CONTACT_SUBMISSION_STORAGE_KEY);
@@ -265,73 +242,6 @@ const Contact: React.FC<ContactProps> = ({ language }) => {
                     Indonesia, Malang
                   </p>
                 </div>
-              </div>
-            </div>
-
-            <div className="mt-8 rounded-[1.8rem] border border-slate-200/80 bg-white/90 p-5 dark:border-slate-700 dark:bg-[#171717] sm:p-6">
-              <div className="flex items-center gap-4">
-                <div className="flex-shrink-0 rounded-2xl border border-slate-200 bg-slate-100 p-3 dark:border-slate-600 dark:bg-[#111111]">
-                  <FileText className="h-6 w-6 text-slate-700 dark:text-slate-200" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h4 className="text-[1.05rem] font-semibold text-slate-900 dark:text-white sm:text-[1.15rem]">{t.resume}</h4>
-                </div>
-              </div>
-
-              <div className="mt-6">
-                {resumeItems.length ? (
-                  <div className="rounded-[1.8rem] border border-slate-200 bg-slate-50/90 p-4 dark:border-slate-700 dark:bg-[#101010] sm:p-6">
-                    <div className="inline-flex rounded-full border border-slate-200 bg-white p-1 dark:border-slate-600 dark:bg-[#131313]">
-                      {resumeItems.map((resume) => (
-                        <button
-                          key={resume.id}
-                          type="button"
-                          onClick={() => setSelectedResume(resume.id)}
-                          className={`rounded-full px-4 py-2 text-[0.78rem] font-semibold transition-colors ${
-                            activeResume?.id === resume.id
-                              ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
-                              : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
-                          }`}
-                        >
-                          {resume.label}
-                        </button>
-                      ))}
-                    </div>
-
-                    <div className="mt-7 flex flex-col gap-6 sm:mt-8 sm:flex-row sm:items-end sm:justify-between">
-                      <div className="min-w-0 sm:flex-1">
-                        <p className="text-[1.95rem] font-bold leading-none tracking-tight text-slate-900 dark:text-white sm:text-[2.5rem]">
-                          {activeResume?.label}
-                        </p>
-                        <p className="mt-2 text-[1.02rem] text-slate-500 dark:text-slate-400 sm:text-lg">{t.resume}</p>
-                      </div>
-
-                      <div className="flex shrink-0 items-center gap-3 sm:pl-4">
-                        <a
-                          href={activeResume?.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 sm:h-16 sm:w-16"
-                          aria-label={`${t.viewResume} ${activeResume?.label}`}
-                          title={`${t.viewResume} ${activeResume?.label}`}
-                        >
-                          <FileText className="h-5 w-5" />
-                        </a>
-                        <a
-                          href={activeResume?.url}
-                          download
-                          className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-slate-300 text-slate-700 transition hover:border-slate-400 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:bg-[#181818] sm:h-16 sm:w-16"
-                          aria-label={`${t.downloadResume} ${activeResume?.label}`}
-                          title={`${t.downloadResume} ${activeResume?.label}`}
-                        >
-                          <Download className="h-5 w-5" />
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t.resumeFallback}</p>
-                )}
               </div>
             </div>
 

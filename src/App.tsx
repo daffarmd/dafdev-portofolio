@@ -1,10 +1,11 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, useNavigate, useParams } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import SeoManager from './components/seo/SeoManager';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Home from './pages/Home';
 import NotFoundPage from './pages/NotFoundPage';
 import type { Language } from './types';
@@ -76,22 +77,17 @@ const RouteFallback: React.FC = () => (
 );
 
 type AppChromeProps = {
-  darkMode: boolean;
-  toggleDarkMode: () => void;
   language: Language;
 };
 
-const AppChrome: React.FC<AppChromeProps> = ({ darkMode, toggleDarkMode, language }) => {
+const AppChrome: React.FC<AppChromeProps> = ({ language }) => {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden text-slate-900 transition-colors duration-300 dark:text-white">
       {!isAdminRoute ? (
-        <Header
-          darkMode={darkMode}
-          toggleDarkMode={toggleDarkMode}
-        />
+        <Header />
       ) : null}
       <main className="flex-grow">
         <Suspense fallback={<RouteFallback />}>
@@ -127,38 +123,21 @@ const AppChrome: React.FC<AppChromeProps> = ({ darkMode, toggleDarkMode, languag
 };
 
 function App() {
-  const [darkMode, setDarkMode] = useState<boolean>(
-    localStorage.getItem('darkMode') === 'true' ||
-    window.matchMedia('(prefers-color-scheme: dark)').matches
-  );
   const language: Language = 'en';
-  
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('darkMode', darkMode.toString());
-  }, [darkMode]);
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
 
   return (
-    <AuthProvider>
-      <Router>
-        <ScrollToTop />
-        <AuthHashRedirect />
-        <SeoManager />
-        <AppChrome
-          darkMode={darkMode}
-          toggleDarkMode={toggleDarkMode}
-          language={language}
-        />
-      </Router>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <ScrollToTop />
+          <AuthHashRedirect />
+          <SeoManager />
+          <AppChrome
+            language={language}
+          />
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
