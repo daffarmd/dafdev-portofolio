@@ -49,8 +49,138 @@ const resolveArticleLanguage = (article: Article, language: Language) => {
   };
 };
 
+const ArticleSkeleton = () => (
+  <div className="grid grid-cols-1 gap-6">
+    {Array.from({ length: 4 }).map((_, index) => (
+      <div
+        key={index}
+        className="overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-white/85 shadow-[0_24px_70px_-42px_rgba(15,23,42,0.12)] dark:border-slate-700 dark:bg-dark-800/85 md:grid md:grid-cols-[300px_1fr]"
+      >
+        <div className="relative min-h-[180px] overflow-hidden sm:min-h-[220px] md:min-h-full">
+          <div className="h-full w-full animate-pulse bg-[linear-gradient(110deg,rgba(226,232,240,0.72)_8%,rgba(248,250,252,0.95)_18%,rgba(226,232,240,0.72)_33%)] bg-[length:200%_100%] dark:bg-[linear-gradient(110deg,rgba(30,41,59,0.8)_8%,rgba(51,65,85,0.9)_18%,rgba(30,41,59,0.8)_33%)]" />
+        </div>
+
+        <div className="flex flex-col justify-between p-6 sm:p-7 md:p-8">
+          <div>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="h-7 w-28 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+              <div className="h-5 w-24 animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+              <div className="h-5 w-20 animate-pulse rounded-full bg-slate-200/60 dark:bg-slate-700/60" />
+            </div>
+
+            <div className="mt-5 space-y-3">
+              <div className="h-8 w-[92%] animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+              <div className="h-8 w-[78%] animate-pulse rounded-full bg-slate-200/75 dark:bg-slate-700/75" />
+            </div>
+
+            <div className="mt-5 space-y-3">
+              <div className="h-4 w-full animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+              <div className="h-4 w-[94%] animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+              <div className="h-4 w-[72%] animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap gap-2">
+              <div className="h-7 w-20 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+              <div className="h-7 w-24 animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+              <div className="h-7 w-16 animate-pulse rounded-full bg-slate-200/60 dark:bg-slate-700/60" />
+            </div>
+
+            <div className="h-5 w-24 animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+const NotesSkeleton = () => (
+  <div className="relative min-h-screen overflow-hidden py-12 pt-28">
+    <div className="absolute inset-x-0 top-0 -z-10 h-[34rem] bg-[radial-gradient(circle_at_top_left,rgba(42,150,255,0.12),transparent_32%),radial-gradient(circle_at_top_right,rgba(15,166,174,0.1),transparent_24%)]" />
+    <div className="absolute inset-x-0 top-24 -z-10 mx-auto hidden h-px max-w-6xl bg-gradient-to-r from-transparent via-slate-300/60 to-transparent dark:via-slate-700/60 lg:block" />
+
+    <div className="mx-auto w-full max-w-[1120px] px-6 md:px-8">
+      <section className="overflow-hidden rounded-[2rem] border border-white/60 bg-white/80 shadow-[0_28px_90px_-48px_rgba(15,23,42,0.28)] backdrop-blur-sm dark:border-slate-700/80 dark:bg-dark-800/80">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="relative p-7 sm:p-9 md:p-12">
+            <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-primary-200/30 blur-3xl dark:bg-primary-700/15" />
+
+            <div className="relative max-w-xl">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="h-8 w-32 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+                <div className="inline-flex rounded-full border border-slate-200/80 bg-white/90 p-1 shadow-sm dark:border-slate-700 dark:bg-dark-700/90">
+                  <div className="h-8 w-8 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+                  <div className="mx-1 h-8 w-8 animate-pulse rounded-full bg-slate-200/60 dark:bg-slate-700/60" />
+                  <div className="h-8 w-8 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-4">
+                <div className="h-14 w-[84%] animate-pulse rounded-[1.5rem] bg-slate-200/80 dark:bg-slate-700/80 sm:h-16" />
+                <div className="h-14 w-[72%] animate-pulse rounded-[1.5rem] bg-slate-200/70 dark:bg-slate-700/70 sm:h-16" />
+              </div>
+
+              <div className="mt-4 space-y-3">
+                <div className="h-4 w-[88%] animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+                <div className="h-4 w-[64%] animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+              </div>
+
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                <div className="h-12 w-36 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+                <div className="h-12 w-28 animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+                <div className="h-5 w-40 animate-pulse rounded-full bg-slate-200/60 dark:bg-slate-700/60" />
+              </div>
+            </div>
+          </div>
+
+          <div className="relative isolate overflow-hidden border-t border-slate-200/70 bg-slate-950 lg:min-h-full lg:border-l lg:border-t-0 dark:border-slate-700/80">
+            <div className="relative aspect-[4/3] overflow-hidden sm:aspect-[16/10] lg:absolute lg:inset-0 lg:aspect-auto">
+              <div className="h-full w-full animate-pulse bg-[linear-gradient(110deg,rgba(15,23,42,0.92)_8%,rgba(30,41,59,0.98)_18%,rgba(15,23,42,0.92)_33%)] bg-[length:200%_100%]" />
+            </div>
+
+            <div className="relative flex flex-col justify-end bg-slate-950 p-6 text-white sm:p-8 lg:min-h-full lg:bg-transparent lg:p-10">
+              <div className="flex flex-wrap items-center gap-2.5 text-sm sm:gap-3">
+                <div className="h-7 w-20 animate-pulse rounded-full bg-white/18" />
+                <div className="h-7 w-24 animate-pulse rounded-full bg-white/12" />
+                <div className="h-7 w-24 animate-pulse rounded-full bg-white/10" />
+              </div>
+
+              <div className="mt-4 space-y-3">
+                <div className="h-8 w-[86%] animate-pulse rounded-full bg-white/16" />
+                <div className="h-8 w-[66%] animate-pulse rounded-full bg-white/12" />
+              </div>
+
+              <div className="mt-3 space-y-2">
+                <div className="h-4 w-full animate-pulse rounded-full bg-white/10" />
+                <div className="h-4 w-[84%] animate-pulse rounded-full bg-white/10" />
+                <div className="h-4 w-[70%] animate-pulse rounded-full bg-white/10" />
+              </div>
+
+              <div className="mt-6 h-5 w-28 animate-pulse rounded-full bg-white/14" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-14">
+        <div className="mb-7 flex flex-wrap items-end justify-between gap-5">
+          <div>
+            <div className="h-4 w-28 animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+            <div className="mt-3 h-8 w-56 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+          </div>
+
+          <div className="h-10 w-52 animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+        </div>
+
+        <ArticleSkeleton />
+      </section>
+    </div>
+  </div>
+);
+
 const Articles: React.FC = () => {
-  const { articles, loading, source } = useArticles();
+  const { articles, loading } = useArticles();
   const { isAdmin } = useAuth();
   const featuredArticle = articles[0] ?? null;
   const [spotlightArticle, setSpotlightArticle] = useState<Article | null>(featuredArticle);
@@ -110,6 +240,10 @@ const Articles: React.FC = () => {
     window.localStorage.setItem(ARTICLE_LANGUAGE_KEY, language);
   };
 
+  if (loading && articles.length === 0) {
+    return <NotesSkeleton />;
+  }
+
   if (!featuredArticle || !spotlightArticle) {
     return (
       <div className="min-h-screen py-14 pt-28 sm:pt-32">
@@ -141,7 +275,7 @@ const Articles: React.FC = () => {
   const localizedSpotlightArticle = resolveArticleLanguage(spotlightArticle, articleLanguage);
 
   const t = articleLanguage === 'id'
-    ? {
+      ? {
         label: 'Daf Notes',
         title: 'Catatan dari perjalanan saya.',
         subtitle: ':)',
@@ -156,7 +290,6 @@ const Articles: React.FC = () => {
         sectionTitle: 'Catatan terbaru',
         updated: 'Terakhir update',
         readArticle: 'Baca catatan',
-        fallback: 'Source code fallback',
       }
     : {
         label: 'Daf Notes',
@@ -173,7 +306,6 @@ const Articles: React.FC = () => {
         sectionTitle: 'Latest notes',
         updated: 'Last updated',
         readArticle: 'Read note',
-        fallback: 'Source code fallback',
       };
 
   return (

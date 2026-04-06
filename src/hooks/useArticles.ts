@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Article } from '../types';
-import { ARTICLE_DATA_UPDATED_EVENT, getBuiltInArticles } from '../lib/articleStore';
+import { ARTICLE_DATA_UPDATED_EVENT } from '../lib/articleStore';
 import { fetchAdminArticles, fetchPublishedArticles } from '../services/articleService';
 import { useAuth } from './useAuth';
 
@@ -12,18 +12,14 @@ type UseArticlesResult = {
   articles: Article[];
   loading: boolean;
   error: string | null;
-  source: 'supabase' | 'fallback';
 };
 
 export const useArticles = (options?: UseArticlesOptions): UseArticlesResult => {
   const scope = options?.scope ?? 'published';
   const { isConfigured, isAdmin, loading: authLoading } = useAuth();
-  const [articles, setArticles] = useState<Article[]>(() => (
-    scope === 'published' && !isConfigured ? getBuiltInArticles() : []
-  ));
+  const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [source, setSource] = useState<'supabase' | 'fallback'>('fallback');
 
   useEffect(() => {
     let active = true;
@@ -38,7 +34,6 @@ export const useArticles = (options?: UseArticlesOptions): UseArticlesResult => 
           setArticles([]);
           setLoading(false);
           setError(null);
-          setSource('fallback');
         }
         return;
       }
@@ -54,15 +49,13 @@ export const useArticles = (options?: UseArticlesOptions): UseArticlesResult => 
           }
 
           setArticles(adminArticles);
-          setSource('supabase');
         } else {
-          const result = await fetchPublishedArticles();
+          const publishedArticles = await fetchPublishedArticles();
           if (!active) {
             return;
           }
 
-          setArticles(result.articles);
-          setSource(result.source);
+          setArticles(publishedArticles);
         }
       } catch (loadError) {
         if (!active) {
@@ -70,13 +63,7 @@ export const useArticles = (options?: UseArticlesOptions): UseArticlesResult => 
         }
 
         setError(loadError instanceof Error ? loadError.message : 'Gagal memuat artikel.');
-
-        if (scope === 'published') {
-          setArticles(getBuiltInArticles());
-          setSource('fallback');
-        } else {
-          setArticles([]);
-        }
+        setArticles([]);
       } finally {
         if (active) {
           setLoading(false);
@@ -102,6 +89,5 @@ export const useArticles = (options?: UseArticlesOptions): UseArticlesResult => 
     articles,
     loading,
     error,
-    source,
   };
 };
