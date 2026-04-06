@@ -9,12 +9,14 @@ import {
   Eye,
   FileText,
   ImageUp,
+  Moon,
   MoreHorizontal,
   PanelLeft,
   Plus,
   Save,
   Search,
   Settings2,
+  Sun,
   Trash2,
   Upload,
   X,
@@ -22,6 +24,7 @@ import {
 import type { Article, ArticleBlock, ArticleStatus } from '../../types';
 import { useArticles } from '../../hooks/useArticles';
 import { useAuth } from '../../hooks/useAuth';
+import { useTheme } from '../../context/ThemeContext';
 import {
   deleteAdminArticle,
   saveAdminArticle,
@@ -921,6 +924,7 @@ const countWords = (value: string) => value.trim().split(/\s+/).filter(Boolean).
 const ArticleStudio: React.FC = () => {
   const { articles: adminArticles, loading, error } = useArticles({ scope: 'admin' });
   const { user, profile } = useAuth();
+  const { darkMode, toggleDarkMode } = useTheme();
   const [draft, setDraft] = useState<ArticleDraft>(() => createEmptyDraft(profile?.fullName || profile?.email || 'Muhammad Daffa Ramadhan'));
   const [notice, setNotice] = useState<{ tone: NoticeTone; message: string } | null>({
     tone: 'neutral',
@@ -1749,6 +1753,14 @@ const ArticleStudio: React.FC = () => {
             <button type="button" onClick={handleExport} className="studio-medium-icon-button" aria-label="Export story library">
               <MoreHorizontal className="h-4 w-4" />
             </button>
+            <button
+              type="button"
+              onClick={toggleDarkMode}
+              className="studio-medium-icon-button"
+              aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
             <button type="button" className="studio-medium-icon-button" aria-label="Notifications">
               <Bell className="h-4 w-4" />
             </button>
@@ -1760,7 +1772,7 @@ const ArticleStudio: React.FC = () => {
 
         <div className="studio-medium-layout">
           <aside id="studio-library" className={`studio-medium-support-panel ${isLibraryOpen ? '' : 'hidden'}`}>
-            <section className="studio-medium-panel">
+            <section className="studio-medium-panel studio-medium-panel-library">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="studio-medium-kicker">Story desk</p>
@@ -1838,7 +1850,7 @@ const ArticleStudio: React.FC = () => {
               </div>
             </section>
 
-            <section className="studio-medium-panel">
+            <section className="studio-medium-panel studio-medium-panel-saved">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="studio-medium-kicker">Supabase</p>
@@ -1897,7 +1909,7 @@ const ArticleStudio: React.FC = () => {
               </div>
             </section>
 
-            <section className="studio-medium-panel">
+            <section className="studio-medium-panel studio-medium-panel-templates">
               <div>
                 <p className="studio-medium-kicker">Built-in notes</p>
                 <h2 className="studio-medium-panel-title">Templates</h2>
@@ -2141,7 +2153,7 @@ const ArticleStudio: React.FC = () => {
             </main>
 
             <aside id="studio-settings" className={`studio-medium-support-panel ${isSettingsOpen ? '' : 'hidden'}`}>
-              <section className="studio-medium-panel studio-medium-panel-muted">
+              <section className="studio-medium-panel studio-medium-panel-muted studio-medium-panel-meta">
                 <div>
                   <p className="studio-medium-kicker">Story settings</p>
                   <h2 className="studio-medium-panel-title">Metadata</h2>
@@ -2258,7 +2270,7 @@ const ArticleStudio: React.FC = () => {
                 </div>
               </section>
 
-              <section className="studio-medium-panel">
+              <section className="studio-medium-panel studio-medium-panel-cover">
                 <div>
                   <p className="studio-medium-kicker">Cover and accessibility</p>
                   <h2 className="studio-medium-panel-title">Cover image</h2>
@@ -2302,7 +2314,7 @@ const ArticleStudio: React.FC = () => {
                 </div>
               </section>
 
-              <section className="studio-medium-panel">
+              <section className="studio-medium-panel studio-medium-panel-preview">
                 <div>
                   <p className="studio-medium-kicker">SEO preview</p>
                   <h2 className="studio-medium-panel-title">What the note will show</h2>
@@ -2320,7 +2332,7 @@ const ArticleStudio: React.FC = () => {
                 </div>
               </section>
 
-              <section className="studio-medium-panel">
+              <section className="studio-medium-panel studio-medium-panel-finalize">
                 <div>
                   <p className="studio-medium-kicker">Publishing actions</p>
                   <h2 className="studio-medium-panel-title">Finalize</h2>

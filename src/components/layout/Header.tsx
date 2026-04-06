@@ -4,17 +4,14 @@ import { Menu, X, Moon, Sun, BookOpen, ArrowUpRight, LockKeyhole, LogOut } from 
 import { motion } from 'framer-motion';
 import meImage from '../../assets/me.png';
 import { useAuth } from '../../hooks/useAuth';
+import { useTheme } from '../../context/ThemeContext';
 
-interface HeaderProps {
-  darkMode: boolean;
-  toggleDarkMode: () => void;
-}
-
-const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
+const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const { isAdmin, loading, signOut } = useAuth();
+  const { darkMode, toggleDarkMode } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,11 +35,37 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
   ];
 
   const navClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center text-sm font-semibold tracking-wide transition-colors ${
+    `flex items-center whitespace-nowrap text-sm font-semibold tracking-wide transition-colors ${
       isActive
         ? 'text-slate-900 dark:text-white'
         : 'text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
     }`;
+
+  const desktopAuthActions = !loading && isAdmin ? (
+    <div className="hidden shrink-0 items-center gap-2 lg:flex">
+      <RouterLink
+        to="/admin/articles"
+        className="inline-flex h-10 items-center justify-center rounded-full border border-slate-200 bg-white px-3 text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-950 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-100 dark:hover:text-white"
+        title="Open admin"
+        aria-label="Open admin"
+      >
+        <LockKeyhole className="h-3.5 w-3.5" />
+        <span className="ml-1.5 hidden xl:inline text-xs font-semibold">Admin</span>
+      </RouterLink>
+      <button
+        type="button"
+        onClick={() => void signOut()}
+        className="inline-flex h-10 items-center justify-center rounded-full border border-slate-200 bg-white px-3 text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-950 dark:border-slate-600 dark:bg-dark-700 dark:text-slate-100 dark:hover:text-white"
+        title="Logout"
+        aria-label="Logout"
+      >
+        <LogOut className="h-3.5 w-3.5" />
+        <span className="ml-1.5 hidden xl:inline text-xs font-semibold">Logout</span>
+      </button>
+    </div>
+  ) : (
+    <div className="hidden h-10 min-w-[92px] shrink-0 lg:block" aria-hidden="true" />
+  );
 
   return (
     <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${isScrolled ? 'py-2 sm:py-3' : 'py-3 sm:py-5'}`}>
@@ -51,7 +74,7 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
           isScrolled ? 'glass-card rounded-[1.4rem] py-2.5 sm:rounded-2xl sm:py-3' : 'py-1.5 sm:py-2'
         }`}
       >
-        <RouterLink to="/" className="flex items-center">
+        <RouterLink to="/" className="flex items-center gap-3">
           <motion.div
             className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-dark-800 sm:rounded-2xl"
             animate={{ y: [0, -2, 0], rotate: [-1, 1, -1] }}
@@ -65,12 +88,12 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
               whileHover={{ scale: 1.06 }}
             />
           </motion.div>
-          <span className="ml-2.5 text-base font-bold tracking-tight text-slate-900 sm:ml-3 sm:text-xl dark:text-white">
+          <span className="text-base font-bold tracking-tight text-slate-900 sm:text-xl dark:text-white">
             Daf.Dev
           </span>
         </RouterLink>
 
-        <nav className="hidden items-center gap-5 xl:gap-7 lg:flex">
+        <nav className="hidden min-w-0 items-center gap-4 xl:gap-6 lg:flex">
           {navLinks.map((link) => (
             <NavLink key={link.to} to={link.to} className={navClass}>
               {link.to === '/my-notes' && <BookOpen className="mr-1 h-4 w-4" />}
@@ -89,20 +112,7 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
           >
             {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </button>
-          {!loading ? (
-            isAdmin ? (
-              <>
-                <RouterLink to="/admin/articles" className="btn-outline text-xs">
-                  <LockKeyhole className="mr-1.5 h-3.5 w-3.5" />
-                  Admin
-                </RouterLink>
-                <button type="button" onClick={() => void signOut()} className="btn-outline text-xs">
-                  <LogOut className="mr-1.5 h-3.5 w-3.5" />
-                  Logout
-                </button>
-              </>
-            ) : null
-          ) : null}
+          {desktopAuthActions}
           <RouterLink to="/contact" className="btn-primary text-xs">
             Let's Talk
             <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
@@ -150,19 +160,17 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
                   )}
                 </NavLink>
               ))}
-              {!loading ? (
-                isAdmin ? (
-                  <>
-                    <RouterLink to="/admin/articles" className="btn-outline mt-2 w-full justify-center text-center text-xs">
-                      <LockKeyhole className="mr-1.5 h-3.5 w-3.5" />
-                      Admin
-                    </RouterLink>
-                    <button type="button" onClick={() => void signOut()} className="btn-outline w-full justify-center text-center text-xs">
-                      <LogOut className="mr-1.5 h-3.5 w-3.5" />
-                      Logout
-                    </button>
-                  </>
-                ) : null
+              {!loading && isAdmin ? (
+                <>
+                  <RouterLink to="/admin/articles" className="btn-outline mt-2 w-full justify-center text-center text-xs">
+                    <LockKeyhole className="mr-1.5 h-3.5 w-3.5" />
+                    Admin
+                  </RouterLink>
+                  <button type="button" onClick={() => void signOut()} className="btn-outline w-full justify-center text-center text-xs">
+                    <LogOut className="mr-1.5 h-3.5 w-3.5" />
+                    Logout
+                  </button>
+                </>
               ) : null}
               <RouterLink to="/contact" className="btn-primary mt-2 w-full justify-center text-center text-xs">
                 Let's Talk

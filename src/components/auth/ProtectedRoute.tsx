@@ -1,7 +1,21 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 import AuthSetupState from './AuthSetupState';
 import { useAuth } from '../../hooks/useAuth';
+
+const AdminLoadingState: React.FC = () => (
+  <div className="min-h-screen overflow-hidden">
+    <div className="mx-auto flex min-h-screen w-full max-w-3xl items-center justify-center px-6 py-28 md:px-8">
+      <div className="flex items-center gap-3 rounded-full border border-slate-200/80 bg-white/85 px-4 py-3 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.18)] backdrop-blur-sm dark:border-slate-700 dark:bg-dark-800/80">
+        <Loader2 className="h-4 w-4 animate-spin text-slate-700 dark:text-slate-200" />
+        <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
+          Menyiapkan admin
+        </span>
+      </div>
+    </div>
+  </div>
+);
 
 const ProtectedRoute: React.FC<React.PropsWithChildren> = ({ children }) => {
   const location = useLocation();
@@ -12,13 +26,7 @@ const ProtectedRoute: React.FC<React.PropsWithChildren> = ({ children }) => {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-[40vh] px-6 py-16">
-        <div className="mx-auto max-w-[1120px]">
-          <div className="h-24 rounded-[2rem] border border-slate-200/80 bg-white/70 dark:border-slate-700 dark:bg-dark-800/70" />
-        </div>
-      </div>
-    );
+    return <AdminLoadingState />;
   }
 
   if (!session) {
