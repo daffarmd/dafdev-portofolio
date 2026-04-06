@@ -1,4 +1,3 @@
-import { articles as builtInArticles } from '../data/articles';
 import type { Article, ArticleBlock } from '../types';
 
 export const ARTICLE_DATA_UPDATED_EVENT = 'dafdev:articles-updated';
@@ -11,8 +10,6 @@ const ARTICLE_BLOCK_TYPES = new Set<ArticleBlock['type']>([
   'highlight',
   'code',
 ]);
-
-const cloneArticle = (article: Article): Article => JSON.parse(JSON.stringify(article)) as Article;
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
@@ -43,29 +40,6 @@ export const isArticleBlock = (value: unknown): value is ArticleBlock => {
     default:
       return false;
   }
-};
-
-export const sortArticlesByDate = (items: Article[]) => [...items].sort((left, right) => {
-  const rightDate = new Date(right.publishedAt ?? right.date).getTime();
-  const leftDate = new Date(left.publishedAt ?? left.date).getTime();
-
-  if (Number.isNaN(leftDate) || Number.isNaN(rightDate)) {
-    return String(right.id).localeCompare(String(left.id));
-  }
-
-  return rightDate - leftDate;
-});
-
-export const getBuiltInArticles = (): Article[] => sortArticlesByDate(builtInArticles.map(cloneArticle));
-
-export const mergeArticlesBySlug = (...collections: Article[][]): Article[] => {
-  const articleMap = new Map<string, Article>();
-
-  collections.flat().forEach((article) => {
-    articleMap.set(article.slug, cloneArticle(article));
-  });
-
-  return sortArticlesByDate(Array.from(articleMap.values()));
 };
 
 export const dispatchArticleDataUpdated = () => {

@@ -61,6 +61,144 @@ const resolveArticleLanguage = (article: Article, language: Language) => {
   };
 };
 
+const ArticleDetailSkeleton = () => (
+  <div className="relative min-h-screen overflow-hidden py-12 pt-28 sm:py-16 sm:pt-32">
+    <div className="absolute inset-x-0 top-0 -z-10 h-[36rem] bg-[radial-gradient(circle_at_top,rgba(42,150,255,0.14),transparent_34%),radial-gradient(circle_at_80%_12%,rgba(15,166,174,0.1),transparent_24%)]" />
+
+    <div className="mx-auto w-full max-w-[1120px] px-6 md:px-8">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="h-10 w-36 animate-pulse rounded-full border border-slate-200/80 bg-white/90 shadow-sm dark:border-slate-700 dark:bg-dark-800/88" />
+
+        <div className="inline-flex rounded-full border border-slate-200/80 bg-white/90 p-1 shadow-sm dark:border-slate-700 dark:bg-dark-700/90">
+          <div className="h-8 w-8 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+          <div className="mx-1 h-8 w-8 animate-pulse rounded-full bg-slate-200/60 dark:bg-slate-700/60" />
+          <div className="h-8 w-8 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+        </div>
+      </div>
+
+      <article className="mt-6 overflow-hidden rounded-[2rem] border border-white/70 bg-white/92 shadow-[0_28px_90px_-48px_rgba(15,23,42,0.22)] backdrop-blur-sm dark:border-slate-700 dark:bg-dark-800/88">
+        <div className="relative isolate overflow-hidden">
+          <div className="h-64 w-full animate-pulse bg-[linear-gradient(110deg,rgba(226,232,240,0.72)_8%,rgba(248,250,252,0.95)_18%,rgba(226,232,240,0.72)_33%)] bg-[length:200%_100%] sm:h-[28rem] lg:h-[34rem] dark:bg-[linear-gradient(110deg,rgba(15,23,42,0.9)_8%,rgba(30,41,59,0.98)_18%,rgba(15,23,42,0.9)_33%)]" />
+
+          <div className="relative bg-slate-950 p-6 text-white sm:absolute sm:inset-x-0 sm:bottom-0 sm:bg-transparent sm:p-8 md:p-10 lg:px-12 lg:pb-12 lg:pt-20">
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+              <div className="h-7 w-24 animate-pulse rounded-full bg-white/18" />
+              <div className="h-7 w-28 animate-pulse rounded-full bg-white/14" />
+              <div className="h-7 w-32 animate-pulse rounded-full bg-white/12" />
+            </div>
+
+            <div className="mt-5 space-y-3">
+              <div className="h-10 w-[90%] animate-pulse rounded-[1.5rem] bg-white/16" />
+              <div className="h-10 w-[72%] animate-pulse rounded-[1.5rem] bg-white/12" />
+            </div>
+
+            <div className="mt-4 space-y-2">
+              <div className="h-4 w-[88%] animate-pulse rounded-full bg-white/10" />
+              <div className="h-4 w-[76%] animate-pulse rounded-full bg-white/10" />
+            </div>
+
+            <div className="mt-6 h-10 w-56 animate-pulse rounded-full bg-white/12" />
+          </div>
+        </div>
+
+        <div className="grid gap-10 px-6 py-8 sm:px-8 md:px-10 md:py-10 lg:grid-cols-[minmax(0,1fr)_260px] lg:px-12 lg:py-12">
+          <div className="min-w-0">
+            <div className="mx-auto max-w-3xl">
+              <div className="space-y-6">
+                <div className="h-6 w-40 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+                <div className="space-y-3">
+                  <div className="h-5 w-full animate-pulse rounded-full bg-slate-200/75 dark:bg-slate-700/75" />
+                  <div className="h-5 w-[94%] animate-pulse rounded-full bg-slate-200/75 dark:bg-slate-700/75" />
+                  <div className="h-5 w-[88%] animate-pulse rounded-full bg-slate-200/75 dark:bg-slate-700/75" />
+                </div>
+
+                <div className="space-y-3">
+                  <div className="h-5 w-full animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+                  <div className="h-5 w-[96%] animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+                  <div className="h-5 w-[82%] animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+                </div>
+
+                <div className="rounded-[1.6rem] border border-slate-200/80 bg-white shadow-[0_22px_60px_-42px_rgba(15,23,42,0.18)] dark:border-slate-700 dark:bg-dark-800">
+                  <div className="border-b border-slate-200/80 bg-slate-50/95 px-4 py-3 dark:border-slate-700 dark:bg-dark-700 sm:px-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="h-6 w-16 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+                        <div className="h-6 w-24 animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+                      </div>
+                      <div className="h-10 w-24 animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+                    </div>
+                  </div>
+                  <div className="bg-[linear-gradient(180deg,#0f172a_0%,#111827_100%)] px-4 py-5 sm:px-5">
+                    <div className="space-y-3">
+                      {Array.from({ length: 7 }).map((_, index) => (
+                        <div
+                          key={index}
+                          className={`grid grid-cols-[auto_1fr] gap-4 ${index === 6 ? 'w-[82%]' : ''}`}
+                        >
+                          <div className="h-4 w-8 animate-pulse rounded-full bg-white/16" />
+                          <div className="h-4 animate-pulse rounded-full bg-white/12" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="h-5 w-full animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+                  <div className="h-5 w-[91%] animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+                  <div className="h-5 w-[84%] animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+                </div>
+
+                <div className="rounded-[1.75rem] border border-primary-200/70 bg-gradient-to-br from-primary-50 via-white to-secondary-50 p-6 shadow-[0_22px_60px_-42px_rgba(15,23,42,0.18)] dark:border-primary-900/40 dark:from-primary-900/20 dark:via-dark-800 dark:to-secondary-900/20 sm:p-8">
+                  <div className="h-4 w-28 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+                  <div className="mt-4 h-8 w-[68%] animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+                  <div className="mt-4 space-y-3">
+                    <div className="h-5 w-full animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+                    <div className="h-5 w-[86%] animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside className="self-start lg:sticky lg:top-28">
+            <div className="rounded-[1.75rem] border border-slate-200/80 bg-slate-50/92 p-6 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.18)] dark:border-slate-700 dark:bg-dark-700/70">
+              <div className="h-4 w-24 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+              <div className="mt-5 space-y-5">
+                <div>
+                  <div className="h-4 w-16 animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+                  <div className="mt-2 h-5 w-32 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+                </div>
+
+                <div>
+                  <div className="h-4 w-20 animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+                  <div className="mt-2 h-5 w-24 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+                </div>
+
+                <div>
+                  <div className="h-4 w-12 animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="h-7 w-16 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+                    <div className="h-7 w-20 animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+                    <div className="h-7 w-18 animate-pulse rounded-full bg-slate-200/60 dark:bg-slate-700/60" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <div className="border-t border-slate-200/80 bg-slate-50/88 px-6 py-6 dark:border-slate-700 dark:bg-dark-700/65 sm:px-8 md:px-10 lg:px-12">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="h-5 w-52 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+            <div className="h-5 w-32 animate-pulse rounded-full bg-slate-200/70 dark:bg-slate-700/70" />
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+);
+
 type CodeBlockProps = {
   code: string;
   language: string;
@@ -198,13 +336,7 @@ const ArticleDetail: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen py-14 pt-28 sm:pt-32">
-        <div className="mx-auto w-full max-w-3xl px-6 md:px-8">
-          <div className="h-40 rounded-[2rem] border border-slate-200/80 bg-white/92 shadow-[0_24px_70px_-40px_rgba(15,23,42,0.18)] backdrop-blur-sm dark:border-slate-700 dark:bg-dark-800/92" />
-        </div>
-      </div>
-    );
+    return <ArticleDetailSkeleton />;
   }
 
   if (!article) {

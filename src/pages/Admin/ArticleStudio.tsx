@@ -5,7 +5,6 @@ import {
   ArrowUp,
   Bell,
   Copy,
-  CopyPlus,
   Download,
   Eye,
   FileText,
@@ -23,7 +22,6 @@ import {
 import type { Article, ArticleBlock, ArticleStatus } from '../../types';
 import { useArticles } from '../../hooks/useArticles';
 import { useAuth } from '../../hooks/useAuth';
-import { getBuiltInArticles } from '../../lib/articleStore';
 import {
   deleteAdminArticle,
   saveAdminArticle,
@@ -923,7 +921,6 @@ const countWords = (value: string) => value.trim().split(/\s+/).filter(Boolean).
 const ArticleStudio: React.FC = () => {
   const { articles: adminArticles, loading, error } = useArticles({ scope: 'admin' });
   const { user, profile } = useAuth();
-  const [builtInArticles] = useState<Article[]>(() => getBuiltInArticles());
   const [draft, setDraft] = useState<ArticleDraft>(() => createEmptyDraft(profile?.fullName || profile?.email || 'Muhammad Daffa Ramadhan'));
   const [notice, setNotice] = useState<{ tone: NoticeTone; message: string } | null>({
     tone: 'neutral',
@@ -1104,25 +1101,6 @@ const ArticleStudio: React.FC = () => {
     setNotice({
       tone: 'neutral',
       message: `Editing "${article.title}" from Supabase.`,
-    });
-  };
-
-  const handleUseAsTemplate = (article: Article) => {
-    setDraft(articleToDraft(article, {
-      id: null,
-      status: 'draft',
-      title: `${article.title} (Copy)`,
-      slug: `${article.slug}-copy`,
-      author: defaultAuthor,
-    }));
-    setHasPendingChanges(true);
-    setLastSavedAt(null);
-    setInsertMenuAnchor(null);
-    setIsLibraryOpen(false);
-    setEditorLanguage('id');
-    setNotice({
-      tone: 'neutral',
-      message: `Template loaded from "${article.title}". Fine-tune the copy, then save as a new draft.`,
     });
   };
 
@@ -1924,32 +1902,14 @@ const ArticleStudio: React.FC = () => {
                 <p className="studio-medium-kicker">Built-in notes</p>
                 <h2 className="studio-medium-panel-title">Templates</h2>
                 <p className="studio-medium-panel-copy">
-                  Pull an existing portfolio note into the editor as a starting point.
+                  Built-in article templates have been removed. Create a new draft or import content from file instead.
                 </p>
               </div>
 
-              <div className="mt-5 space-y-3">
-                {builtInArticles.map((article) => (
-                  <article key={article.slug} className="studio-medium-story-card">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="studio-medium-draft-label studio-medium-status-draft">Template</span>
-                      <span className="text-xs text-slate-500">{article.date}</span>
-                    </div>
-                    <h3 className="mt-4 text-base font-semibold leading-6 text-slate-900">
-                      {article.title}
-                    </h3>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      <button type="button" onClick={() => handleUseAsTemplate(article)} className="studio-medium-toolbar-button">
-                        <CopyPlus className="h-3.5 w-3.5" />
-                        Use template
-                      </button>
-                      <Link to={`/my-notes/${article.slug}`} className="studio-medium-toolbar-button">
-                        <Eye className="h-3.5 w-3.5" />
-                        View
-                      </Link>
-                    </div>
-                  </article>
-                ))}
+              <div className="mt-5">
+                <div className="studio-medium-empty-state">
+                  No templates are bundled in the source code anymore.
+                </div>
               </div>
             </section>
           </aside>

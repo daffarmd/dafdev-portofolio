@@ -7,12 +7,9 @@ import {
 } from '../lib/supabase';
 import {
   dispatchArticleDataUpdated,
-  getBuiltInArticles,
   isArticleBlock,
-  mergeArticlesBySlug,
 } from '../lib/articleStore';
 
-export type ArticleSource = 'supabase' | 'fallback';
 export type ArticleAssetKind = 'cover' | 'inline';
 
 type ArticleRow = {
@@ -147,12 +144,9 @@ const ensureSupabase = () => {
   return supabase;
 };
 
-export const fetchPublishedArticles = async (): Promise<{ articles: Article[]; source: ArticleSource }> => {
+export const fetchPublishedArticles = async (): Promise<Article[]> => {
   if (!isSupabaseConfigured || !supabase) {
-    return {
-      articles: getBuiltInArticles(),
-      source: 'fallback',
-    };
+    return [];
   }
 
   const { data, error } = await supabase
@@ -163,18 +157,10 @@ export const fetchPublishedArticles = async (): Promise<{ articles: Article[]; s
     .order('created_at', { ascending: false });
 
   if (error) {
-    return {
-      articles: getBuiltInArticles(),
-      source: 'fallback',
-    };
+    return [];
   }
 
-  const remoteArticles = (data as ArticleRow[] | null)?.map(mapArticleRowToArticle) ?? [];
-
-  return {
-    articles: mergeArticlesBySlug(getBuiltInArticles(), remoteArticles),
-    source: 'supabase',
-  };
+  return (data as ArticleRow[] | null)?.map(mapArticleRowToArticle) ?? [];
 };
 
 export const fetchAdminArticles = async (): Promise<Article[]> => {
@@ -200,10 +186,8 @@ export const fetchArticleBySlug = async (
     return null;
   }
 
-  const fallbackArticle = getBuiltInArticles().find((article) => article.slug === slug) ?? null;
-
   if (!isSupabaseConfigured || !supabase) {
-    return fallbackArticle;
+    return null;
   }
 
   let query = supabase
@@ -218,11 +202,11 @@ export const fetchArticleBySlug = async (
   const { data, error } = await query.maybeSingle();
 
   if (error) {
-    return fallbackArticle;
+    return null;
   }
 
   if (!data) {
-    return fallbackArticle;
+    return null;
   }
 
   return mapArticleRowToArticle(data as ArticleRow);
