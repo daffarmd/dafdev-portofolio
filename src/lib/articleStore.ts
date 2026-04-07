@@ -1,4 +1,4 @@
-import type { Article, ArticleBlock } from '../types';
+import type { ArticleBlock } from '../types';
 
 export const ARTICLE_DATA_UPDATED_EVENT = 'dafdev:articles-updated';
 
