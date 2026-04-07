@@ -219,58 +219,61 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
           variants={HERO_COPY_VARIANTS}
           initial="hidden"
           animate="visible"
-          style={{
-            x: contentX,
-            y: contentY,
-            rotateX: contentRotateX,
-            rotateY: contentRotateY,
-            transformPerspective: 1200,
-            transformStyle: 'preserve-3d',
-          }}
         >
-          <motion.h1 variants={HERO_ITEM_VARIANTS} className="min-h-[60px] text-[clamp(1.9rem,5vw,4.4rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-slate-900 sm:min-h-[72px] sm:whitespace-nowrap md:min-h-[80px] dark:text-white">
-            {typedName}
-            <span className="caret-blink ml-1 inline-block h-[0.95em] w-[2px] bg-slate-900 align-[-0.08em] dark:bg-white"></span>
-          </motion.h1>
+          <motion.div
+            style={{
+              x: contentX,
+              y: contentY,
+              rotateX: contentRotateX,
+              rotateY: contentRotateY,
+              transformPerspective: 1200,
+              transformStyle: 'preserve-3d',
+            }}
+          >
+            <motion.h1 variants={HERO_ITEM_VARIANTS} className="min-h-[60px] text-[clamp(1.9rem,5vw,4.4rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-slate-900 sm:min-h-[72px] sm:whitespace-nowrap md:min-h-[80px] dark:text-white">
+              {typedName}
+              <span className="caret-blink ml-1 inline-block h-[0.95em] w-[2px] bg-slate-900 align-[-0.08em] dark:bg-white"></span>
+            </motion.h1>
 
-          <motion.p variants={HERO_ITEM_VARIANTS} className="mt-4 max-w-2xl text-[15px] leading-relaxed text-slate-600 sm:mt-5 md:text-lg dark:text-slate-300">
-            {t.shortInfo}
-          </motion.p>
-          <motion.p variants={HERO_ITEM_VARIANTS} className="mt-2 text-sm text-slate-500 md:text-base dark:text-slate-400">
-            {t.stackInfo}
-          </motion.p>
+            <motion.p variants={HERO_ITEM_VARIANTS} className="mt-4 max-w-2xl text-[15px] leading-relaxed text-slate-600 sm:mt-5 md:text-lg dark:text-slate-300">
+              {t.shortInfo}
+            </motion.p>
+            <motion.p variants={HERO_ITEM_VARIANTS} className="mt-2 text-sm text-slate-500 md:text-base dark:text-slate-400">
+              {t.stackInfo}
+            </motion.p>
 
-          <motion.div variants={HERO_ITEM_VARIANTS} className="mt-6 flex flex-wrap items-center gap-3">
-            {TECH_STACK.map(({ label, image, className }, index) => (
-              <motion.div
-                key={label}
-                initial={{ opacity: 0, y: 12, scale: 0.92 }}
-                animate={{
-                  opacity: 1,
-                  y: [0, -6, 0],
-                  rotate: [0, index % 2 === 0 ? 3 : -3, 0],
-                  scale: [1, 1.04, 1],
-                }}
-                transition={{
-                  opacity: { duration: 0.35, delay: 0.35 + (index * 0.08) },
-                  y: { duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: index * 0.18 },
-                  rotate: { duration: 4.4, repeat: Infinity, ease: 'easeInOut', delay: index * 0.15 },
-                  scale: { duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: index * 0.18 },
-                }}
-                whileHover={{ y: -6, scale: 1.08, rotate: index % 2 === 0 ? 4 : -4 }}
-                className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl border shadow-[0_18px_30px_-20px_rgba(15,23,42,0.45)] backdrop-blur-sm transition-transform ${className}`}
-                aria-label={label}
-                title={label}
-              >
-                <img
-                  src={image}
-                  alt={label}
-                  className="h-6 w-6 object-contain"
-                  loading="lazy"
-                />
-                <span className="sr-only">{label}</span>
-              </motion.div>
-            ))}
+            <motion.div variants={HERO_ITEM_VARIANTS} className="mt-6 flex flex-wrap items-center gap-3">
+              {TECH_STACK.map(({ label, image, className }, index) => (
+                <motion.div
+                  key={label}
+                  initial={{ opacity: 0, y: 12, scale: 0.92 }}
+                  animate={{
+                    opacity: 1,
+                    y: [0, -6, 0],
+                    rotate: [0, index % 2 === 0 ? 3 : -3, 0],
+                    scale: [1, 1.04, 1],
+                  }}
+                  transition={{
+                    opacity: { duration: 0.35, delay: 0.35 + (index * 0.08) },
+                    y: { duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: index * 0.18 },
+                    rotate: { duration: 4.4, repeat: Infinity, ease: 'easeInOut', delay: index * 0.15 },
+                    scale: { duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: index * 0.18 },
+                  }}
+                  whileHover={{ y: -6, scale: 1.08, rotate: index % 2 === 0 ? 4 : -4 }}
+                  className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl border shadow-[0_18px_30px_-20px_rgba(15,23,42,0.45)] backdrop-blur-sm transition-transform ${className}`}
+                  aria-label={label}
+                  title={label}
+                >
+                  <img
+                    src={image}
+                    alt={label}
+                    className="h-6 w-6 object-contain"
+                    loading="lazy"
+                  />
+                  <span className="sr-only">{label}</span>
+                </motion.div>
+              ))}
+            </motion.div>
           </motion.div>
 
           <motion.div variants={HERO_ITEM_VARIANTS} className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
