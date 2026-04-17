@@ -7,6 +7,7 @@ const ARTICLE_BLOCK_TYPES = new Set<ArticleBlock['type']>([
   'heading',
   'image',
   'list',
+  'table',
   'highlight',
   'code',
 ]);
@@ -27,6 +28,15 @@ export const isArticleBlock = (value: unknown): value is ArticleBlock => {
       return typeof value.src === 'string' && typeof value.alt === 'string' && (value.caption === undefined || typeof value.caption === 'string');
     case 'list':
       return Array.isArray(value.items) && value.items.every((item) => typeof item === 'string');
+    case 'table':
+      return (
+        Array.isArray(value.headers)
+        && value.headers.every((header) => typeof header === 'string')
+        && Array.isArray(value.rows)
+        && value.rows.every(
+          (row) => Array.isArray(row) && row.every((cell) => typeof cell === 'string'),
+        )
+      );
     case 'highlight':
       return typeof value.title === 'string' && typeof value.content === 'string';
     case 'code':

@@ -13,7 +13,7 @@ import {
   X,
 } from 'lucide-react';
 import { useParams, Link } from 'react-router-dom';
-import type { Article, Language } from '../../types';
+import type { Article, ArticleBlock, Language } from '../../types';
 import { useArticle } from '../../hooks/useArticle';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -29,6 +29,64 @@ type InlineImagePreview = {
   src: string;
   alt: string;
   caption?: string;
+};
+
+const isMeaningfulArticleBlock = (section: ArticleBlock) => {
+  if (section.type === 'paragraph' || section.type === 'heading') {
+    return Boolean(section.content.trim());
+  }
+
+  if (section.type === 'list') {
+    return section.items.some((item) => item.trim());
+  }
+
+  if (section.type === 'table') {
+    return (
+      section.headers.some((header) => header.trim())
+      && section.rows.some((row) => row.some((cell) => cell.trim()))
+    );
+  }
+
+  if (section.type === 'image') {
+    return Boolean(section.src.trim() && section.alt.trim());
+  }
+
+  if (section.type === 'code') {
+    return Boolean(section.language.trim() && section.code.trim());
+  }
+
+  return Boolean(section.title.trim() || section.content.trim());
+};
+
+const mergeLocalizedSections = (
+  baseSections: ArticleBlock[],
+  localizedSections: ArticleBlock[],
+) => {
+  if (localizedSections.length === 0) {
+    return baseSections;
+  }
+
+  const mergedSections = baseSections.map((baseSection, index) => {
+    const localizedSection = localizedSections[index];
+
+    if (
+      !localizedSection
+      || localizedSection.type !== baseSection.type
+      || !isMeaningfulArticleBlock(localizedSection)
+    ) {
+      return baseSection;
+    }
+
+    return localizedSection;
+  });
+
+  if (localizedSections.length > baseSections.length) {
+    mergedSections.push(
+      ...localizedSections.slice(baseSections.length).filter(isMeaningfulArticleBlock),
+    );
+  }
+
+  return mergedSections;
 };
 
 const resolveArticleLanguage = (article: Article, language: Language) => {
@@ -50,6 +108,11 @@ const resolveArticleLanguage = (article: Article, language: Language) => {
     return article;
   }
 
+  const localizedSections = mergeLocalizedSections(
+    article.sections,
+    article.translations.en.sections ?? [],
+  );
+
   return {
     ...article,
     title: english.title?.trim() || article.title,
@@ -57,7 +120,7 @@ const resolveArticleLanguage = (article: Article, language: Language) => {
     readTime: english.readTime?.trim() || article.readTime,
     category: english.category?.trim() || article.category,
     imageAlt: english.imageAlt?.trim() || article.imageAlt,
-    sections: english.sections && english.sections.length > 0 ? english.sections : article.sections,
+    sections: localizedSections,
   };
 };
 
@@ -265,6 +328,55 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
           ) : null}
         </figcaption>
       ) : null}
+    </figure>
+  );
+};
+
+type TableBlockProps = {
+  headers: string[];
+  rows: string[][];
+};
+
+const TableBlock: React.FC<TableBlockProps> = ({ headers, rows }) => {
+  const columnCount = Math.max(headers.length, ...rows.map((row) => row.length), 0);
+
+  if (columnCount === 0) {
+    return null;
+  }
+
+  const normalizedHeaders = Array.from({ length: columnCount }, (_, index) =>
+    headers[index]?.trim() || `Column ${index + 1}`,
+  );
+  const normalizedRows = rows.map((row) =>
+    Array.from({ length: columnCount }, (_, index) => row[index]?.trim() ?? ''),
+  );
+
+  return (
+    <figure className="article-table-block">
+      <div className="article-table-scroll">
+        <table className="article-table">
+          <thead>
+            <tr>
+              {normalizedHeaders.map((header, index) => (
+                <th key={`${header}-${index}`} className="article-table-head-cell">
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {normalizedRows.map((row, rowIndex) => (
+              <tr key={rowIndex} className="article-table-row">
+                {row.map((cell, cellIndex) => (
+                  <td key={`${rowIndex}-${cellIndex}`} className="article-table-cell">
+                    {cell || '\u00A0'}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </figure>
   );
 };
@@ -512,14 +624,24 @@ const ArticleDetail: React.FC = () => {
                       >
                         {section.items.map((item) => (
                           <li key={item}>{item}</li>
-                        ))}
-                      </ul>
-                    );
-                  }
+                      ))}
+                    </ul>
+                  );
+                }
 
-                  if (section.type === 'image') {
-                    return (
-                      <figure key={blockId} className="article-image-block">
+                if (section.type === 'table') {
+                  return (
+                    <TableBlock
+                      key={blockId}
+                      headers={section.headers}
+                      rows={section.rows}
+                    />
+                  );
+                }
+
+                if (section.type === 'image') {
+                  return (
+                    <figure key={blockId} className="article-image-block">
                         <button
                           type="button"
                           className="article-image-button group"

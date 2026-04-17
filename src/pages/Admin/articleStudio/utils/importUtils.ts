@@ -1,4 +1,5 @@
 import type { ArticleStatus } from '../../../../types';
+import { parseMarkdownTableBlock } from '../../../../lib/articleTable';
 import type { ArticleDraft, EditorBlock } from '../types';
 import { createEmptyBlock, getTodayDate, slugify } from './draftUtils';
 
@@ -31,6 +32,27 @@ const toEditorBlock = (section: unknown): EditorBlock | null => {
     return {
       ...createEmptyBlock('list'),
       itemsText: items.join('\n'),
+    };
+  }
+
+  if (type === 'table') {
+    const headers = Array.isArray(block.headers)
+      ? block.headers.filter((header): header is string => typeof header === 'string')
+      : [];
+    const rows = Array.isArray(block.rows)
+      ? block.rows
+          .map((row) =>
+            Array.isArray(row)
+              ? row.filter((cell): cell is string => typeof cell === 'string')
+              : [],
+          )
+          .filter((row) => row.length > 0)
+      : [];
+
+    return {
+      ...createEmptyBlock('table'),
+      tableHeaders: headers.join(' | '),
+      tableRows: rows.map((row) => row.join(' | ')).join('\n'),
     };
   }
 
@@ -253,6 +275,9 @@ export const parseMarkdownToDraft = (
   const isCodeFence = (line: string) => /^```/.test(line.trim());
   const isImage = (line: string) => /^!\[[^\]]*\]\(([^)]+)\)$/.test(line.trim());
   const isQuote = (line: string) => /^>\s?/.test(line.trim());
+  const isTableBlockStart = (lineIndex: number) => (
+    parseMarkdownTableBlock(lines, lineIndex) !== null
+  );
 
   const parseImageLine = (line: string) => {
     const match = line.trim().match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
@@ -289,6 +314,7 @@ export const parseMarkdownToDraft = (
       && !isCodeFence(lines[index])
       && !isImage(lines[index])
       && !isQuote(lines[index])
+      && !isTableBlockStart(index)
     ) {
       excerptLines.push(lines[index].trim());
       index += 1;
@@ -354,6 +380,19 @@ export const parseMarkdownToDraft = (
         caption,
       });
       index += 1;
+      continue;
+    }
+
+    const parsedTable = parseMarkdownTableBlock(lines, index);
+    if (parsedTable) {
+      sections.push({
+        ...createEmptyBlock('table'),
+        tableHeaders: parsedTable.headers.map((header) => header.trim()).join(' | '),
+        tableRows: parsedTable.rows
+          .map((row) => row.map((cell) => cell.trim()).join(' | '))
+          .join('\n'),
+      });
+      index = parsedTable.nextIndex;
       continue;
     }
 
@@ -467,6 +506,7 @@ export const parseMarkdownToDraft = (
       && !isCodeFence(lines[index])
       && !isImage(lines[index])
       && !isQuote(lines[index])
+      && !isTableBlockStart(index)
     ) {
       paragraphLines.push(lines[index].trim());
       index += 1;
