@@ -58,6 +58,11 @@ export type ArticleBlock =
       items: string[];
     }
   | {
+      type: 'table';
+      headers: string[];
+      rows: string[][];
+    }
+  | {
       type: 'highlight';
       title: string;
       content: string;

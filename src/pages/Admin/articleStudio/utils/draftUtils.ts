@@ -1,4 +1,8 @@
 import type { Article, ArticleBlock } from '../../../../types';
+import {
+  parseEditorTableHeaders,
+  parseEditorTableRows,
+} from '../../../../lib/articleTable';
 import type { AdminArticleInput } from '../../../../services/articleService';
 import { DEFAULT_AUTHOR_NAME, blockTypeLabel } from '../constants';
 import type { ArticleDraft, EditorBlock, TranslationEditorDraft } from '../types';
@@ -31,6 +35,8 @@ export const createEmptyBlock = (
   content: '',
   title: '',
   itemsText: '',
+  tableHeaders: '',
+  tableRows: '',
   src: '',
   alt: '',
   caption: '',
@@ -54,6 +60,16 @@ export const articleBlocksToEditorBlocks = (
     return {
       ...createEmptyBlock('list'),
       itemsText: section.items.join('\n'),
+    };
+  }
+
+  if (section.type === 'table') {
+    return {
+      ...createEmptyBlock('table'),
+      tableHeaders: section.headers.map((header) => header.trim()).join(' | '),
+      tableRows: section.rows
+        .map((row) => row.map((cell) => cell.trim()).join(' | '))
+        .join('\n'),
     };
   }
 
@@ -104,6 +120,18 @@ export const editorBlocksToArticleBlocks = (
     };
   }
 
+  if (section.type === 'table') {
+    return {
+      type: 'table',
+      headers: parseEditorTableHeaders(section.tableHeaders).map((header) =>
+        header.trim(),
+      ),
+      rows: parseEditorTableRows(section.tableRows).map((row) =>
+        row.map((cell) => cell.trim()),
+      ),
+    };
+  }
+
   if (section.type === 'image') {
     return {
       type: 'image',
@@ -140,6 +168,13 @@ const filterMeaningfulArticleBlocks = (
 
   if (section.type === 'list') {
     return section.items.length > 0;
+  }
+
+  if (section.type === 'table') {
+    return (
+      section.headers.some((header) => header.trim())
+      && section.rows.some((row) => row.some((cell) => cell.trim()))
+    );
   }
 
   if (section.type === 'image') {
@@ -311,6 +346,31 @@ export const validateEditorSections = (
       return `${blockTypeLabel[section.type]} block tidak boleh kosong.`;
     }
 
+    if (section.type === 'table') {
+      const headers = parseEditorTableHeaders(section.tableHeaders);
+      const rows = parseEditorTableRows(section.tableRows);
+
+      if (headers.length === 0) {
+        return 'Table block butuh minimal satu header.';
+      }
+
+      if (headers.some((header) => !header.trim())) {
+        return 'Semua header table harus diisi.';
+      }
+
+      if (rows.length === 0) {
+        return 'Table block butuh minimal satu row.';
+      }
+
+      if (rows.some((row) => row.length !== headers.length)) {
+        return 'Setiap row table harus punya jumlah kolom yang sama dengan header.';
+      }
+
+      if (!rows.some((row) => row.some((cell) => cell.trim()))) {
+        return 'Table block butuh minimal satu isi row.';
+      }
+    }
+
     if (
       section.type === 'list'
       && section.itemsText
@@ -386,6 +446,9 @@ export const getBlockPlainText = (section: EditorBlock) => {
   }
   if (section.type === 'list') {
     return section.itemsText;
+  }
+  if (section.type === 'table') {
+    return `${section.tableHeaders} ${section.tableRows}`.trim();
   }
   if (section.type === 'image') {
     return `${section.alt} ${section.caption}`.trim();

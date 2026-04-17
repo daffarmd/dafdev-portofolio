@@ -276,8 +276,8 @@ const EditorCanvas = ({
         <div className="min-w-0">
           <p className="studio-medium-kicker">Start writing</p>
           <p className="mt-2 text-sm leading-7 text-slate-600">
-            Start with a paragraph, heading, list, image, code block, or
-            highlight without leaving the main writing lane.
+            Start with a paragraph, heading, list, table, image, code block,
+            or highlight without leaving the main writing lane.
           </p>
         </div>
       </div>

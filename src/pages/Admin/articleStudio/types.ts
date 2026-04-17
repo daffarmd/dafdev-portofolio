@@ -6,6 +6,8 @@ export type EditorBlock = {
   content: string;
   title: string;
   itemsText: string;
+  tableHeaders: string;
+  tableRows: string;
   src: string;
   alt: string;
   caption: string;

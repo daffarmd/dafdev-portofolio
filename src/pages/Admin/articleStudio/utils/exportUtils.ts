@@ -1,4 +1,8 @@
 import type { ArticleDraft } from '../types';
+import {
+  splitTableCells,
+  tableToMarkdown,
+} from '../../../../lib/articleTable';
 import { slugify } from './draftUtils';
 
 export const downloadJson = (fileName: string, data: unknown) => {
@@ -95,6 +99,21 @@ export const draftToMarkdown = (draft: ArticleDraft) => {
 
       if (items.length > 0) {
         lines.push(...items.map((item) => `- ${item}`), '');
+      }
+      return;
+    }
+
+    if (section.type === 'table') {
+      const headers = splitTableCells(section.tableHeaders);
+      const rows = section.tableRows
+        .split('\n')
+        .map((row) => row.trim())
+        .filter(Boolean)
+        .map((row) => splitTableCells(row));
+
+      const tableMarkdown = tableToMarkdown(headers, rows);
+      if (tableMarkdown) {
+        lines.push(tableMarkdown, '');
       }
       return;
     }
