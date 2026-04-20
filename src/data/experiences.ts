@@ -11,8 +11,8 @@ export const experiences: Experience[] = [
         summary: 'Building internal services, partner integrations, and operational tooling with a reliability-first approach.',
         stack: ['Golang', 'PostgreSQL', 'gRPC', 'REST API', 'Svelte', 'n8n', 'RAG'],
         achievements: [
-          'Designed and implemented workflow automation systems using n8n, reducing repetitive operational tasks such as transaction processing and status updates by up to 60-80%.',
-          'Built an AI-powered IT support assistant using RAG architecture, improving response accuracy and reducing manual support workload significantly.',
+          'Built n8n automation flows that reduced repetitive operational tasks by 60-80%.',
+          'Built a RAG-based AI IT support assistant to improve response accuracy and reduce manual work.',
         ],
       },
       {
