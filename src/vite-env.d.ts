@@ -8,7 +8,7 @@ interface ImportMetaEnv {
   readonly VITE_SUPABASE_PUBLISHABLE_KEY?: string;
   readonly VITE_SUPABASE_STORAGE_BUCKET_COVERS?: string;
   readonly VITE_SUPABASE_STORAGE_BUCKET_ASSETS?: string;
-}
+} 
 
 interface ImportMeta {
   readonly env: ImportMetaEnv;
