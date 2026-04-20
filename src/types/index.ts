@@ -26,6 +26,7 @@ export interface Role {
   duration: string;
   summary: string;
   stack: string[];
+  achievements?: string[];
 }
 
 export interface Experience {

@@ -15,12 +15,12 @@ type SeoConfig = {
 const DEFAULT_IMAGE_PATH = '/og-image.png';
 const SITE_URL = 'https://muhammaddaffaramadhan.vercel.app';
 const PERSON_NAME = 'Muhammad Daffa Ramadhan';
-const PERSON_DESCRIPTION = 'Backend Developer specializing in Golang, PostgreSQL, and scalable API systems.';
+const PERSON_DESCRIPTION = 'Backend + Automation + AI Engineer specializing in Golang, PostgreSQL, automation workflow, and AI-driven solutions.';
 
 const HOME_SEO: SeoConfig = {
-  title: 'Home | Muhammad Daffa Ramadhan',
+  title: 'Muhammad Daffa Ramadhan | Backend + Automation + AI Engineer',
   description:
-    'Portfolio resmi Muhammad Daffa Ramadhan, Backend Developer yang fokus pada Golang, PostgreSQL, REST API, dan pengembangan sistem backend yang scalable.',
+    'Portfolio resmi Muhammad Daffa Ramadhan, Backend + Automation + AI Engineer yang fokus pada Golang, PostgreSQL, REST API, automation workflow, dan AI-driven solutions.',
   path: '/',
   schema: 'person-profile',
 };
@@ -29,7 +29,7 @@ const SEO_CONFIG: Record<string, SeoConfig> = {
   '/': HOME_SEO,
   '/about': {
     title: 'About | Muhammad Daffa Ramadhan',
-    description: 'Pelajari profil, pengalaman, dan perjalanan karier Muhammad Daffa Ramadhan sebagai Backend Developer.',
+    description: 'Pelajari profil, pengalaman, dan perjalanan karier Muhammad Daffa Ramadhan sebagai Backend + Automation + AI Engineer.',
     path: '/about',
   },
   '/showcase': {
@@ -168,9 +168,9 @@ const buildPersonProfileSchema = (siteUrl: string) => {
         alternateName: ['Daffa Ramadhan', 'Daf Dev'],
         url: `${siteUrl}/`,
         image: `${siteUrl}${DEFAULT_IMAGE_PATH}`,
-        jobTitle: 'Backend Developer',
+        jobTitle: 'Backend + Automation + AI Engineer',
         description: PERSON_DESCRIPTION,
-        knowsAbout: ['Golang', 'PostgreSQL', 'REST API', 'gRPC', 'Backend Development'],
+        knowsAbout: ['Golang', 'PostgreSQL', 'REST API', 'gRPC', 'Backend Development', 'Automation', 'Artificial Intelligence'],
         sameAs: ['https://github.com/daffarmd', 'https://www.linkedin.com/in/muhammaddaffaramadhan/'],
         mainEntityOfPage: {
           '@id': profilePageId,
@@ -180,7 +180,7 @@ const buildPersonProfileSchema = (siteUrl: string) => {
         '@type': 'ProfilePage',
         '@id': profilePageId,
         url: `${siteUrl}/`,
-        name: 'Home | Muhammad Daffa Ramadhan',
+        name: 'Muhammad Daffa Ramadhan | Backend + Automation + AI Engineer',
         inLanguage: 'id-ID',
         mainEntity: {
           '@id': personId,

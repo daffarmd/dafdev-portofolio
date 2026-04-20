@@ -87,6 +87,16 @@ const Experience: React.FC<ExperienceProps> = ({ language }) => {
                         <p className="text-sm leading-6 text-slate-600 dark:text-slate-300 sm:leading-7">
                           {role.summary}
                         </p>
+                        {role.achievements?.length ? (
+                          <ul className="mt-4 space-y-2 text-sm leading-6 text-slate-600 dark:text-slate-300 sm:leading-7">
+                            {role.achievements.map((achievement) => (
+                              <li key={achievement} className="flex gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-slate-400 dark:bg-slate-500" />
+                                <span>{achievement}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : null}
                         <div className="mt-4 flex flex-wrap gap-2">
                           {role.stack.map((item) => (
                             <span
