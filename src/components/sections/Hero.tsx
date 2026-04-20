@@ -5,6 +5,7 @@ import type { Language } from '../../types';
 import golangIcon from '../../assets/golang-icon.png';
 import postgresIcon from '../../assets/postgres-icon.png';
 import reactIcon from '../../assets/react-icon.png';
+import n8nIcon from '../../assets/n8n-images.png';
 import svelteIcon from '../../assets/svelte-icon.png';
 
 const RESUME_URL_ID = import.meta.env.VITE_RESUME_URL_ID?.trim() || '/CV_MuhammadDaffaRamadhan_ID.pdf';
@@ -68,6 +69,11 @@ const TECH_STACK = [
     label: 'React',
     image: reactIcon,
     className: 'border-amber-200/80 bg-amber-50/90 text-amber-700 shadow-amber-200/60 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-200 dark:shadow-amber-900/20',
+  },
+  {
+    label: 'n8n',
+    image: n8nIcon,
+    className: 'border-orange-200/80 bg-orange-50/90 text-orange-700 shadow-orange-200/60 dark:border-orange-500/20 dark:bg-orange-500/10 dark:text-orange-200 dark:shadow-orange-900/20',
   },
   {
     label: 'Svelte',
@@ -170,8 +176,8 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
 
   const t = language === 'id'
     ? {
-      shortInfo: 'Membuat apapun yang bisa di buat.',
-      stackInfo: '',
+      shortInfo: 'Membangun sistem backend, automation, dan AI yang rapi dan scalable.',
+      stackInfo: 'Backend + Automation + AI Engineer',
       resumeTitle: 'CV / Resume',
       resumeMenuTitle: 'Pilih versi CV',
       resumeMenuHint: 'Buka versi yang paling relevan untuk HRD',
@@ -181,8 +187,8 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
       resumeEnDesc: 'For international hiring or bilingual review',
     }
     : {
-        shortInfo: 'Make anything that can be made.',
-        stackInfo: '',
+        shortInfo: 'Building backend, automation, and AI systems that are clean and scalable.',
+        stackInfo: 'Backend + Automation + AI Engineer',
         resumeTitle: 'CV / Resume',
         resumeMenuTitle: 'Choose CV version',
         resumeMenuHint: 'Open the version that fits the recruiter',
@@ -235,10 +241,10 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
               <span className="caret-blink ml-1 inline-block h-[0.95em] w-[2px] bg-slate-900 align-[-0.08em] dark:bg-white"></span>
             </motion.h1>
 
-            <motion.p variants={HERO_ITEM_VARIANTS} className="mt-4 max-w-2xl text-[15px] leading-relaxed text-slate-600 sm:mt-5 md:text-lg dark:text-slate-300">
+            <motion.p variants={HERO_ITEM_VARIANTS} className="mt-4 max-w-xl text-[15px] leading-relaxed text-slate-600 sm:mt-5 md:text-lg dark:text-slate-300">
               {t.shortInfo}
             </motion.p>
-            <motion.p variants={HERO_ITEM_VARIANTS} className="mt-2 text-sm text-slate-500 md:text-base dark:text-slate-400">
+            <motion.p variants={HERO_ITEM_VARIANTS} className="mt-2 text-xs font-medium uppercase tracking-[0.24em] text-slate-500 md:text-sm dark:text-slate-400">
               {t.stackInfo}
             </motion.p>
 

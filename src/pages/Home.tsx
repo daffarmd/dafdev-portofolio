@@ -41,7 +41,7 @@ const Home: React.FC<HomeProps> = ({ language }) => {
   const t = language === 'id'
     ? {
         nextTitle: 'Jelajahi Portofolio Muhammad Daffa Ramadhan',
-        nextDesc: 'Temukan profil, showcase produk, artikel teknis, dan kanal kontak untuk kolaborasi project backend.',
+        nextDesc: 'Temukan profil, showcase produk, artikel teknis, dan kanal kontak untuk kolaborasi project backend, automation, dan AI.',
         about: 'Menu About',
         showcase: 'Menu Showcase',
         contact: 'Menu Kontak',
@@ -52,7 +52,7 @@ const Home: React.FC<HomeProps> = ({ language }) => {
       }
     : {
         nextTitle: 'Explore My Portfolio',
-        nextDesc: 'Discover profile, product showcase, technical notes, and collaboration contact channels.',
+        nextDesc: 'Discover profile, product showcase, technical notes, and collaboration contact channels for backend, automation, and AI projects.',
         about: 'About Page',
         showcase: 'Showcase Page',
         contact: 'Contact Page',
