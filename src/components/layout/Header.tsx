@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink, NavLink, useLocation } from 'react-router-dom';
 import { Menu, X, Moon, Sun, BookOpen, ArrowUpRight, LockKeyhole, LogOut } from 'lucide-react';
-import { motion } from 'framer-motion';
 import meImage from '../../assets/me.png';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../context/ThemeContext';
@@ -9,6 +8,7 @@ import { useTheme } from '../../context/ThemeContext';
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [avatarReady, setAvatarReady] = useState(false);
   const location = useLocation();
   const { isAdmin, loading, signOut } = useAuth();
   const { darkMode, toggleDarkMode } = useTheme();
@@ -25,6 +25,30 @@ const Header: React.FC = () => {
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    let timeoutId: number | undefined;
+    let idleId: number | undefined;
+
+    const loadAvatar = () => {
+      setAvatarReady(true);
+    };
+
+    if ('requestIdleCallback' in window) {
+      idleId = window.requestIdleCallback(loadAvatar, { timeout: 1000 });
+    } else {
+      timeoutId = window.setTimeout(loadAvatar, 250);
+    }
+
+    return () => {
+      if (typeof idleId === 'number' && 'cancelIdleCallback' in window) {
+        window.cancelIdleCallback(idleId);
+      }
+      if (typeof timeoutId === 'number') {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, []);
 
   const navLinks = [
     { name: 'Home', to: '/' },
@@ -75,19 +99,22 @@ const Header: React.FC = () => {
         }`}
       >
         <RouterLink to="/" className="flex items-center gap-3">
-          <motion.div
-            className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-dark-800 sm:rounded-2xl"
-            animate={{ y: [0, -2, 0], rotate: [-1, 1, -1] }}
-            transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
-            whileHover={{ scale: 1.04, rotate: 0 }}
-          >
-            <motion.img
-              src={meImage}
-              alt="Daf Dev logo"
-              className="h-10 w-10 object-cover sm:h-11 sm:w-11"
-              whileHover={{ scale: 1.06 }}
-            />
-          </motion.div>
+          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white transition-transform duration-200 hover:-translate-y-0.5 hover:scale-[1.03] dark:border-slate-700 dark:bg-dark-800 sm:h-11 sm:w-11 sm:rounded-2xl">
+            {avatarReady ? (
+              <img
+                src={meImage}
+                alt="Daf Dev logo"
+                className="h-full w-full object-cover"
+                width={44}
+                height={44}
+                decoding="async"
+              />
+            ) : (
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
+                DD
+              </span>
+            )}
+          </div>
           <span className="text-base font-bold tracking-tight text-slate-900 sm:text-xl dark:text-white">
             Daf.Dev
           </span>

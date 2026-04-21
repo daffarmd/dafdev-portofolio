@@ -3,7 +3,7 @@ import {
   ARTICLE_ASSETS_BUCKET,
   ARTICLE_COVERS_BUCKET,
   isSupabaseConfigured,
-  supabase,
+  getSupabaseClient,
 } from '../lib/supabase';
 import {
   dispatchArticleDataUpdated,
@@ -136,20 +136,24 @@ const normalizeFileName = (value: string) => value
   .replace(/^-+|-+$/g, '')
   .replace(/-{2,}/g, '-');
 
-const ensureSupabase = () => {
-  if (!isSupabaseConfigured || !supabase) {
+const ensureSupabase = async () => {
+  const client = await getSupabaseClient();
+
+  if (!isSupabaseConfigured || !client) {
     throw new Error('Supabase belum dikonfigurasi.');
   }
 
-  return supabase;
+  return client;
 };
 
 export const fetchPublishedArticles = async (): Promise<Article[]> => {
-  if (!isSupabaseConfigured || !supabase) {
+  const client = await getSupabaseClient();
+
+  if (!isSupabaseConfigured || !client) {
     return [];
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from('articles')
     .select('*')
     .eq('status', 'published')
@@ -164,7 +168,7 @@ export const fetchPublishedArticles = async (): Promise<Article[]> => {
 };
 
 export const fetchAdminArticles = async (): Promise<Article[]> => {
-  const client = ensureSupabase();
+  const client = await ensureSupabase();
 
   const { data, error } = await client
     .from('articles')
@@ -186,11 +190,13 @@ export const fetchArticleBySlug = async (
     return null;
   }
 
-  if (!isSupabaseConfigured || !supabase) {
+  const client = await getSupabaseClient();
+
+  if (!isSupabaseConfigured || !client) {
     return null;
   }
 
-  let query = supabase
+  let query = client
     .from('articles')
     .select('*')
     .eq('slug', slug);
@@ -216,7 +222,7 @@ export const saveAdminArticle = async (
   input: AdminArticleInput,
   authorId?: string | null,
 ): Promise<Article> => {
-  const client = ensureSupabase();
+  const client = await ensureSupabase();
   const payload = toArticlePayload(input, authorId);
 
   if (input.id) {
@@ -250,7 +256,7 @@ export const saveAdminArticle = async (
 };
 
 export const deleteAdminArticle = async (id: string) => {
-  const client = ensureSupabase();
+  const client = await ensureSupabase();
 
   const { error } = await client
     .from('articles')
@@ -268,7 +274,7 @@ export const uploadArticleAsset = async (
   file: File,
   kind: ArticleAssetKind,
 ): Promise<string> => {
-  const client = ensureSupabase();
+  const client = await ensureSupabase();
   const bucket = kind === 'cover' ? ARTICLE_COVERS_BUCKET : ARTICLE_ASSETS_BUCKET;
   const extension = file.name.includes('.') ? file.name.split('.').pop() : 'bin';
   const baseName = file.name.replace(/\.[^/.]+$/, '');

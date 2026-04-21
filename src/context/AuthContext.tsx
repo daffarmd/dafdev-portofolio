@@ -1,7 +1,7 @@
-import React, { createContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import type { ProfileRole } from '../types';
-import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
 
 type AuthProfile = {
   id: string;
@@ -47,13 +47,20 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
   const [profile, setProfile] = useState<AuthProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const refreshProfile = async (userId?: string | null) => {
-    if (!isSupabaseConfigured || !supabase || !userId) {
+  const refreshProfile = useCallback(async (userId?: string | null) => {
+    if (!isSupabaseConfigured || !userId) {
       setProfile(null);
       return;
     }
 
-    const { data, error } = await supabase
+    const client = await getSupabaseClient();
+
+    if (!client) {
+      setProfile(null);
+      return;
+    }
+
+    const { data, error } = await client
       .from('profiles')
       .select('id, email, full_name, role')
       .eq('id', userId)
@@ -65,19 +72,36 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     }
 
     setProfile(mapProfile(data));
-  };
+  }, []);
 
   useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) {
+    if (!isSupabaseConfigured) {
       setLoading(false);
       return;
     }
 
     let mounted = true;
+    let idleId: number | undefined;
+    let timeoutId: number | undefined;
+    let subscription:
+      | {
+          unsubscribe: () => void;
+        }
+      | undefined;
 
     const bootstrapAuth = async () => {
       setLoading(true);
-      const { data } = await supabase.auth.getSession();
+
+      const client = await getSupabaseClient();
+
+      if (!mounted || !client) {
+        if (mounted) {
+          setLoading(false);
+        }
+        return;
+      }
+
+      const { data } = await client.auth.getSession();
 
       if (!mounted) {
         return;
@@ -88,30 +112,50 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
       if (mounted) {
         setLoading(false);
       }
+
+      const { data: listener } = client.auth.onAuthStateChange((_event, nextSession) => {
+        setSession(nextSession);
+        void refreshProfile(nextSession?.user.id ?? null);
+      });
+
+      subscription = listener.subscription;
     };
 
-    void bootstrapAuth();
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession);
-      void (async () => {
-        await refreshProfile(nextSession?.user.id ?? null);
-      })();
-    });
+    if ('requestIdleCallback' in window) {
+      idleId = window.requestIdleCallback(() => {
+        void bootstrapAuth();
+      }, { timeout: 1200 });
+    } else {
+      timeoutId = window.setTimeout(() => {
+        void bootstrapAuth();
+      }, 300);
+    }
 
     return () => {
       mounted = false;
-      listener.subscription.unsubscribe();
+      if (typeof idleId === 'number' && 'cancelIdleCallback' in window) {
+        window.cancelIdleCallback(idleId);
+      }
+      if (typeof timeoutId === 'number') {
+        window.clearTimeout(timeoutId);
+      }
+      subscription?.unsubscribe();
     };
-  }, []);
+  }, [refreshProfile]);
 
-  const signInWithPassword = async (email: string, password: string) => {
-    if (!isSupabaseConfigured || !supabase) {
+  const signInWithPassword = useCallback(async (email: string, password: string) => {
+    if (!isSupabaseConfigured) {
+      return { error: 'Supabase belum dikonfigurasi.' };
+    }
+
+    const client = await getSupabaseClient();
+
+    if (!client) {
       return { error: 'Supabase belum dikonfigurasi.' };
     }
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error } = await client.auth.signInWithPassword({
         email,
         password,
       });
@@ -122,15 +166,21 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
         error: error instanceof Error ? error.message : 'Request login gagal dijalankan.',
       };
     }
-  };
+  }, []);
 
-  const requestPasswordReset = async (email: string, redirectTo?: string) => {
-    if (!isSupabaseConfigured || !supabase) {
+  const requestPasswordReset = useCallback(async (email: string, redirectTo?: string) => {
+    if (!isSupabaseConfigured) {
+      return { error: 'Supabase belum dikonfigurasi.' };
+    }
+
+    const client = await getSupabaseClient();
+
+    if (!client) {
       return { error: 'Supabase belum dikonfigurasi.' };
     }
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await client.auth.resetPasswordForEmail(email, {
         redirectTo,
       });
 
@@ -140,15 +190,21 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
         error: error instanceof Error ? error.message : 'Request reset password gagal dijalankan.',
       };
     }
-  };
+  }, []);
 
-  const updatePassword = async (password: string) => {
-    if (!isSupabaseConfigured || !supabase) {
+  const updatePassword = useCallback(async (password: string) => {
+    if (!isSupabaseConfigured) {
+      return { error: 'Supabase belum dikonfigurasi.' };
+    }
+
+    const client = await getSupabaseClient();
+
+    if (!client) {
       return { error: 'Supabase belum dikonfigurasi.' };
     }
 
     try {
-      const { error } = await supabase.auth.updateUser({ password });
+      const { error } = await client.auth.updateUser({ password });
 
       return { error: error?.message ?? null };
     } catch (error) {
@@ -156,17 +212,19 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
         error: error instanceof Error ? error.message : 'Update password gagal dijalankan.',
       };
     }
-  };
+  }, []);
 
-  const signOut = async () => {
-    if (!supabase) {
+  const signOut = useCallback(async () => {
+    const client = await getSupabaseClient();
+
+    if (!client) {
       return;
     }
 
-    await supabase.auth.signOut();
+    await client.auth.signOut();
     setProfile(null);
     setSession(null);
-  };
+  }, []);
 
   const value = useMemo<AuthContextValue>(() => ({
     isConfigured: isSupabaseConfigured,
@@ -180,7 +238,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     updatePassword,
     signOut,
     refreshProfile,
-  }), [loading, profile, session]);
+  }), [loading, profile, refreshProfile, requestPasswordReset, session, signInWithPassword, signOut, updatePassword]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
