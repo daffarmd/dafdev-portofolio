@@ -1,6 +1,5 @@
 import React from 'react';
 import { Github, Linkedin, Mail, ArrowUpRight } from 'lucide-react';
-import { motion } from 'framer-motion';
 import type { Language } from '../../types';
 import meImage from '../../assets/me.png';
 
@@ -28,19 +27,17 @@ const Footer: React.FC<FooterProps> = ({ language }) => {
         <div className="border-t border-slate-200/80 pt-6 dark:border-slate-700 sm:pt-8">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <motion.div
-                className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-dark-800 sm:rounded-2xl"
-                animate={{ y: [0, -2, 0], rotate: [-1, 1, -1] }}
-                transition={{ duration: 4.6, repeat: Infinity, ease: 'easeInOut' }}
-                whileHover={{ scale: 1.04, rotate: 0 }}
-              >
-                <motion.img
+              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-dark-800 sm:rounded-2xl">
+                <img
                   src={meImage}
                   alt="Daf Dev logo"
                   className="h-11 w-11 object-cover sm:h-12 sm:w-12"
-                  whileHover={{ scale: 1.06 }}
+                  loading="lazy"
+                  decoding="async"
+                  width={48}
+                  height={48}
                 />
-              </motion.div>
+              </div>
               <div className="min-w-0">
                 <p className="text-lg font-bold tracking-tight text-slate-900 dark:text-white sm:text-xl">Daf.Dev</p>
                 <p className="text-sm leading-6 text-slate-500 dark:text-slate-400">{t.collaboration}</p>

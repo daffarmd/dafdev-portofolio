@@ -1,7 +1,5 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useArticles } from '../../hooks/useArticles';
-import type { Article } from '../../types';
 
 type SeoConfig = {
   title: string;
@@ -73,29 +71,13 @@ const resolveMetaImage = (siteUrl: string, imagePath?: string) => {
   return `${siteUrl}${imagePath}`;
 };
 
-const getArticleSeoConfig = (pathname: string, articles: Article[]): SeoConfig | null => {
-  const slug = pathname.replace('/my-notes/', '');
-  const article = articles.find((item) => item.slug === slug);
-
-  if (!article) {
-    return null;
-  }
-
-  return {
-    title: `${article.title} | My Notes | Muhammad Daffa Ramadhan`,
-    description: article.excerpt,
-    path: pathname,
-    image: article.image,
-  };
-};
-
-const getSeoConfig = (pathname: string, articles: Article[]): SeoConfig => {
+const getSeoConfig = (pathname: string): SeoConfig => {
   if (pathname === '/') {
     return HOME_SEO;
   }
 
   if (pathname.startsWith('/my-notes/')) {
-    return getArticleSeoConfig(pathname, articles) ?? {
+    return {
       ...SEO_CONFIG['/my-notes'],
       path: pathname,
     };
@@ -115,6 +97,17 @@ const getSeoConfig = (pathname: string, articles: Article[]): SeoConfig => {
     noindex: true,
   };
 };
+
+const buildArticleSeoConfig = (pathname: string, article: {
+  title: string;
+  excerpt: string;
+  image?: string;
+}) => ({
+  title: `${article.title} | My Notes | Muhammad Daffa Ramadhan`,
+  description: article.excerpt,
+  path: pathname,
+  image: article.image,
+});
 
 const upsertMeta = (selector: string, attr: 'name' | 'property', key: string, content: string) => {
   let element = document.head.querySelector<HTMLMetaElement>(selector);
@@ -192,41 +185,82 @@ const buildPersonProfileSchema = (siteUrl: string) => {
 
 const SeoManager = () => {
   const { pathname } = useLocation();
-  const { articles } = useArticles();
 
   useEffect(() => {
     const siteUrl = SITE_URL.replace(/\/$/, '');
-    const seo = getSeoConfig(pathname, articles);
-    const canonicalUrl = `${siteUrl}${seo.path}`;
-    const ogImageUrl = resolveMetaImage(siteUrl, seo.image);
-    const robotsContent = seo.noindex
-      ? 'noindex, follow, max-image-preview:large'
-      : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+    let cancelled = false;
 
-    document.title = seo.title;
+    const applySeo = (seo: SeoConfig) => {
+      const canonicalUrl = `${siteUrl}${seo.path}`;
+      const ogImageUrl = resolveMetaImage(siteUrl, seo.image);
+      const robotsContent = seo.noindex
+        ? 'noindex, follow, max-image-preview:large'
+        : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
 
-    upsertMeta('meta[name="description"]', 'name', 'description', seo.description);
-    upsertMeta('meta[name="robots"]', 'name', 'robots', robotsContent);
+      document.title = seo.title;
 
-    upsertLink('canonical', canonicalUrl);
+      upsertMeta('meta[name="description"]', 'name', 'description', seo.description);
+      upsertMeta('meta[name="robots"]', 'name', 'robots', robotsContent);
 
-    upsertMeta('meta[property="og:type"]', 'property', 'og:type', 'website');
-    upsertMeta('meta[property="og:title"]', 'property', 'og:title', seo.title);
-    upsertMeta('meta[property="og:description"]', 'property', 'og:description', seo.description);
-    upsertMeta('meta[property="og:url"]', 'property', 'og:url', canonicalUrl);
-    upsertMeta('meta[property="og:image"]', 'property', 'og:image', ogImageUrl);
+      upsertLink('canonical', canonicalUrl);
 
-    upsertMeta('meta[name="twitter:card"]', 'name', 'twitter:card', 'summary_large_image');
-    upsertMeta('meta[name="twitter:title"]', 'name', 'twitter:title', seo.title);
-    upsertMeta('meta[name="twitter:description"]', 'name', 'twitter:description', seo.description);
-    upsertMeta('meta[name="twitter:image"]', 'name', 'twitter:image', ogImageUrl);
+      upsertMeta('meta[property="og:type"]', 'property', 'og:type', 'website');
+      upsertMeta('meta[property="og:title"]', 'property', 'og:title', seo.title);
+      upsertMeta('meta[property="og:description"]', 'property', 'og:description', seo.description);
+      upsertMeta('meta[property="og:url"]', 'property', 'og:url', canonicalUrl);
+      upsertMeta('meta[property="og:image"]', 'property', 'og:image', ogImageUrl);
 
-    if (seo.schema === 'person-profile') {
-      upsertJsonLd('person-profile-schema', buildPersonProfileSchema(siteUrl));
-    } else {
-      removeElementById('person-profile-schema');
+      upsertMeta('meta[name="twitter:card"]', 'name', 'twitter:card', 'summary_large_image');
+      upsertMeta('meta[name="twitter:title"]', 'name', 'twitter:title', seo.title);
+      upsertMeta('meta[name="twitter:description"]', 'name', 'twitter:description', seo.description);
+      upsertMeta('meta[name="twitter:image"]', 'name', 'twitter:image', ogImageUrl);
+
+      if (seo.schema === 'person-profile') {
+        upsertJsonLd('person-profile-schema', buildPersonProfileSchema(siteUrl));
+      } else {
+        removeElementById('person-profile-schema');
+      }
+    };
+
+    const baseSeo = getSeoConfig(pathname);
+    applySeo(baseSeo);
+
+    const isArticleDetailRoute = pathname.startsWith('/my-notes/') && pathname !== '/my-notes/';
+    const slug = isArticleDetailRoute ? pathname.replace('/my-notes/', '') : '';
+
+    if (!slug) {
+      return () => {
+        cancelled = true;
+      };
     }
-  }, [articles, pathname]);
+
+    void (async () => {
+      try {
+        const { fetchArticleBySlug } = await import('../../services/articleService');
+        const article = await fetchArticleBySlug(slug);
+
+        if (cancelled || !article) {
+          return;
+        }
+
+        applySeo({
+          ...buildArticleSeoConfig(pathname, {
+            title: article.title,
+            excerpt: article.excerpt,
+            image: article.image,
+          }),
+        });
+      } catch {
+        if (!cancelled) {
+          applySeo(baseSeo);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname]);
 
   return null;
 };
