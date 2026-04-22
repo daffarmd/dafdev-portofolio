@@ -70,6 +70,8 @@ function readErrorMessage(error: unknown): string {
   return 'Failed to load Spotify data.';
 }
 
+// Skeleton component removed - no pulsing animation needed
+
 const SpotifyFavorites: FC<SpotifyFavoritesProps> = ({ language }) => {
   const [payload, setPayload] = useState<SpotifyPayload | null>(null);
   const [activeTab, setActiveTab] = useState<SpotifyTab>('recently-played');
@@ -188,41 +190,62 @@ const SpotifyFavorites: FC<SpotifyFavoritesProps> = ({ language }) => {
         <div className="section-container">
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-3">
-              <div className="h-7 w-44 animate-pulse rounded-full bg-white/10" />
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                className="h-7 w-44 rounded-full bg-white/10"
+              />
               <div className="flex items-center gap-2">
-                <div className="h-9 w-32 rounded-[0.85rem] bg-white/10" />
-                <div className="h-9 w-22 rounded-[0.85rem] bg-transparent" />
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.6, delay: 0.1 }}
+                  className="h-9 w-32 rounded-[0.85rem] bg-white/10"
+                />
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="h-9 w-22 rounded-[0.85rem] bg-transparent"
+                />
               </div>
             </div>
 
             <div className="grid gap-3 lg:grid-cols-2">
-              <div className="overflow-hidden rounded-[1.2rem] bg-[#686868]">
-                <div className="flex h-[392px] flex-col gap-3 p-0">
-                  <div className="h-full rounded-[1.2rem] bg-[#5f5f5f]" />
-                </div>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="overflow-hidden rounded-[1.2rem] bg-[#686868]"
+              >
+                <div className="h-[392px] rounded-[1.2rem] bg-[#5f5f5f]" />
+              </motion.div>
 
-              <div className="space-y-2.5">
+            <div className="space-y-2.5">
                 {Array.from({ length: 4 }).map((_, index) => (
-                  <div
+                  <motion.div
                     key={`spotify-skeleton-${index}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.4, delay: 0.5 + index * 0.12 }}
                     className={`overflow-hidden rounded-[1rem] ${index % 2 === 0 ? 'bg-[#0b60b4]' : 'bg-[#676767]'}`}
                   >
-                    <div className="relative flex h-[92px] items-center gap-2.5 px-3">
-                      <div className="h-16 w-16 animate-pulse rounded-[0.55rem] bg-white/10" />
+                    <div className="flex h-[92px] items-center gap-2.5 px-3">
+                      <div className="h-16 w-16 rounded-[0.55rem] bg-white/10" />
                       <div className="min-w-0 flex-1 space-y-2">
-                        <div className="h-3.5 w-3/4 animate-pulse rounded-full bg-white/10" />
-                        <div className="h-3 w-1/2 animate-pulse rounded-full bg-white/10" />
-                        <div className="h-4 w-16 animate-pulse rounded-[0.25rem] bg-white/10" />
+                        <div className="h-3.5 w-3/4 rounded-full bg-white/10" />
+                        <div className="h-3 w-1/2 rounded-full bg-white/10" />
+                        <div className="h-4 w-16 rounded-[0.25rem] bg-white/10" />
                       </div>
-                      <div className="h-6 w-6 animate-pulse rounded-full bg-white/10" />
+                      <div className="h-6 w-6 rounded-full bg-white/10" />
                       <div className="ml-auto flex items-center gap-1.5">
-                        <div className="h-7 w-7 animate-pulse rounded-full bg-white/10" />
-                        <div className="h-7 w-7 animate-pulse rounded-full bg-white/10" />
-                        <div className="h-9 w-9 animate-pulse rounded-full bg-white/10" />
+                        <div className="h-7 w-7 rounded-full bg-white/10" />
+                        <div className="h-7 w-7 rounded-full bg-white/10" />
+                        <div className="h-9 w-9 rounded-full bg-white/10" />
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
@@ -301,10 +324,10 @@ const SpotifyFavorites: FC<SpotifyFavoritesProps> = ({ language }) => {
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={mainTrack?.id ?? activeTab}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.25 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
                     className="flex h-full flex-col"
                   >
                     {mainTrack ? (
@@ -331,19 +354,19 @@ const SpotifyFavorites: FC<SpotifyFavoritesProps> = ({ language }) => {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTab}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -12 }}
-                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
                   className="space-y-3"
                 >
                   {sideTracks.length > 0 ? (
                     sideTracks.map((track, index) => (
                           <motion.div
                             key={track.id}
-                            initial={{ opacity: 0, x: 10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.2, delay: index * 0.04 }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.4, delay: index * 0.2 }}
                             className="overflow-hidden rounded-[1rem]"
                           >
                             <SpotifyEmbedFrame
