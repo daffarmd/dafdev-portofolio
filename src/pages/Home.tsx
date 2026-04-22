@@ -1,7 +1,7 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, Layers3, UserRound, Mail } from 'lucide-react';
+import { ArrowUpRight, Layers3, Mail, Music2, UserRound } from 'lucide-react';
 import Hero from '../components/sections/Hero';
 import type { Language } from '../types';
 
@@ -13,30 +13,41 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ language }) => {
   const [shouldRenderSpotify, setShouldRenderSpotify] = useState(false);
+  const spotifySectionRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    let timeoutId: number | undefined;
-    let idleId: number | undefined;
-
-    const enableSpotifySection = () => {
-      setShouldRenderSpotify(true);
-    };
-
-    if ('requestIdleCallback' in window) {
-      idleId = window.requestIdleCallback(enableSpotifySection, { timeout: 1200 });
-    } else {
-      timeoutId = window.setTimeout(enableSpotifySection, 600);
+    if (shouldRenderSpotify) {
+      return;
     }
 
+    const target = spotifySectionRef.current;
+    if (!target || typeof window === 'undefined' || !('IntersectionObserver' in window)) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldRenderSpotify(true);
+          observer.disconnect();
+        }
+      },
+      {
+        rootMargin: '120px 0px',
+        threshold: 0.25,
+      },
+    );
+
+    observer.observe(target);
+
     return () => {
-      if (typeof idleId === 'number' && 'cancelIdleCallback' in window) {
-        window.cancelIdleCallback(idleId);
-      }
-      if (typeof timeoutId === 'number') {
-        window.clearTimeout(timeoutId);
-      }
+      observer.disconnect();
     };
-  }, []);
+  }, [shouldRenderSpotify]);
+
+  const loadSpotify = () => {
+    setShouldRenderSpotify(true);
+  };
 
   const t = language === 'id'
     ? {
@@ -49,6 +60,10 @@ const Home: React.FC<HomeProps> = ({ language }) => {
         showcaseDesc: 'Kumpulan project dummy untuk demo konsep produk.',
         contactDesc: 'Diskusi kebutuhan project dan peluang kolaborasi.',
         open: 'Buka',
+        spotifyTitle: 'Diputar Terakhir',
+        spotifyDesc: 'Spotify embed dimuat hanya ketika section ini masuk viewport.',
+        spotifyHint: 'Tekan tombol jika ingin memuat lebih awal.',
+        spotifyButton: 'Muat Spotify',
       }
     : {
         nextTitle: 'Explore My Portfolio',
@@ -60,6 +75,10 @@ const Home: React.FC<HomeProps> = ({ language }) => {
         showcaseDesc: 'A curated set of dummy projects for product concept demos.',
         contactDesc: 'Discuss project needs and collaboration opportunities.',
         open: 'Open',
+        spotifyTitle: 'Recently Played',
+        spotifyDesc: 'Spotify embeds are loaded only when this section enters the viewport.',
+        spotifyHint: 'Tap the button if you want to load them earlier.',
+        spotifyButton: 'Load Spotify',
       };
 
   const quickLinks = [
@@ -67,6 +86,37 @@ const Home: React.FC<HomeProps> = ({ language }) => {
     { to: '/showcase', title: t.showcase, description: t.showcaseDesc, icon: Layers3 },
     { to: '/contact', title: t.contact, description: t.contactDesc, icon: Mail },
   ];
+
+  const spotifyPlaceholder = (
+    <section id="recently-played" ref={spotifySectionRef} className="section-shell pt-0 scroll-mt-24">
+      <div className="section-container">
+        <div className="glass-card flex min-h-[18rem] flex-col justify-between p-5 sm:p-6">
+          <div className="flex items-center">
+            <div className="rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-700 dark:bg-dark-800">
+              <Music2 className="h-5 w-5 text-slate-700 dark:text-slate-200" />
+            </div>
+            <h2 className="ml-3 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{t.spotifyTitle}</h2>
+          </div>
+
+          <div className="mt-6 max-w-2xl">
+            <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+              {t.spotifyDesc}
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+              {t.spotifyHint}
+            </p>
+            <button
+              type="button"
+              onClick={loadSpotify}
+              className="btn-primary mt-5 w-full sm:w-auto"
+            >
+              {t.spotifyButton}
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 
   return (
     <div className="relative isolate">
@@ -106,10 +156,12 @@ const Home: React.FC<HomeProps> = ({ language }) => {
         </div>
       </section>
       {shouldRenderSpotify ? (
-        <Suspense fallback={<div className="section-shell pt-0" aria-hidden="true" />}>
+        <Suspense fallback={spotifyPlaceholder}>
           <SpotifyFavorites />
         </Suspense>
-      ) : null}
+      ) : (
+        spotifyPlaceholder
+      )}
     </div>
   );
 };

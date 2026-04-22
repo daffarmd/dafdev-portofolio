@@ -1,7 +1,8 @@
 import React from 'react';
 import { Github, Linkedin, Mail, ArrowUpRight } from 'lucide-react';
 import type { Language } from '../../types';
-import meImage from '../../assets/me.png';
+
+const BRAND_LOGO_SRC = '/og-image.svg';
 
 interface FooterProps {
   language: Language;
@@ -29,7 +30,7 @@ const Footer: React.FC<FooterProps> = ({ language }) => {
             <div className="flex items-center gap-3">
               <div className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-dark-800 sm:rounded-2xl">
                 <img
-                  src={meImage}
+                  src={BRAND_LOGO_SRC}
                   alt="Daf Dev logo"
                   className="h-11 w-11 object-cover sm:h-12 sm:w-12"
                   loading="lazy"
