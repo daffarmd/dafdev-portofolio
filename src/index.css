@@ -1513,3 +1513,38 @@
     overflow: hidden;
   }
 }
+
+@media (max-width: 767px) {
+  body {
+    background-attachment: scroll;
+    background-image: linear-gradient(180deg, #f8fafc 0%, #eef2ff 42%, #f8fafc 100%);
+  }
+
+  .dark body {
+    background-image: linear-gradient(180deg, #050816 0%, #080808 44%, #0b1120 100%);
+  }
+
+  .glass-card {
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+  }
+
+  .backdrop-blur-sm {
+    backdrop-filter: blur(2px) !important;
+    -webkit-backdrop-filter: blur(2px) !important;
+  }
+
+  .backdrop-blur-md {
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+  }
+
+  .backdrop-blur-xl {
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+  }
+
+  .blur-3xl {
+    filter: blur(24px) !important;
+  }
+}

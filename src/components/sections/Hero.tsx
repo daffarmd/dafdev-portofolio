@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
 import { ArrowUpRight, ChevronRight, FileText, Github, Linkedin } from 'lucide-react';
 import type { Language } from '../../types';
 import golangIcon from '../../assets/golang-icon.png';
@@ -32,6 +32,7 @@ const GREETINGS = [
 
 const TYPE_SPEED = 70;
 const GREETING_PAUSE = 2200;
+const MOBILE_MOTION_QUERY = '(pointer: coarse) and (hover: none), (max-width: 767px)';
 const HERO_COPY_VARIANTS = {
   hidden: { opacity: 0, y: 24 },
   visible: {
@@ -44,6 +45,18 @@ const HERO_COPY_VARIANTS = {
   },
 };
 
+const HERO_COPY_VARIANTS_COMPACT = {
+  hidden: { opacity: 0, y: 12 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4,
+      staggerChildren: 0.06,
+    },
+  },
+};
+
 const HERO_ITEM_VARIANTS = {
   hidden: { opacity: 0, y: 20, filter: 'blur(10px)' },
   visible: {
@@ -51,6 +64,15 @@ const HERO_ITEM_VARIANTS = {
     y: 0,
     filter: 'blur(0px)',
     transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+const HERO_ITEM_VARIANTS_COMPACT = {
+  hidden: { opacity: 0, y: 12 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
   },
 };
 
@@ -85,7 +107,9 @@ const TECH_STACK = [
 const Hero: React.FC<HeroProps> = ({ language }) => {
   const [typedName, setTypedName] = useState('');
   const [resumeMenuOpen, setResumeMenuOpen] = useState(false);
+  const [isMobileScreen, setIsMobileScreen] = useState(() => typeof window !== 'undefined' && window.matchMedia(MOBILE_MOTION_QUERY).matches);
   const resumeMenuRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
   const smoothX = useSpring(pointerX, { stiffness: 140, damping: 22, mass: 0.55 });
@@ -100,6 +124,22 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
   const accentLeftY = useTransform(smoothY, [-1, 1], [-26, 26]);
   const accentRightX = useTransform(smoothX, [-1, 1], [36, -36]);
   const accentRightY = useTransform(smoothY, [-1, 1], [24, -24]);
+  const compactMotion = Boolean(prefersReducedMotion) || isMobileScreen;
+  const copyVariants = compactMotion ? HERO_COPY_VARIANTS_COMPACT : HERO_COPY_VARIANTS;
+  const itemVariants = compactMotion ? HERO_ITEM_VARIANTS_COMPACT : HERO_ITEM_VARIANTS;
+  const heroTiltStyle = compactMotion
+    ? { transform: 'none', transformStyle: 'preserve-3d' as const }
+    : {
+        x: contentX,
+        y: contentY,
+        rotateX: contentRotateX,
+        rotateY: contentRotateY,
+        transformPerspective: 1200,
+        transformStyle: 'preserve-3d' as const,
+      };
+  const accentLeftStyle = compactMotion ? { transform: 'none' } : { x: accentLeftX, y: accentLeftY };
+  const accentRightStyle = compactMotion ? { transform: 'none' } : { x: accentRightX, y: accentRightY };
+  const accentBottomStyle = compactMotion ? { transform: 'none' } : { x: accentRightX, y: accentLeftY };
 
   useEffect(() => {
     let greetingIndex = 0;
@@ -139,6 +179,27 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
   }, []);
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia(MOBILE_MOTION_QUERY);
+    const updateScreenState = () => {
+      setIsMobileScreen(mediaQuery.matches);
+    };
+
+    updateScreenState();
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', updateScreenState);
+      return () => {
+        mediaQuery.removeEventListener('change', updateScreenState);
+      };
+    }
+
+    mediaQuery.addListener(updateScreenState);
+    return () => {
+      mediaQuery.removeListener(updateScreenState);
+    };
+  }, []);
+
+  useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
       if (resumeMenuRef.current && !resumeMenuRef.current.contains(event.target as Node)) {
         setResumeMenuOpen(false);
@@ -161,6 +222,10 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
   }, []);
 
   const handleMouseMove = (event: React.MouseEvent<HTMLElement>) => {
+    if (compactMotion) {
+      return;
+    }
+
     const bounds = event.currentTarget.getBoundingClientRect();
     const normalizedX = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
     const normalizedY = ((event.clientY - bounds.top) / bounds.height) * 2 - 1;
@@ -170,6 +235,10 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
   };
 
   const handleMouseLeave = () => {
+    if (compactMotion) {
+      return;
+    }
+
     pointerX.set(0);
     pointerY.set(0);
   };
@@ -202,70 +271,67 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
     <section
       id="hero"
       className="relative flex min-h-[66vh] items-center overflow-hidden pb-24 pt-28 sm:min-h-[64vh] sm:pt-24 sm:pb-28 md:min-h-[68vh] md:pt-36 md:pb-32 lg:min-h-[72vh] lg:pt-40"
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseMove={compactMotion ? undefined : handleMouseMove}
+      onMouseLeave={compactMotion ? undefined : handleMouseLeave}
     >
       <div className="absolute inset-0 soft-grid-bg opacity-60"></div>
       <motion.div
         className="pointer-events-none absolute -left-16 top-20 h-48 w-80 rounded-[3rem] bg-gradient-to-br from-sky-200/70 via-cyan-100/35 to-transparent blur-3xl dark:from-sky-500/18 dark:via-cyan-500/10 dark:to-transparent"
-        style={{ x: accentLeftX, y: accentLeftY }}
+        style={accentLeftStyle}
       />
       <motion.div
         className="pointer-events-none absolute right-[-6rem] top-20 h-72 w-80 rounded-[3rem] bg-gradient-to-bl from-white/80 via-slate-200/35 to-transparent blur-3xl dark:from-slate-700/22 dark:via-slate-800/12 dark:to-transparent"
-        style={{ x: accentRightX, y: accentRightY }}
+        style={accentRightStyle}
       />
       <motion.div
         className="pointer-events-none absolute -bottom-10 left-[20%] hidden h-28 w-56 rounded-[2.5rem] bg-white/8 opacity-60 blur-3xl sm:block dark:bg-sky-500/5"
-        style={{ x: accentRightX, y: accentLeftY }}
+        style={accentBottomStyle}
       />
 
       <div className="section-container relative z-10">
         <motion.div
           className="max-w-4xl"
-          variants={HERO_COPY_VARIANTS}
+          variants={copyVariants}
           initial="hidden"
           animate="visible"
         >
           <motion.div
-            style={{
-              x: contentX,
-              y: contentY,
-              rotateX: contentRotateX,
-              rotateY: contentRotateY,
-              transformPerspective: 1200,
-              transformStyle: 'preserve-3d',
-            }}
+            style={heroTiltStyle}
           >
-            <motion.h1 variants={HERO_ITEM_VARIANTS} className="min-h-[60px] text-[clamp(1.9rem,5vw,4.4rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-slate-900 sm:min-h-[72px] sm:whitespace-nowrap md:min-h-[80px] dark:text-white">
+            <motion.h1 variants={itemVariants} className="min-h-[60px] text-[clamp(1.9rem,5vw,4.4rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-slate-900 sm:min-h-[72px] sm:whitespace-nowrap md:min-h-[80px] dark:text-white">
               {typedName}
               <span className="caret-blink ml-1 inline-block h-[0.95em] w-[2px] bg-slate-900 align-[-0.08em] dark:bg-white"></span>
             </motion.h1>
 
-            <motion.p variants={HERO_ITEM_VARIANTS} className="mt-4 max-w-xl text-[15px] leading-relaxed text-slate-600 sm:mt-5 md:text-lg dark:text-slate-300">
+            <motion.p variants={itemVariants} className="mt-4 max-w-xl text-[15px] leading-relaxed text-slate-600 sm:mt-5 md:text-lg dark:text-slate-300">
               {t.shortInfo}
             </motion.p>
-            <motion.p variants={HERO_ITEM_VARIANTS} className="mt-2 text-xs font-medium uppercase tracking-[0.24em] text-slate-500 md:text-sm dark:text-slate-400">
+            <motion.p variants={itemVariants} className="mt-2 text-xs font-medium uppercase tracking-[0.24em] text-slate-500 md:text-sm dark:text-slate-400">
               {t.stackInfo}
             </motion.p>
 
-            <motion.div variants={HERO_ITEM_VARIANTS} className="mt-6 flex flex-wrap items-center gap-3">
+            <motion.div variants={itemVariants} className="mt-6 flex flex-wrap items-center gap-3">
               {TECH_STACK.map(({ label, image, className }, index) => (
                 <motion.div
                   key={label}
-                  initial={{ opacity: 0, y: 12, scale: 0.92 }}
-                  animate={{
-                    opacity: 1,
-                    y: [0, -6, 0],
-                    rotate: [0, index % 2 === 0 ? 3 : -3, 0],
-                    scale: [1, 1.04, 1],
-                  }}
-                  transition={{
-                    opacity: { duration: 0.35, delay: 0.35 + (index * 0.08) },
-                    y: { duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: index * 0.18 },
-                    rotate: { duration: 4.4, repeat: Infinity, ease: 'easeInOut', delay: index * 0.15 },
-                    scale: { duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: index * 0.18 },
-                  }}
-                  whileHover={{ y: -6, scale: 1.08, rotate: index % 2 === 0 ? 4 : -4 }}
+                  initial={compactMotion ? { opacity: 0, y: 10, scale: 0.96 } : { opacity: 0, y: 12, scale: 0.92 }}
+                  animate={compactMotion
+                    ? { opacity: 1, y: 0, rotate: 0, scale: 1 }
+                    : {
+                        opacity: 1,
+                        y: [0, -6, 0],
+                        rotate: [0, index % 2 === 0 ? 3 : -3, 0],
+                        scale: [1, 1.04, 1],
+                      }}
+                  transition={compactMotion
+                    ? { duration: 0.3, ease: [0.22, 1, 0.36, 1], delay: 0.2 + (index * 0.05) }
+                    : {
+                        opacity: { duration: 0.35, delay: 0.35 + (index * 0.08) },
+                        y: { duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: index * 0.18 },
+                        rotate: { duration: 4.4, repeat: Infinity, ease: 'easeInOut', delay: index * 0.15 },
+                        scale: { duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: index * 0.18 },
+                      }}
+                  whileHover={compactMotion ? undefined : { y: -6, scale: 1.08, rotate: index % 2 === 0 ? 4 : -4 }}
                   className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl border shadow-[0_18px_30px_-20px_rgba(15,23,42,0.45)] backdrop-blur-sm transition-transform ${className}`}
                   aria-label={label}
                   title={label}
@@ -274,7 +340,8 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
                     src={image}
                     alt={label}
                     className="h-6 w-6 object-contain"
-                    loading="lazy"
+                    loading="eager"
+                    decoding="async"
                   />
                   <span className="sr-only">{label}</span>
                 </motion.div>
@@ -282,7 +349,7 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
             </motion.div>
           </motion.div>
 
-          <motion.div variants={HERO_ITEM_VARIANTS} className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <motion.div variants={itemVariants} className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <motion.a
               href="https://github.com/daffarmd"
               target="_blank"
@@ -308,7 +375,7 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
             </motion.a>
           </motion.div>
 
-          <motion.div variants={HERO_ITEM_VARIANTS} className="mt-5">
+          <motion.div variants={itemVariants} className="mt-5">
             <div ref={resumeMenuRef} className="relative flex w-full max-w-full flex-col sm:hidden">
               <button
                 type="button"
@@ -383,7 +450,7 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
             </div>
           </motion.div>
 
-          <motion.div variants={HERO_ITEM_VARIANTS} className="mt-6 hidden sm:block">
+          <motion.div variants={itemVariants} className="mt-6 hidden sm:block">
             <div className="inline-flex w-fit max-w-full items-stretch gap-1 overflow-hidden rounded-[1.35rem] border border-slate-300/80 bg-white/90 p-1 shadow-[0_18px_44px_-28px_rgba(15,23,42,0.25)] backdrop-blur-sm dark:border-slate-700 dark:bg-dark-800/90">
               <a
                 href={language === 'id' ? RESUME_URL_ID : RESUME_URL_EN}

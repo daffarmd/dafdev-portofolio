@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink, NavLink, useLocation } from 'react-router-dom';
 import { Menu, X, Moon, Sun, BookOpen, ArrowUpRight, LockKeyhole, LogOut } from 'lucide-react';
-import meImage from '../../assets/me.png';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../context/ThemeContext';
+
+const BRAND_LOGO_SRC = '/og-image.svg';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -102,7 +103,7 @@ const Header: React.FC = () => {
           <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white transition-transform duration-200 hover:-translate-y-0.5 hover:scale-[1.03] dark:border-slate-700 dark:bg-dark-800 sm:h-11 sm:w-11 sm:rounded-2xl">
             {avatarReady ? (
               <img
-                src={meImage}
+                src={BRAND_LOGO_SRC}
                 alt="Daf Dev logo"
                 className="h-full w-full object-cover"
                 width={44}
