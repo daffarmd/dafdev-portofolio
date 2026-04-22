@@ -1,7 +1,7 @@
 import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, Layers3, Mail, Music2, UserRound } from 'lucide-react';
+import { ArrowUpRight, Layers3, Mail, UserRound } from 'lucide-react';
 import Hero from '../components/sections/Hero';
 import type { Language } from '../types';
 
@@ -45,10 +45,6 @@ const Home: React.FC<HomeProps> = ({ language }) => {
     };
   }, [shouldRenderSpotify]);
 
-  const loadSpotify = () => {
-    setShouldRenderSpotify(true);
-  };
-
   const t = language === 'id'
     ? {
         nextTitle: 'Jelajahi Portofolio Muhammad Daffa Ramadhan',
@@ -60,10 +56,6 @@ const Home: React.FC<HomeProps> = ({ language }) => {
         showcaseDesc: 'Kumpulan project dummy untuk demo konsep produk.',
         contactDesc: 'Diskusi kebutuhan project dan peluang kolaborasi.',
         open: 'Buka',
-        spotifyTitle: 'Diputar Terakhir',
-        spotifyDesc: 'Spotify embed dimuat hanya ketika section ini masuk viewport.',
-        spotifyHint: 'Tekan tombol jika ingin memuat lebih awal.',
-        spotifyButton: 'Muat Spotify',
       }
     : {
         nextTitle: 'Explore My Portfolio',
@@ -75,10 +67,6 @@ const Home: React.FC<HomeProps> = ({ language }) => {
         showcaseDesc: 'A curated set of dummy projects for product concept demos.',
         contactDesc: 'Discuss project needs and collaboration opportunities.',
         open: 'Open',
-        spotifyTitle: 'Recently Played',
-        spotifyDesc: 'Spotify embeds are loaded only when this section enters the viewport.',
-        spotifyHint: 'Tap the button if you want to load them earlier.',
-        spotifyButton: 'Load Spotify',
       };
 
   const quickLinks = [
@@ -89,29 +77,44 @@ const Home: React.FC<HomeProps> = ({ language }) => {
 
   const spotifyPlaceholder = (
     <section id="recently-played" ref={spotifySectionRef} className="section-shell pt-0 scroll-mt-24">
-      <div className="section-container">
-        <div className="glass-card flex min-h-[18rem] flex-col justify-between p-5 sm:p-6">
-          <div className="flex items-center">
-            <div className="rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-700 dark:bg-dark-800">
-              <Music2 className="h-5 w-5 text-slate-700 dark:text-slate-200" />
+      <div className="mx-auto max-w-[824px] px-4">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="h-7 w-44 animate-pulse rounded-full bg-white/10" />
+            <div className="flex items-center gap-2">
+              <div className="h-9 w-32 rounded-[0.8rem] bg-white/10" />
+              <div className="h-9 w-[88px] rounded-[0.8rem] bg-transparent" />
             </div>
-            <h2 className="ml-3 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{t.spotifyTitle}</h2>
           </div>
 
-          <div className="mt-6 max-w-2xl">
-            <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-              {t.spotifyDesc}
-            </p>
-            <p className="mt-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-              {t.spotifyHint}
-            </p>
-            <button
-              type="button"
-              onClick={loadSpotify}
-              className="btn-primary mt-5 w-full sm:w-auto"
-            >
-              {t.spotifyButton}
-            </button>
+          <div className="grid gap-3 lg:grid-cols-2">
+            <div className="overflow-hidden rounded-[1.2rem] bg-[#686868]">
+              <div className="h-[392px] rounded-[1.2rem] bg-[#5f5f5f]" />
+            </div>
+
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={`spotify-skeleton-${index}`}
+                  className={`overflow-hidden rounded-[1rem] ${index % 2 === 0 ? 'bg-[#0b60b4]' : 'bg-[#676767]'}`}
+                >
+                  <div className="flex h-[92px] items-center gap-2.5 px-3">
+                    <div className="h-16 w-16 animate-pulse rounded-[0.55rem] bg-white/10" />
+                    <div className="min-w-0 flex-1 space-y-2">
+                      <div className="h-3.5 w-3/4 animate-pulse rounded-full bg-white/10" />
+                      <div className="h-3 w-1/2 animate-pulse rounded-full bg-white/10" />
+                      <div className="h-4 w-16 animate-pulse rounded-[0.25rem] bg-white/10" />
+                    </div>
+                    <div className="h-6 w-6 animate-pulse rounded-full bg-white/10" />
+                    <div className="ml-auto flex items-center gap-1.5">
+                      <div className="h-7 w-7 animate-pulse rounded-full bg-white/10" />
+                      <div className="h-7 w-7 animate-pulse rounded-full bg-white/10" />
+                      <div className="h-9 w-9 animate-pulse rounded-full bg-white/10" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -157,7 +160,7 @@ const Home: React.FC<HomeProps> = ({ language }) => {
       </section>
       {shouldRenderSpotify ? (
         <Suspense fallback={spotifyPlaceholder}>
-          <SpotifyFavorites />
+          <SpotifyFavorites language={language} />
         </Suspense>
       ) : (
         spotifyPlaceholder

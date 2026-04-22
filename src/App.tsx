@@ -18,6 +18,7 @@ const ArticleDetail = lazy(() => import('./pages/Articles/ArticleDetail'));
 const ArticleStudio = lazy(() => import('./pages/Admin/ArticleStudio'));
 const LoginPage = lazy(() => import('./pages/Auth/LoginPage'));
 const ResetPasswordPage = lazy(() => import('./pages/Auth/ResetPasswordPage'));
+const SpotifyCallbackPage = lazy(() => import('./pages/Auth/SpotifyCallbackPage'));
 const QueueAppDemo = lazy(() => import('./pages/Showcase/QueueAppDemo'));
 const HospitalAppDemo = lazy(() => import('./pages/Showcase/HospitalAppDemo'));
 
@@ -83,10 +84,12 @@ type AppChromeProps = {
 const AppChrome: React.FC<AppChromeProps> = ({ language }) => {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isUtilityRoute = location.pathname === '/callback';
+  const hideShellChrome = isAdminRoute || isUtilityRoute;
 
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden text-slate-900 transition-colors duration-300 dark:text-white">
-      {!isAdminRoute ? (
+      {!hideShellChrome ? (
         <Header />
       ) : null}
       <main className="flex-grow">
@@ -101,6 +104,7 @@ const AppChrome: React.FC<AppChromeProps> = ({ language }) => {
             <Route path="/contact" element={<ContactPage language={language} />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/callback" element={<SpotifyCallbackPage />} />
             <Route path="/my-notes" element={<Articles />} />
             <Route path="/my-notes/:slug" element={<ArticleDetail />} />
             <Route
@@ -117,7 +121,7 @@ const AppChrome: React.FC<AppChromeProps> = ({ language }) => {
           </Routes>
         </Suspense>
       </main>
-      {!isAdminRoute ? <Footer language={language} /> : null}
+      {!hideShellChrome ? <Footer language={language} /> : null}
     </div>
   );
 };
