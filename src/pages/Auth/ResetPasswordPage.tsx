@@ -35,7 +35,8 @@ const ResetPasswordPage: React.FC = () => {
 
   const canSetNewPassword = Boolean(session);
   const isCheckingRecovery = isRecoveryLink && loading && !passwordUpdated;
-  const redirectTo = `${window.location.origin}/reset-password`;
+  const siteUrl = (import.meta.env.VITE_SUPABASE_SITE_URL || window.location.origin).replace(/\/+$/, '');
+  const redirectTo = `${siteUrl}/reset-password`;
 
   if (!isConfigured) {
     return <AuthSetupState title="Reset password butuh Supabase" />;

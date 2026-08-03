@@ -68,6 +68,19 @@ Supaya alur ini jalan, konfigurasi dashboard Supabase (Authentication):
 - **URL Configuration** → *Site URL* diisi URL produksi (mis. `https://<site>.vercel.app` atau domain kustom), dan tambahkan `<site>/reset-password` ke daftar **Redirect URLs**.
 - **Email Templates** → *Reset Password*: pastikan tombol/template email memakai variabel Confirmation URL (`{{ .ConfirmationURL }}`) supaya link recovery sampai ke `/reset-password`.
 
+Penting: kalau `redirectTo` (di sini `<site>/reset-password`) **tidak terdaftar di Redirect URLs**, GoTrue akan mem-fallback ke Site URL. Akibatnya link email jadi mengarah ke root (mis. `http://localhost:3000/#access_token=...&type=recovery`) dan gagal dibuka. Daftarkan **dua-duanya**:
+
+- `http://localhost:3000/reset-password` (untuk dev)
+- `https://<site>/reset-password` (untuk produksi)
+
+Selain itu, set env `VITE_SUPABASE_SITE_URL` di deployment ke URL produksi (tanpa trailing slash), contoh:
+
+```env
+VITE_SUPABASE_SITE_URL=https://<site>.vercel.app
+```
+
+Kalau env ini tidak diisi, `ResetPasswordPage` memakai `window.location.origin` saat ini.
+
 Link recovery memiliki masa berlaku (default 1 jam). Kalau link sudah kedaluwarsa/dipalsukan, halaman menampilkan pesan error dan admin bisa meminta link baru.
 
 ## 6. Catatan migrasi data lama
