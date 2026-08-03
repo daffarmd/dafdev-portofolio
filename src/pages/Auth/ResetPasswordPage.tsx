@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowLeft, KeyRound, Mail, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, KeyRound, Loader2, LogIn, Mail, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AuthSetupState from '../../components/auth/AuthSetupState';
 import { useAuth } from '../../hooks/useAuth';
@@ -11,6 +11,7 @@ const ResetPasswordPage: React.FC = () => {
     session,
     requestPasswordReset,
     updatePassword,
+    signOut,
   } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,6 +20,7 @@ const ResetPasswordPage: React.FC = () => {
   const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [passwordUpdated, setPasswordUpdated] = useState(false);
 
   const hashParams = useMemo(() => {
     const hash = window.location.hash.startsWith('#')
@@ -29,7 +31,10 @@ const ResetPasswordPage: React.FC = () => {
   }, []);
 
   const isRecoveryLink = hashParams.get('type') === 'recovery';
-  const canSetNewPassword = Boolean(session) || isRecoveryLink;
+  const recoveryError = hashParams.get('error_description') ?? hashParams.get('error');
+
+  const canSetNewPassword = Boolean(session);
+  const isCheckingRecovery = isRecoveryLink && loading && !passwordUpdated;
   const redirectTo = `${window.location.origin}/reset-password`;
 
   if (!isConfigured) {
@@ -90,9 +95,12 @@ const ResetPasswordPage: React.FC = () => {
         return;
       }
 
-      setSuccessMessage('Password berhasil diperbarui. Sekarang kamu bisa login dengan password baru.');
+      setPasswordUpdated(true);
       setPassword('');
       setConfirmPassword('');
+
+      window.history.replaceState({}, '', window.location.pathname);
+      void signOut();
     } finally {
       setIsSubmittingPassword(false);
     }
@@ -172,54 +180,89 @@ const ResetPasswordPage: React.FC = () => {
             <section className="rounded-[1.5rem] border border-slate-200/80 bg-slate-50/80 p-6 dark:border-slate-700 dark:bg-dark-700/60">
               <div className="flex items-center gap-3">
                 <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-secondary-100 text-secondary-900 dark:bg-secondary-900/30 dark:text-secondary-100">
-                  <ShieldCheck className="h-5 w-5" />
+                  {passwordUpdated ? <CheckCircle2 className="h-5 w-5" /> : <ShieldCheck className="h-5 w-5" />}
                 </span>
                 <div>
                   <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Simpan password baru</h2>
                   <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                    {canSetNewPassword
-                      ? 'Recovery session terdeteksi. Isi password baru di bawah ini.'
-                      : 'Buka link recovery dari email dulu, lalu kembali ke halaman ini untuk set password baru.'}
+                    {passwordUpdated
+                      ? 'Password admin sudah diperbarui.'
+                      : canSetNewPassword
+                        ? 'Recovery session terdeteksi. Isi password baru di bawah ini.'
+                        : 'Buka link recovery dari email dulu, lalu kembali ke halaman ini untuk set password baru.'}
                   </p>
                 </div>
               </div>
 
-              <form className="mt-6 space-y-5" onSubmit={handleUpdatePassword}>
-                <label className="studio-field">
-                  <span className="studio-label">Password baru</span>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    className="studio-input"
-                    placeholder="Minimal 8 karakter"
-                    autoComplete="new-password"
-                    disabled={!canSetNewPassword || loading}
-                  />
-                </label>
+              {passwordUpdated ? (
+                <div className="mt-6">
+                  <div className="rounded-[1.25rem] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-900/20 dark:text-emerald-200">
+                    Password berhasil diperbarui. Sekarang kamu bisa login dengan password baru.
+                  </div>
+                  <Link
+                    to="/login"
+                    className="btn-primary mt-6 w-full"
+                  >
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Back to login
+                  </Link>
+                </div>
+              ) : isCheckingRecovery ? (
+                <div className="mt-6 flex items-center gap-3 rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600 dark:border-slate-700 dark:bg-dark-700 dark:text-slate-300">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Memeriksa session recovery...
+                </div>
+              ) : recoveryError ? (
+                <div className="mt-6">
+                  <div className="rounded-[1.25rem] border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-800 dark:border-rose-900 dark:bg-rose-900/20 dark:text-rose-200">
+                    Link reset password tidak valid atau sudah kedaluwarsa. Minta link baru lewat form di samping.
+                  </div>
+                  <Link
+                    to="/login"
+                    className="btn-primary mt-6 w-full"
+                  >
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Back to login
+                  </Link>
+                </div>
+              ) : (
+                <form className="mt-6 space-y-5" onSubmit={handleUpdatePassword}>
+                  <label className="studio-field">
+                    <span className="studio-label">Password baru</span>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      className="studio-input"
+                      placeholder="Minimal 8 karakter"
+                      autoComplete="new-password"
+                      disabled={!canSetNewPassword || loading}
+                    />
+                  </label>
 
-                <label className="studio-field">
-                  <span className="studio-label">Konfirmasi password</span>
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(event) => setConfirmPassword(event.target.value)}
-                    className="studio-input"
-                    placeholder="Ulangi password baru"
-                    autoComplete="new-password"
-                    disabled={!canSetNewPassword || loading}
-                  />
-                </label>
+                  <label className="studio-field">
+                    <span className="studio-label">Konfirmasi password</span>
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(event) => setConfirmPassword(event.target.value)}
+                      className="studio-input"
+                      placeholder="Ulangi password baru"
+                      autoComplete="new-password"
+                      disabled={!canSetNewPassword || loading}
+                    />
+                  </label>
 
-                <button
-                  type="submit"
-                  disabled={isSubmittingPassword || loading || !canSetNewPassword}
-                  className="btn-primary w-full"
-                >
-                  <KeyRound className="mr-2 h-4 w-4" />
-                  {isSubmittingPassword ? 'Updating...' : 'Update password'}
-                </button>
-              </form>
+                  <button
+                    type="submit"
+                    disabled={isSubmittingPassword || loading || !canSetNewPassword}
+                    className="btn-primary w-full"
+                  >
+                    <KeyRound className="mr-2 h-4 w-4" />
+                    {isSubmittingPassword ? 'Updating...' : 'Update password'}
+                  </button>
+                </form>
+              )}
             </section>
           </div>
         </div>
