@@ -65,18 +65,18 @@ Alur kerja:
 
 Supaya alur ini jalan, konfigurasi dashboard Supabase (Authentication):
 
-- **URL Configuration** → *Site URL* diisi URL produksi (mis. `https://<site>.vercel.app` atau domain kustom), dan tambahkan `<site>/reset-password` ke daftar **Redirect URLs**.
+- **URL Configuration** → *Site URL* diisi `https://muhammaddaffaramadhan.vercel.app`, dan tambahkan `https://muhammaddaffaramadhan.vercel.app/reset-password` ke daftar **Redirect URLs**.
 - **Email Templates** → *Reset Password*: pastikan tombol/template email memakai variabel Confirmation URL (`{{ .ConfirmationURL }}`) supaya link recovery sampai ke `/reset-password`.
 
-Penting: kalau `redirectTo` (di sini `<site>/reset-password`) **tidak terdaftar di Redirect URLs**, GoTrue akan mem-fallback ke Site URL. Akibatnya link email jadi mengarah ke root (mis. `http://localhost:3000/#access_token=...&type=recovery`) dan gagal dibuka. Daftarkan **dua-duanya**:
+Penting: kalau `redirectTo` (di sini `https://muhammaddaffaramadhan.vercel.app/reset-password`) **tidak terdaftar di Redirect URLs**, GoTrue akan mem-fallback ke Site URL. Akibatnya link email jadi mengarah ke root (mis. `http://localhost:3000/#access_token=...&type=recovery`) dan gagal dibuka. Daftarkan **dua-duanya**:
 
 - `http://localhost:3000/reset-password` (untuk dev)
-- `https://<site>/reset-password` (untuk produksi)
+- `https://muhammaddaffaramadhan.vercel.app/reset-password` (untuk produksi)
 
-Selain itu, set env `VITE_SUPABASE_SITE_URL` di deployment ke URL produksi (tanpa trailing slash), contoh:
+Selain itu, set env `VITE_SUPABASE_SITE_URL` di deployment ke URL produksi (tanpa trailing slash):
 
 ```env
-VITE_SUPABASE_SITE_URL=https://<site>.vercel.app
+VITE_SUPABASE_SITE_URL=https://muhammaddaffaramadhan.vercel.app
 ```
 
 Kalau env ini tidak diisi, `ResetPasswordPage` memakai `window.location.origin` saat ini.
