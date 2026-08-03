@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, CheckCircle2, KeyRound, Loader2, LogIn, Mail, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AuthSetupState from '../../components/auth/AuthSetupState';
@@ -21,6 +21,19 @@ const ResetPasswordPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [passwordUpdated, setPasswordUpdated] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      setCooldown((current) => current - 1);
+    }, 1000);
+
+    return () => window.clearTimeout(timer);
+  }, [cooldown]);
 
   const hashParams = useMemo(() => {
     const hash = window.location.hash.startsWith('#')
@@ -57,11 +70,17 @@ const ResetPasswordPage: React.FC = () => {
     try {
       const result = await requestPasswordReset(email.trim(), redirectTo);
       if (result.error) {
-        setError(result.error);
+        if (/rate limit|too many|429/i.test(result.error)) {
+          setError('Terlalu banyak permintaan reset password. Coba lagi beberapa menit lagi.');
+          setCooldown(60);
+        } else {
+          setError(result.error);
+        }
         return;
       }
 
       setSuccessMessage(`Link reset password sudah dikirim. Pastikan Supabase Auth mengizinkan redirect ke ${redirectTo}.`);
+      setCooldown(60);
     } finally {
       setIsSubmittingResetEmail(false);
     }
@@ -169,11 +188,15 @@ const ResetPasswordPage: React.FC = () => {
 
                 <button
                   type="submit"
-                  disabled={isSubmittingResetEmail || loading}
+                  disabled={isSubmittingResetEmail || loading || cooldown > 0}
                   className="btn-primary w-full"
                 >
                   <Mail className="mr-2 h-4 w-4" />
-                  {isSubmittingResetEmail ? 'Sending...' : 'Send reset link'}
+                  {isSubmittingResetEmail
+                    ? 'Sending...'
+                    : cooldown > 0
+                      ? `Coba lagi dalam ${cooldown}s`
+                      : 'Send reset link'}
                 </button>
               </form>
             </section>
